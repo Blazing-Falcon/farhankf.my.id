@@ -4,9 +4,11 @@ import Ticker from '../components/Ticker.astro';
 import StickerBadge from '../components/StickerBadge.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import EmptyState from '../components/EmptyState.astro';
-import CatColony from '../components/CatColony.astro';
 import CatPeek from '../components/cats/CatPeek.astro';
 import CatCamera from '../components/cats/CatCamera.astro';
+import CatSleep from '../components/cats/CatSleep.astro';
+import CatKeyboard from '../components/cats/CatKeyboard.astro';
+import CatTail from '../components/cats/CatTail.astro';
 import PawPrint from '../components/cats/PawPrint.astro';
 import { Image } from 'astro:assets';
 import { getAbout, getProjects, getPhotos, mediaUrl, type Project, type Photo, type About } from '../lib/strapi';
@@ -27,13 +29,17 @@ try {
 }
 
 featuredProjects = featuredProjects.slice(0, 3);
+
+const labNotes = [
+  { title: 'Current obsession', body: 'Particle swarm optimization for hyperparameter tuning. The particles behave better than the cats.', rotate: -2 },
+  { title: 'Coffee intake', body: 'x̄ = 3.2 cups/day, σ = 0.8, n = 30. Confidence interval excludes zero. Obviously.', rotate: 1.5 },
+  { title: 'Experiment #47', body: 'Teach the cats to stay off the ZFS pool. Status: rejected at every significance level.', rotate: -1 },
+  { title: 'Reading pile', body: 'Bayesian stats, camera manuals, and one D&D module I keep pretending is research.', rotate: 2 },
+];
 ---
 
 <Layout title="Home">
   <section class="hero">
-    <div class="hero-mascot" data-hero-mascot>
-      <CatPeek />
-    </div>
     <div class="hero-content">
       <p class="hero-eyebrow">
         <span class="hero-eyebrow-dot"></span>Stats · ML · Photography · Home lab
@@ -54,29 +60,68 @@ featuredProjects = featuredProjects.slice(0, 3);
         <a href="/about" class="btn btn-secondary press-shadow">About me</a>
       </div>
     </div>
-  </section>
 
-  <Ticker items={['STATISTICS', 'MACHINE LEARNING', 'PHOTOGRAPHY', 'HOME LAB', 'D&D', 'CATS']} />
-
-  <section class="colony-section">
-    <div class="section-inner">
-      <div class="colony-head">
-        <div>
-          <StickerBadge label="Fully staffed" rotate={-3} />
-          <h2 class="section-title" data-reveal>Meet the colony</h2>
-          <p class="colony-sub">
-            The lab runs on six cats and a dangerous amount of coffee. They do not take feedback.
-          </p>
-        </div>
+    <div class="lab-bench" aria-hidden="true">
+      <div class="bench-cat" data-hero-mascot>
+        <CatPeek />
       </div>
-      <CatColony />
+      <div class="terminal">
+        <div class="terminal-bar">
+          <span class="terminal-dot"></span>
+          <span class="terminal-dot"></span>
+          <span class="terminal-dot"></span>
+          <span class="terminal-title">train.log</span>
+        </div>
+        <pre class="terminal-body">juan@lab:~$ python train.py --data life.csv
+loading 9 lives .......... ok
+fitting StudentLifeClassifier
+[████████░░] epoch 8/10
+accuracy: 0.94   loss: naps
+warn: cat on keyboard, resuming…
+juan@lab:~$ <span class="terminal-cursor">▌</span></pre>
+      </div>
+      <div class="sticky-note">
+        <strong>TODO</strong>
+        feed the cats <em>before</em> deploying
+      </div>
+      <div class="bench-paw bench-paw-1"><PawPrint /></div>
+      <div class="bench-paw bench-paw-2"><PawPrint /></div>
     </div>
   </section>
 
+  <Ticker
+    items={[
+      'STATISTICS',
+      'MACHINE LEARNING',
+      'PHOTOGRAPHY',
+      'HOME LAB',
+      'LINUX',
+      'OPEN SOURCE',
+      'CATS',
+      'COFFEE',
+      'D&D',
+      'DATA VIZ',
+      'R',
+      'PYTHON',
+      'SQL',
+    ]}
+  />
+
   <section class="section featured-section">
     <div class="section-inner">
-      <StickerBadge label="Fresh from the lab" rotate={-3} />
-      <h2 class="section-title" data-reveal>Featured projects</h2>
+      <div class="section-head">
+        <div>
+          <StickerBadge label="Fresh from the lab" rotate={-3} />
+          <h2 class="section-title" data-reveal>Featured projects</h2>
+          <p class="section-sub">
+            The experiments that made it past peer review (the cats). Full write-ups, data
+            and regrets included.
+          </p>
+        </div>
+        <div class="section-head-cat" aria-hidden="true">
+          <CatSleep />
+        </div>
+      </div>
       {
         hadError || featuredProjects.length === 0 ? (
           <EmptyState message="Projects are napping. Check back once Strapi wakes up." />
@@ -88,6 +133,9 @@ featuredProjects = featuredProjects.slice(0, 3);
           </div>
         )
       }
+      <div class="section-more">
+        <a href="/projects" class="btn btn-secondary press-shadow">All projects</a>
+      </div>
     </div>
   </section>
 
@@ -95,6 +143,9 @@ featuredProjects = featuredProjects.slice(0, 3);
     <div class="section-inner">
       <StickerBadge label="Through the lens" rotate={2} />
       <h2 class="section-title" data-reveal>Photography</h2>
+      <p class="section-sub">
+        Off-hours evidence collection. Fuji in hand, cats judging the compositions.
+      </p>
       {
         hadError || featuredPhotos.length === 0 ? (
           <EmptyState message="Photos are napping. Check back once Strapi wakes up." />
@@ -103,8 +154,9 @@ featuredProjects = featuredProjects.slice(0, 3);
             <div class="photo-row-mascot">
               <CatCamera variant="dark" />
             </div>
-            {featuredPhotos.slice(0, 8).map((photo) => (
-              <figure class="polaroid">
+            {featuredPhotos.slice(0, 8).map((photo, i) => (
+              <figure class="polaroid" style={`--tilt: ${i % 2 === 0 ? -1.5 : 1.5}deg;`}>
+                <span class="polaroid-tape" aria-hidden="true" />
                 {photo.image?.url && photo.image.width && photo.image.height ? (
                   <Image
                     src={mediaUrl(photo.image)}
@@ -119,30 +171,66 @@ featuredProjects = featuredProjects.slice(0, 3);
           </div>
         )
       }
+      <div class="section-more">
+        <a href="/photography" class="btn btn-dark press-shadow">Full gallery</a>
+      </div>
     </div>
   </section>
 
-  <Ticker items={['PYTHON', 'ASTRO', 'ZFS', 'PROXMOX', 'FUJIFILM']} />
+  <Ticker
+    items={['PYTHON', 'ASTRO', 'ZFS', 'PROXMOX', 'FUJIFILM', 'TAILSCALE', 'DOCKER', 'LATEX']}
+  />
+
+  <section class="section labnotes-section">
+    <div class="section-inner">
+      <div class="section-head">
+        <div>
+          <StickerBadge label="Pinned to the board" rotate={-2} />
+          <h2 class="section-title" data-reveal>Lab notes</h2>
+          <p class="section-sub">Current state of the laboratory, updated whenever the supervisors allow it.</p>
+        </div>
+        <div class="section-head-cat labnotes-cat" aria-hidden="true">
+          <CatKeyboard />
+        </div>
+      </div>
+      <div class="labnotes-grid">
+        {
+          labNotes.map((note) => (
+            <div class="labnote" style={`--tilt: ${note.rotate}deg;`} data-reveal>
+              <span class="labnote-pin" aria-hidden="true" />
+              <h3>{note.title}</h3>
+              <p>{note.body}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
 
   <section class="section about-teaser">
     <div class="section-inner">
-      <div class="about-teaser-panel">
-        {
-          about?.portrait && (
-            <div class="about-teaser-portrait">
-              <Image
-                src={mediaUrl(about.portrait)}
-                width={about.portrait.width ?? 400}
-                height={about.portrait.height ?? 400}
-                alt={about.portrait.alternativeText ?? 'Portrait'}
-              />
-            </div>
-          )
-        }
-        <div class="about-teaser-copy" data-reveal>
-          <StickerBadge label="Who is this cat" rotate={-2} />
-          <h2 class="section-title">{about?.tagline ?? 'About me'}</h2>
-          <a href="/about" class="btn btn-secondary press-shadow">Read the full story</a>
+      <div class="about-teaser-wrap">
+        <div class="teaser-tail" aria-hidden="true">
+          <CatTail />
+        </div>
+        <div class="about-teaser-panel">
+          {
+            about?.portrait && (
+              <div class="about-teaser-portrait">
+                <Image
+                  src={mediaUrl(about.portrait)}
+                  width={about.portrait.width ?? 400}
+                  height={about.portrait.height ?? 400}
+                  alt={about.portrait.alternativeText ?? 'Portrait'}
+                />
+              </div>
+            )
+          }
+          <div class="about-teaser-copy" data-reveal>
+            <StickerBadge label="Who is this cat" rotate={-2} />
+            <h2 class="section-title">{about?.tagline ?? 'About me'}</h2>
+            <a href="/about" class="btn btn-secondary press-shadow">Read the full story</a>
+          </div>
         </div>
       </div>
     </div>
@@ -154,25 +242,16 @@ featuredProjects = featuredProjects.slice(0, 3);
 </Layout>
 
 <style>
+  /* ——— Hero: two columns, ~25% shorter than the old full-viewport version */
   .hero {
     position: relative;
     max-width: 1200px;
     margin: 0 auto;
-    padding: var(--space-9) var(--space-5) var(--space-8);
-    overflow: visible;
-  }
-
-  .hero-mascot {
-    position: absolute;
-    top: -20px;
-    left: var(--space-6);
-    width: 150px;
-    z-index: 2;
-  }
-
-  .hero-content {
-    position: relative;
-    z-index: 1;
+    padding: var(--space-7) var(--space-5) var(--space-7);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-7);
+    align-items: center;
   }
 
   .hero-eyebrow {
@@ -182,7 +261,7 @@ featuredProjects = featuredProjects.slice(0, 3);
     font-family: var(--font-mono);
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    font-size: 0.8rem;
+    font-size: var(--text-tiny);
     font-weight: 700;
     color: var(--teal);
     margin: 0 0 var(--space-4);
@@ -197,7 +276,7 @@ featuredProjects = featuredProjects.slice(0, 3);
   }
 
   .hero-headline {
-    font-size: clamp(2.6rem, 8.5vw, 7.5rem);
+    font-size: var(--text-hero);
     display: flex;
     flex-direction: column;
   }
@@ -222,7 +301,7 @@ featuredProjects = featuredProjects.slice(0, 3);
 
   .hero-descriptor {
     font-size: 1.25rem;
-    max-width: 50ch;
+    max-width: 44ch;
     margin-top: var(--space-5);
   }
 
@@ -233,13 +312,131 @@ featuredProjects = featuredProjects.slice(0, 3);
     flex-wrap: wrap;
   }
 
+  /* ——— The lab bench: terminal + sticky note + supervising cat */
+  .lab-bench {
+    position: relative;
+    justify-self: center;
+    width: min(100%, 420px);
+    padding-top: 84px; /* room for the cat hooked over the terminal */
+  }
+
+  .bench-cat {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150px;
+    z-index: 2;
+  }
+
+  .terminal {
+    position: relative;
+    background: var(--ink);
+    border: var(--border-thick);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-hard);
+    transform: rotate(-1deg);
+    overflow: hidden;
+  }
+
+  .terminal-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border-bottom: 2px solid var(--paper);
+  }
+
+  .terminal-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--paper);
+    opacity: 0.5;
+  }
+
+  .terminal-dot:first-child {
+    background: var(--tangerine);
+    opacity: 1;
+  }
+
+  .terminal-title {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--paper);
+    opacity: 0.7;
+  }
+
+  .terminal-body {
+    margin: 0;
+    padding: var(--space-4);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    line-height: 1.7;
+    color: var(--paper);
+    white-space: pre-wrap;
+  }
+
+  .terminal-cursor {
+    animation: cursor-blink 1.1s steps(1) infinite;
+  }
+
+  @keyframes cursor-blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  .sticky-note {
+    position: absolute;
+    right: -14px;
+    bottom: -26px;
+    width: 170px;
+    background: var(--butter);
+    border: var(--border-thick);
+    box-shadow: 4px 4px 0 var(--ink);
+    transform: rotate(3deg);
+    padding: var(--space-3) var(--space-4);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    z-index: 3;
+  }
+
+  .sticky-note strong {
+    display: block;
+    letter-spacing: 0.1em;
+  }
+
+  .bench-paw {
+    position: absolute;
+    width: 30px;
+    opacity: 0.25;
+  }
+
+  .bench-paw-1 {
+    left: -34px;
+    bottom: 30px;
+    transform: rotate(-20deg);
+  }
+
+  .bench-paw-2 {
+    left: -58px;
+    bottom: -8px;
+    transform: rotate(12deg);
+  }
+
+  /* ——— Shared section scaffolding */
   .btn {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     font-family: var(--font-mono);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: var(--text-tiny);
     text-decoration: none;
     padding: var(--space-3) var(--space-5);
     border: var(--border-thick);
@@ -256,8 +453,20 @@ featuredProjects = featuredProjects.slice(0, 3);
     color: var(--ink);
   }
 
+  .btn-dark {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--paper);
+    box-shadow: 6px 6px 0 var(--paper);
+  }
+
+  .btn-dark:hover,
+  .btn-dark:focus-visible {
+    box-shadow: 3px 3px 0 var(--paper);
+  }
+
   .section {
-    padding: var(--space-8) 0;
+    padding: var(--section-gap) 0;
   }
 
   .section-inner {
@@ -266,24 +475,41 @@ featuredProjects = featuredProjects.slice(0, 3);
     padding: 0 var(--space-5);
   }
 
-  .section-title {
-    font-size: clamp(2rem, 4vw, 3rem);
-    margin-top: var(--space-3);
+  .section-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-5);
     margin-bottom: var(--space-6);
   }
 
-  /* Colony — a bold blush band; cats sit on paper cards so every coat pops */
-  .colony-section {
-    background: var(--blush);
-    border-top: var(--border-thick);
-    border-bottom: var(--border-thick);
-    padding: var(--space-8) 0 var(--space-9);
+  .section-head-cat {
+    width: 130px;
+    flex-shrink: 0;
+    margin-bottom: -6px;
   }
 
-  .colony-sub {
-    font-size: 1.1rem;
-    max-width: 46ch;
-    margin: 0 0 var(--space-7);
+  .section-title {
+    font-size: var(--text-section);
+    margin-top: var(--space-3);
+    margin-bottom: var(--space-3);
+  }
+
+  .section-sub {
+    font-size: var(--text-body);
+    max-width: 52ch;
+    margin: 0;
+  }
+
+  .section-more {
+    margin-top: var(--space-6);
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  /* ——— Featured projects: solid cream band, no grid, so the cards pop */
+  .featured-section {
+    background: var(--paper);
   }
 
   .featured-projects {
@@ -292,10 +518,12 @@ featuredProjects = featuredProjects.slice(0, 3);
     gap: var(--space-7);
   }
 
+  /* ——— Photography: the dark room */
   .photography-strip {
     background: var(--ink);
     color: var(--paper);
-    padding: var(--space-8) 0;
+    padding: var(--section-gap) 0;
+    border-top: var(--border-thick);
     border-bottom: var(--border-thick);
   }
 
@@ -303,12 +531,17 @@ featuredProjects = featuredProjects.slice(0, 3);
     color: var(--paper);
   }
 
+  .photography-strip .section-sub {
+    color: var(--blush);
+    margin-bottom: var(--space-6);
+  }
+
   .photo-row {
     display: flex;
     gap: var(--space-5);
     overflow-x: auto;
     scroll-snap-type: x mandatory;
-    padding-bottom: var(--space-4);
+    padding: var(--space-4) var(--space-2) var(--space-4);
   }
 
   .photo-row-mascot {
@@ -318,19 +551,33 @@ featuredProjects = featuredProjects.slice(0, 3);
   }
 
   .polaroid {
+    position: relative;
     flex-shrink: 0;
     scroll-snap-align: start;
     background: var(--paper);
     padding: var(--space-2) var(--space-2) var(--space-4);
     border: var(--border-thick);
-    box-shadow: var(--shadow-hard);
+    box-shadow: 6px 6px 0 rgba(251, 247, 239, 0.25);
     width: 220px;
     margin: 0;
-    transform: rotate(-1.5deg);
+    transform: rotate(var(--tilt, -1.5deg));
+    transition: transform 0.25s ease-out;
   }
 
-  .polaroid:nth-child(even) {
-    transform: rotate(1.5deg);
+  .polaroid:hover {
+    transform: rotate(0deg) translateY(-4px);
+  }
+
+  .polaroid-tape {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-3deg);
+    width: 70px;
+    height: 18px;
+    background: var(--butter);
+    border: 2px solid var(--ink);
+    opacity: 0.9;
   }
 
   .polaroid :global(img) {
@@ -351,8 +598,77 @@ featuredProjects = featuredProjects.slice(0, 3);
     text-align: center;
   }
 
-  /* About teaser as a bold framed panel */
+  /* ——— Lab notes: sticky notes pinned over the notebook grid */
+  .labnotes-cat {
+    width: 150px;
+  }
+
+  .labnotes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: var(--space-5);
+  }
+
+  .labnote {
+    position: relative;
+    background: var(--butter);
+    border: var(--border-thick);
+    box-shadow: 4px 4px 0 var(--ink);
+    padding: var(--space-5) var(--space-4) var(--space-4);
+    transform: rotate(var(--tilt, 0deg));
+    transition: transform 0.25s ease-out;
+  }
+
+  .labnote:hover {
+    transform: rotate(0deg) translateY(-3px);
+  }
+
+  .labnote:nth-child(even) {
+    background: var(--blush);
+  }
+
+  .labnote-pin {
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    background: var(--tangerine);
+    border: 2px solid var(--ink);
+  }
+
+  .labnote h3 {
+    font-family: var(--font-mono);
+    font-size: var(--text-tiny);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: var(--space-2);
+  }
+
+  .labnote p {
+    margin: 0;
+    font-size: var(--text-small);
+  }
+
+  /* ——— About teaser with a tail poking out from behind the panel */
+  .about-teaser-wrap {
+    position: relative;
+  }
+
+  .teaser-tail {
+    position: absolute;
+    top: -58px;
+    right: 60px;
+    width: 44px;
+    z-index: 0;
+  }
+
   .about-teaser-panel {
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: center;
     gap: var(--space-7);
@@ -399,13 +715,41 @@ featuredProjects = featuredProjects.slice(0, 3);
     z-index: -1;
   }
 
-  @media (max-width: 767px) {
-    .hero-mascot {
-      width: 96px;
-      left: var(--space-4);
+  @media (min-width: 900px) {
+    .hero {
+      grid-template-columns: 1.15fr 0.85fr;
+      padding-top: var(--space-8);
     }
+  }
+
+  @media (max-width: 899px) {
+    .lab-bench {
+      width: min(100%, 380px);
+    }
+
+    .section-head-cat {
+      display: none;
+    }
+  }
+
+  @media (max-width: 767px) {
     .about-teaser-panel {
       padding: var(--space-5);
+    }
+
+    .sticky-note {
+      right: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .terminal-cursor {
+      animation: none;
+    }
+
+    .polaroid,
+    .labnote {
+      transition: none;
     }
   }
 </style>
