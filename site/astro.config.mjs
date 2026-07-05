@@ -9,6 +9,8 @@ import react from '@astrojs/react';
 export default defineConfig({
   output: 'server',
 
+  prefetch: true,
+
   adapter: node({
     mode: 'standalone'
   }),

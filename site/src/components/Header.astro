@@ -26,7 +26,11 @@ const isActive = (href: string) =>
     <nav class="nav-desktop" aria-label="Primary">
       {
         navItems.map((item) => (
-          <a href={item.href} class:list={['nav-link', { active: isActive(item.href) }]}>
+          <a
+            href={item.href}
+            class:list={['nav-link', { active: isActive(item.href) }]}
+            data-astro-prefetch
+          >
             {item.label}
           </a>
         ))
@@ -50,7 +54,11 @@ const isActive = (href: string) =>
     <nav aria-label="Primary mobile">
       {
         navItems.map((item) => (
-          <a href={item.href} class:list={['mobile-nav-link', { active: isActive(item.href) }]}>
+          <a
+            href={item.href}
+            class:list={['mobile-nav-link', { active: isActive(item.href) }]}
+            data-astro-prefetch
+          >
             {item.label}
           </a>
         ))
