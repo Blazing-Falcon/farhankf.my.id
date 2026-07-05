@@ -1,0 +1,245 @@
+---
+import { marked } from 'marked';
+import { Image } from 'astro:assets';
+import Layout from '../../layouts/Layout.astro';
+import StickerBadge from '../../components/StickerBadge.astro';
+import TechPill from '../../components/TechPill.astro';
+import EmptyState from '../../components/EmptyState.astro';
+import CatLoaf from '../../components/cats/CatLoaf.astro';
+import { getProjectBySlug, mediaUrl, type Project } from '../../lib/strapi';
+
+const { slug } = Astro.params;
+
+let project: Project | null = null;
+let hadError = false;
+
+try {
+  project = await getProjectBySlug(slug!);
+} catch {
+  hadError = true;
+}
+
+if (hadError) {
+  Astro.response.status = 502;
+} else if (!project) {
+  Astro.response.status = 404;
+}
+
+const bodyHtml = project?.body ? marked.parse(project.body) : '';
+const year = project?.finishedAt ? new Date(project.finishedAt).getFullYear() : null;
+---
+
+<Layout title={project?.title ?? 'Project not found'}>
+  {
+    hadError ? (
+      <div class="section-inner">
+        <EmptyState message="This project is napping. Check back once Strapi wakes up." />
+      </div>
+    ) : !project ? (
+      <div class="section-inner not-found">
+        <div class="not-found-cat">
+          <CatLoaf />
+        </div>
+        <h1>404: no such project</h1>
+        <p>The cat has never heard of this one. It might have been renamed or removed.</p>
+        <a href="/projects" class="btn btn-secondary press-shadow">Back to projects</a>
+      </div>
+    ) : (
+      <article class="project-detail">
+        <header class="section-inner project-header">
+          <StickerBadge label={year ? String(year) : 'Project'} rotate={-3} />
+          <h1 data-reveal>{project.title}</h1>
+          <p class="summary">{project.summary}</p>
+          <div class="project-links">
+            {project.projectUrl && (
+              <a href={project.projectUrl} target="_blank" rel="noreferrer" class="btn btn-primary press-shadow">
+                Live site
+              </a>
+            )}
+            {project.repoUrl && (
+              <a href={project.repoUrl} target="_blank" rel="noreferrer" class="btn btn-secondary press-shadow">
+                Repository
+              </a>
+            )}
+          </div>
+        </header>
+
+        {project.coverImage && (
+          <div class="cover-frame section-inner">
+            <Image
+              src={mediaUrl(project.coverImage)}
+              width={project.coverImage.width ?? 1200}
+              height={project.coverImage.height ?? 675}
+              alt={project.coverImage.alternativeText ?? project.title}
+            />
+          </div>
+        )}
+
+        <div class="section-inner project-body-grid">
+          <div class="project-body" data-reveal set:html={bodyHtml} />
+          {project.techStack && project.techStack.length > 0 && (
+            <aside class="tech-sidebar">
+              <h3>Tech stack</h3>
+              <div class="tech-pills">
+                {project.techStack.map((tech) => (
+                  <TechPill label={tech} />
+                ))}
+              </div>
+            </aside>
+          )}
+        </div>
+
+        {project.gallery && project.gallery.length > 0 && (
+          <div class="section-inner gallery-grid">
+            {project.gallery.map((image) => (
+              <div class="gallery-item">
+                <Image
+                  src={mediaUrl(image)}
+                  width={image.width ?? 800}
+                  height={image.height ?? 600}
+                  alt={image.alternativeText ?? project.title}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </article>
+    )
+  }
+</Layout>
+
+<style>
+  .section-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--space-5);
+  }
+
+  .not-found {
+    padding: var(--space-9) var(--space-5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-4);
+  }
+
+  .not-found-cat {
+    width: 160px;
+  }
+
+  .project-header {
+    padding-top: var(--space-8);
+    padding-bottom: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .project-header h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .summary {
+    max-width: 60ch;
+    font-size: 1.1rem;
+  }
+
+  .project-links {
+    display: flex;
+    gap: var(--space-4);
+    margin-top: var(--space-3);
+  }
+
+  .btn {
+    display: inline-block;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none;
+    padding: var(--space-3) var(--space-5);
+    border: var(--border-thick);
+    border-radius: var(--radius-card);
+  }
+
+  .btn-primary {
+    background: var(--tangerine);
+    color: var(--ink);
+  }
+
+  .btn-secondary {
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  .cover-frame {
+    border: var(--border-thick);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    margin-bottom: var(--space-7);
+    box-shadow: var(--shadow-hard);
+  }
+
+  .cover-frame :global(img) {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .project-body-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+    padding-bottom: var(--space-7);
+  }
+
+  .project-body {
+    max-width: 65ch;
+  }
+
+  .project-body :global(p) {
+    margin-bottom: var(--space-4);
+  }
+
+  .tech-sidebar h3 {
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-3);
+  }
+
+  .tech-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--space-4);
+    padding-bottom: var(--space-9);
+  }
+
+  .gallery-item {
+    border: var(--border-thick);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+  }
+
+  .gallery-item :global(img) {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+  }
+
+  @media (min-width: 900px) {
+    .project-body-grid {
+      grid-template-columns: 2fr 1fr;
+    }
+  }
+</style>

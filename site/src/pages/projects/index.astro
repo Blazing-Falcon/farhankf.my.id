@@ -1,0 +1,71 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import StickerBadge from '../../components/StickerBadge.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import EmptyState from '../../components/EmptyState.astro';
+import { getProjects, type Project } from '../../lib/strapi';
+
+let projects: Project[] = [];
+let hadError = false;
+
+try {
+  projects = await getProjects();
+} catch {
+  hadError = true;
+}
+---
+
+<Layout title="Projects" description="Machine learning and infrastructure projects.">
+  <section class="section-inner projects-page">
+    <StickerBadge label="Fresh from the lab" rotate={-3} />
+    <h1 data-reveal>Projects</h1>
+    {
+      hadError || projects.length === 0 ? (
+        <EmptyState message="Projects are napping. Check back once Strapi wakes up." />
+      ) : (
+        <div class="projects-grid">
+          {projects.map((project) => (
+            <ProjectCard project={project} variant="grid" />
+          ))}
+        </div>
+      )
+    }
+  </section>
+</Layout>
+
+<style>
+  .section-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--space-5);
+  }
+
+  .projects-page {
+    padding-top: var(--space-8);
+    padding-bottom: var(--space-9);
+  }
+
+  .projects-page h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    margin-top: var(--space-3);
+    margin-bottom: var(--space-7);
+  }
+
+  .projects-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 640px) {
+    .projects-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .projects-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>
