@@ -523,6 +523,9 @@ export interface ApiProjectProject extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    difficulty: Schema.Attribute.Enumeration<
+      ['weekend-hack', 'semester-project', 'thesis-grade', 'ongoing-saga']
+    >;
     featured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     finishedAt: Schema.Attribute.Date;
     gallery: Schema.Attribute.Media<'images', true>;
@@ -536,6 +539,7 @@ export interface ApiProjectProject extends Struct.CollectionTypeSchema {
     publishedAt: Schema.Attribute.DateTime;
     repoUrl: Schema.Attribute.String;
     slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required;
+    stats: Schema.Attribute.JSON;
     summary: Schema.Attribute.Text &
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMaxLength<{
