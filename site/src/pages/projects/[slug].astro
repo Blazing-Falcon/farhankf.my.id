@@ -79,7 +79,7 @@ const year = project?.finishedAt ? new Date(project.finishedAt).getFullYear() : 
           <div class="project-body" data-reveal set:html={bodyHtml} />
           {project.techStack && project.techStack.length > 0 && (
             <aside class="tech-sidebar">
-              <h3>Tech stack</h3>
+              <h2>Tech stack</h2>
               <div class="tech-pills">
                 {project.techStack.map((tech) => (
                   <TechPill label={tech} />
@@ -203,7 +203,7 @@ const year = project?.finishedAt ? new Date(project.finishedAt).getFullYear() : 
     margin-bottom: var(--space-4);
   }
 
-  .tech-sidebar h3 {
+  .tech-sidebar h2 {
     font-family: var(--font-mono);
     text-transform: uppercase;
     font-size: 0.85rem;

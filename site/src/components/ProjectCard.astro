@@ -37,7 +37,7 @@ const coverSrc = mediaUrl(cover);
     )}
   </div>
   <div class="project-card-body">
-    <h3>{project.title}</h3>
+    <h2>{project.title}</h2>
     <p>{project.summary}</p>
     {project.techStack && project.techStack.length > 0 && (
       <div class="project-card-pills">
@@ -102,7 +102,7 @@ const coverSrc = mediaUrl(cover);
     padding: var(--space-5);
   }
 
-  .project-card-body h3 {
+  .project-card-body h2 {
     font-size: 1.4rem;
   }
 

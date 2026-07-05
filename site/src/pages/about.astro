@@ -56,7 +56,7 @@ const bioHtml = about?.bio ? marked.parse(about.bio) : '';
             <div class="skills-groups" data-reveal>
               {about.skills.map((group) => (
                 <div class="skills-group">
-                  <h3>{group.group}</h3>
+                  <h2>{group.group}</h2>
                   <div class="skills-pills">
                     {group.items.map((item) => (
                       <span class="skill-pill">{item}</span>
@@ -157,7 +157,7 @@ const bioHtml = about?.bio ? marked.parse(about.bio) : '';
     gap: var(--space-6);
   }
 
-  .skills-group h3 {
+  .skills-group h2 {
     font-family: var(--font-mono);
     text-transform: uppercase;
     font-size: 0.85rem;
