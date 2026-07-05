@@ -85,6 +85,8 @@ These JSON/array fields are free-form in Strapi and not schema-validated beyond 
 
 **Project `difficulty` (enum):** one of `weekend-hack`, `semester-project`, `thesis-grade`, `ongoing-saga` — rendered as a sticker on the project card. Optional.
 
+**Lab notes (collection):** the homepage sticky-note board. Each entry is a `title` + short `body` (max 280 chars) + `order` integer that controls left-to-right placement. Colors and tilt are assigned automatically by position — just write the note and publish it.
+
 ## Design Token Reference
 
 Defined in `site/src/styles/tokens.css` as CSS custom properties; every color/size in components should derive from these rather than hardcoded values.

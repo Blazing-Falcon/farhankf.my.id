@@ -1,0 +1,11 @@
+{
+  "kind": "collectionType",
+  "collectionName": "lab_notes",
+  "info": { "singularName": "lab-note", "pluralName": "lab-notes", "displayName": "Lab note" },
+  "options": { "draftAndPublish": true },
+  "attributes": {
+    "title": { "type": "string", "required": true },
+    "body": { "type": "text", "required": true, "maxLength": 280 },
+    "order": { "type": "integer", "default": 0 }
+  }
+}
