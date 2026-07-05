@@ -126,7 +126,8 @@ export async function getProjectBySlug(slug: string): Promise<Project | null> {
 
 export async function getPhotos({
   category,
-}: { category?: PhotoCategory } = {}): Promise<Photo[]> {
+  featuredOnly = false,
+}: { category?: PhotoCategory; featuredOnly?: boolean } = {}): Promise<Photo[]> {
   const params: Record<string, string> = {
     populate: '*',
     sort: 'shotAt:desc',
@@ -134,6 +135,9 @@ export async function getPhotos({
   };
   if (category) {
     params['filters[category][$eq]'] = category;
+  }
+  if (featuredOnly) {
+    params['filters[featured][$eq]'] = 'true';
   }
   const res = await strapiFetch<StrapiListResponse<Photo>>('/photos', params);
   return res.data;

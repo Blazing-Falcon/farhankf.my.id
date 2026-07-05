@@ -1,17 +1,331 @@
 ---
-import '../styles/global.css';
+import Layout from '../layouts/Layout.astro';
+import Ticker from '../components/Ticker.astro';
+import StickerBadge from '../components/StickerBadge.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import EmptyState from '../components/EmptyState.astro';
+import CatPeek from '../components/cats/CatPeek.astro';
+import CatCamera from '../components/cats/CatCamera.astro';
+import PawPrint from '../components/cats/PawPrint.astro';
+import { Image } from 'astro:assets';
+import { getAbout, getProjects, getPhotos, mediaUrl, type Project, type Photo, type About } from '../lib/strapi';
+
+let about: About | null = null;
+let featuredProjects: Project[] = [];
+let featuredPhotos: Photo[] = [];
+let hadError = false;
+
+try {
+  [about, featuredProjects, featuredPhotos] = await Promise.all([
+    getAbout(),
+    getProjects({ featuredOnly: true }),
+    getPhotos({ featuredOnly: true }),
+  ]);
+} catch {
+  hadError = true;
+}
+
+featuredProjects = featuredProjects.slice(0, 3);
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="Home">
+  <section class="hero">
+    <div class="hero-mascot" data-hero-mascot>
+      <CatPeek />
+    </div>
+    <div class="hero-content">
+      <h1 class="hero-headline">
+        <span class="hero-line-mask"><span class="hero-line" data-hero-line>DATA, PIXELS,</span></span>
+        <span class="hero-line-mask"
+          ><span class="hero-line" data-hero-line>&amp; ONE LOUD <mark class="hero-highlight">CAT</mark>.</span
+          ></span
+        >
+      </h1>
+      <p class="hero-descriptor">
+        A statistics student's lab notebook that a very confident cat has walked across.
+      </p>
+      <div class="hero-actions">
+        <a href="/projects" class="btn btn-primary press-shadow">See projects</a>
+        <a href="/about" class="btn btn-secondary press-shadow">About me</a>
+      </div>
+    </div>
+  </section>
+
+  <Ticker items={['STATISTICS', 'MACHINE LEARNING', 'PHOTOGRAPHY', 'HOME LAB', 'D&D']} />
+
+  <section class="section">
+    <div class="section-inner">
+      <StickerBadge label="Fresh from the lab" rotate={-3} />
+      <h2 class="section-title" data-reveal>Featured projects</h2>
+      {
+        hadError || featuredProjects.length === 0 ? (
+          <EmptyState message="Projects are napping. Check back once Strapi wakes up." />
+        ) : (
+          <div class="featured-projects">
+            {featuredProjects.map((project, i) => (
+              <ProjectCard project={project} variant="featured" rotate={i % 2 === 0 ? -1 : 1} />
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  <section class="photography-strip">
+    <div class="section-inner">
+      <StickerBadge label="Through the lens" rotate={2} />
+      <h2 class="section-title" data-reveal>Photography</h2>
+      {
+        hadError || featuredPhotos.length === 0 ? (
+          <EmptyState message="Photos are napping. Check back once Strapi wakes up." />
+        ) : (
+          <div class="photo-row">
+            <div class="photo-row-mascot">
+              <CatCamera variant="dark" />
+            </div>
+            {featuredPhotos.slice(0, 8).map((photo) => (
+              <figure class="polaroid">
+                {photo.image?.url && photo.image.width && photo.image.height ? (
+                  <Image
+                    src={mediaUrl(photo.image)}
+                    width={photo.image.width}
+                    height={photo.image.height}
+                    alt={photo.image.alternativeText ?? photo.title}
+                  />
+                ) : null}
+                <figcaption>{photo.title}</figcaption>
+              </figure>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  <Ticker items={['PYTHON', 'ASTRO', 'ZFS', 'PROXMOX', 'FUJIFILM']} />
+
+  <section class="section about-teaser">
+    <div class="section-inner about-teaser-inner">
+      {
+        about?.portrait && (
+          <div class="about-teaser-portrait">
+            <Image
+              src={mediaUrl(about.portrait)}
+              width={about.portrait.width ?? 400}
+              height={about.portrait.height ?? 400}
+              alt={about.portrait.alternativeText ?? 'Portrait'}
+            />
+          </div>
+        )
+      }
+      <div class="about-teaser-copy" data-reveal>
+        <StickerBadge label="Who is this cat" rotate={-2} />
+        <h2 class="section-title">{about?.tagline ?? 'About me'}</h2>
+        <a href="/about" class="btn btn-secondary press-shadow">Read the full story</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="decor-paw" data-parallax aria-hidden="true">
+    <PawPrint />
+  </div>
+</Layout>
+
+<style>
+  .hero {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-9) var(--space-5) var(--space-8);
+    overflow: visible;
+  }
+
+  .hero-mascot {
+    position: absolute;
+    top: -12px;
+    left: var(--space-6);
+    width: 140px;
+    z-index: 2;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-headline {
+    font-size: clamp(2.5rem, 8vw, 7rem);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero-line-mask {
+    display: block;
+    overflow: hidden;
+  }
+
+  .hero-line {
+    display: block;
+  }
+
+  .hero-highlight {
+    background: var(--butter);
+    color: var(--ink);
+    padding: 0 0.1em;
+    box-decoration-break: clone;
+  }
+
+  .hero-descriptor {
+    font-size: 1.25rem;
+    max-width: 50ch;
+    margin-top: var(--space-5);
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-block;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none;
+    padding: var(--space-3) var(--space-5);
+    border: var(--border-thick);
+    border-radius: var(--radius-card);
+  }
+
+  .btn-primary {
+    background: var(--tangerine);
+    color: var(--ink);
+  }
+
+  .btn-secondary {
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  .section {
+    padding: var(--space-8) 0;
+  }
+
+  .section-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--space-5);
+  }
+
+  .section-title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    margin-top: var(--space-3);
+    margin-bottom: var(--space-6);
+  }
+
+  .featured-projects {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-7);
+  }
+
+  .photography-strip {
+    background: var(--ink);
+    color: var(--paper);
+    padding: var(--space-8) 0;
+  }
+
+  .photography-strip .section-title {
+    color: var(--paper);
+  }
+
+  .photo-row {
+    display: flex;
+    gap: var(--space-5);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: var(--space-4);
+  }
+
+  .photo-row-mascot {
+    flex-shrink: 0;
+    width: 120px;
+    align-self: flex-end;
+  }
+
+  .polaroid {
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    background: var(--paper);
+    padding: var(--space-2) var(--space-2) var(--space-4);
+    border: var(--border-thick);
+    width: 220px;
+    margin: 0;
+  }
+
+  .polaroid :global(img) {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .polaroid figcaption {
+    font-family: var(--font-mono);
+    color: var(--ink);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: var(--space-2);
+    text-align: center;
+  }
+
+  .about-teaser-inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-7);
+    flex-wrap: wrap;
+  }
+
+  .about-teaser-portrait {
+    width: 220px;
+    flex-shrink: 0;
+    border: var(--border-thick);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    box-shadow: var(--shadow-hard);
+  }
+
+  .about-teaser-portrait :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .about-teaser-copy {
+    flex: 1;
+    min-width: 260px;
+  }
+
+  .decor-paw {
+    position: fixed;
+    bottom: 5%;
+    right: 3%;
+    width: 60px;
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  @media (max-width: 767px) {
+    .hero-mascot {
+      width: 90px;
+      left: var(--space-4);
+    }
+  }
+</style>

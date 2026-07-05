@@ -1,0 +1,137 @@
+---
+import { Image } from 'astro:assets';
+import type { Project } from '../lib/strapi';
+import { mediaUrl } from '../lib/strapi';
+import TechPill from './TechPill.astro';
+import CatBat from './cats/CatBat.astro';
+
+interface Props {
+  project: Project;
+  variant?: 'featured' | 'grid';
+  rotate?: number;
+}
+
+const { project, variant = 'grid', rotate = 0 } = Astro.props;
+const cover = project.coverImage;
+const coverSrc = mediaUrl(cover);
+---
+
+<a
+  href={`/projects/${project.slug}`}
+  class:list={['project-card', variant, { 'press-shadow': true }]}
+  style={`--rotate: ${rotate}deg;`}
+  data-reveal
+>
+  <div class="project-card-cover">
+    {
+      coverSrc && cover?.width && cover?.height ? (
+        <Image src={coverSrc} width={cover.width} height={cover.height} alt={cover.alternativeText ?? project.title} />
+      ) : (
+        <div class="project-card-cover-fallback" aria-hidden="true" />
+      )
+    }
+    {variant === 'featured' && (
+      <div class="project-card-mascot">
+        <CatBat />
+      </div>
+    )}
+  </div>
+  <div class="project-card-body">
+    <h3>{project.title}</h3>
+    <p>{project.summary}</p>
+    {project.techStack && project.techStack.length > 0 && (
+      <div class="project-card-pills">
+        {project.techStack.map((tech) => (
+          <TechPill label={tech} />
+        ))}
+      </div>
+    )}
+  </div>
+</a>
+
+<style>
+  .project-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--paper);
+    border: var(--border-thick);
+    border-radius: var(--radius-card);
+    text-decoration: none;
+    color: var(--ink);
+    transform: rotate(var(--rotate));
+    transition: transform 0.2s ease;
+    overflow: hidden;
+  }
+
+  .project-card:hover,
+  .project-card:focus-visible {
+    transform: rotate(0deg) translate(3px, 3px);
+  }
+
+  .project-card-cover {
+    position: relative;
+    border-bottom: var(--border-thick);
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: var(--blush);
+  }
+
+  .project-card-cover :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .project-card-cover-fallback {
+    width: 100%;
+    height: 100%;
+    background: var(--blush);
+  }
+
+  .project-card-mascot {
+    position: absolute;
+    bottom: -8px;
+    right: -8px;
+    width: 72px;
+  }
+
+  .project-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-5);
+  }
+
+  .project-card-body h3 {
+    font-size: 1.4rem;
+  }
+
+  .project-card-body p {
+    margin: 0;
+    color: var(--ink);
+  }
+
+  .project-card-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  @media (min-width: 768px) {
+    .project-card.featured {
+      flex-direction: row;
+    }
+
+    .project-card.featured .project-card-cover {
+      width: 45%;
+      aspect-ratio: auto;
+      border-bottom: none;
+      border-right: var(--border-thick);
+    }
+
+    .project-card.featured .project-card-body {
+      width: 55%;
+      justify-content: center;
+    }
+  }
+</style>
