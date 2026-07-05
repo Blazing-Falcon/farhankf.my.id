@@ -1,0 +1,81 @@
+---
+interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+---
+
+<svg
+  class:list={['cat-char cat-cali', className]}
+  viewBox="0 0 180 200"
+  aria-hidden="true"
+>
+  <path class="body tail" d="M138,178 Q174,168 170,124 Q166,92 136,86 Q160,98 158,124 Q156,156 130,160 Z" />
+  <!-- tail tip patch -->
+  <path class="patch-orange" d="M150,150 Q168,146 166,124 Q164,110 152,110 Q162,116 160,126 Q158,144 144,148 Z" />
+
+  <path class="body" d="M40,190 Q22,190 22,150 Q22,110 58,98 L122,98 Q158,110 158,150 Q158,190 140,190 Z" />
+  <!-- body patches -->
+  <path class="patch-orange" d="M28,152 Q26,116 60,110 Q74,140 62,184 Q40,188 28,152 Z" />
+  <path class="patch-black" d="M152,152 Q154,120 124,112 Q112,142 122,184 Q142,186 152,152 Z" />
+
+  <ellipse class="body head" cx="90" cy="72" rx="42" ry="38" />
+  <!-- orange ear + patch (left), black ear + patch (right) -->
+  <path class="patch-orange ear" d="M56,42 L40,8 L52,18 L44,10 L74,40 Z" />
+  <path class="patch-black ear" d="M108,40 L138,8 L122,42 Z" />
+  <path class="ear-inner" d="M56,34 L46,14 L66,32 Z" />
+  <path class="ear-inner" d="M112,34 L132,16 L120,36 Z" />
+  <path class="patch-orange" d="M50,64 Q48,34 74,32 Q88,44 82,66 Q66,74 50,64 Z" />
+  <path class="patch-black" d="M104,40 Q128,38 132,64 Q124,76 106,68 Q98,52 104,40 Z" />
+
+  <!-- eyes: one bright + one winking -->
+  <ellipse class="eye-white" cx="74" cy="70" rx="12" ry="13" />
+  <circle class="eye-green" cx="74" cy="70" r="8" />
+  <ellipse class="pupil" cx="74" cy="71" rx="3.5" ry="6" />
+  <circle class="shine" cx="77" cy="66" r="2.4" />
+  <path class="wink" d="M96,72 Q106,64 116,72" />
+
+  <ellipse class="cheek" cx="62" cy="88" rx="8" ry="5" />
+  <ellipse class="cheek" cx="118" cy="88" rx="8" ry="5" />
+  <path class="nose" d="M84,84 L96,84 L90,91 Z" />
+  <path class="mouth" d="M90,91 Q90,97 82,97 M90,91 Q90,97 98,97" />
+  <!-- blep! -->
+  <path class="blep" d="M86,95 Q86,108 92,108 Q98,108 98,95 Z" />
+
+  <path class="whisker" d="M68,88 Q46,84 32,88" />
+  <path class="whisker" d="M68,94 Q46,96 32,102" />
+  <path class="whisker" d="M112,88 Q134,84 148,88" />
+  <path class="whisker" d="M112,94 Q134,96 148,102" />
+
+  <ellipse class="body paw" cx="70" cy="184" rx="14" ry="11" />
+  <ellipse class="body paw" cx="110" cy="184" rx="14" ry="11" />
+  <path class="toes" d="M64,180 L64,187 M70,179 L70,186 M76,180 L76,187 M104,180 L104,187 M110,179 L110,186 M116,180 L116,187" />
+
+  <style>
+    .body {
+      fill: var(--coat-cream);
+      stroke: var(--ink);
+      stroke-width: 3;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+    .patch-orange { fill: var(--coat-marmalade); stroke: none; }
+    .patch-black { fill: var(--coat-charcoal); stroke: none; }
+    .ear { stroke: var(--ink); stroke-width: 3; stroke-linejoin: round; }
+    .ear-inner { fill: var(--blush); }
+    .eye-white { fill: var(--paper); stroke: var(--ink); stroke-width: 2.5; }
+    .eye-green { fill: var(--coat-eye-green); }
+    .pupil { fill: var(--ink); }
+    .shine { fill: var(--paper); }
+    .cheek { fill: var(--blush); opacity: 0.9; }
+    .nose { fill: var(--coat-tongue); stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round; }
+    .blep { fill: var(--coat-tongue); stroke: var(--ink); stroke-width: 2; }
+    .wink, .mouth, .whisker, .toes {
+      fill: none;
+      stroke: var(--ink);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+  </style>
+</svg>

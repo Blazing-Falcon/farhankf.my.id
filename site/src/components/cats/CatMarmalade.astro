@@ -1,0 +1,95 @@
+---
+interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+---
+
+<svg
+  class:list={['cat-char cat-marmalade', className]}
+  viewBox="0 0 180 200"
+  aria-hidden="true"
+>
+  <!-- ringed tail curling around the side -->
+  <path class="body tail" d="M140,178 Q176,168 172,124 Q168,92 138,86 Q162,98 160,124 Q158,156 132,160 Z" />
+  <path class="stripe" d="M150,166 Q160,162 162,150 M156,140 Q166,138 166,126" />
+
+  <!-- haunches / body -->
+  <path class="body" d="M40,190 Q22,190 22,150 Q22,110 58,98 L122,98 Q158,110 158,150 Q158,190 140,190 Z" />
+  <!-- cream chest bib -->
+  <path class="cream" d="M90,104 Q112,120 108,170 Q90,178 72,170 Q68,120 90,104 Z" />
+
+  <!-- head -->
+  <ellipse class="body head" cx="90" cy="72" rx="42" ry="38" />
+  <path class="body ear" d="M56,42 L40,8 L52,18 L44,10 L74,40 Z" />
+  <path class="ear-inner" d="M56,34 L46,14 L66,32 Z" />
+  <path class="body ear" d="M108,40 L138,8 L122,42 Z" />
+  <path class="ear-inner" d="M112,34 L132,16 L120,36 Z" />
+
+  <!-- tabby forehead 'M' stripes -->
+  <path class="stripe" d="M82,44 L82,58 M90,42 L90,58 M98,44 L98,58" />
+  <!-- cream muzzle -->
+  <ellipse class="cream" cx="90" cy="86" rx="24" ry="16" />
+
+  <!-- big green eyes, slightly derpy -->
+  <ellipse class="eye-white" cx="74" cy="70" rx="12" ry="13" />
+  <ellipse class="eye-white" cx="106" cy="70" rx="12" ry="13" />
+  <circle class="eye-green" cx="74" cy="70" r="8" />
+  <circle class="eye-green" cx="106" cy="70" r="8" />
+  <ellipse class="pupil" cx="77" cy="71" rx="3.5" ry="6" />
+  <ellipse class="pupil" cx="103" cy="71" rx="3.5" ry="6" />
+  <circle class="shine" cx="79" cy="66" r="2.4" />
+  <circle class="shine" cx="101" cy="66" r="2.4" />
+
+  <!-- cheeks + nose + big grin -->
+  <ellipse class="cheek" cx="62" cy="88" rx="8" ry="5" />
+  <ellipse class="cheek" cx="118" cy="88" rx="8" ry="5" />
+  <path class="nose" d="M84,84 L96,84 L90,91 Z" />
+  <path class="grin" d="M72,96 Q90,112 108,96" />
+
+  <path class="whisker" d="M68,88 Q46,84 32,88" />
+  <path class="whisker" d="M68,94 Q46,96 32,102" />
+  <path class="whisker" d="M112,88 Q134,84 148,88" />
+  <path class="whisker" d="M112,94 Q134,96 148,102" />
+
+  <!-- front paws -->
+  <ellipse class="body paw" cx="70" cy="184" rx="14" ry="11" />
+  <ellipse class="body paw" cx="110" cy="184" rx="14" ry="11" />
+  <path class="toes" d="M64,180 L64,187 M70,179 L70,186 M76,180 L76,187 M104,180 L104,187 M110,179 L110,186 M116,180 L116,187" />
+
+  <style>
+    .body {
+      fill: var(--coat-marmalade);
+      stroke: var(--ink);
+      stroke-width: 3;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+    .tail { fill: var(--coat-marmalade); }
+    .cream {
+      fill: var(--coat-cream);
+      stroke: var(--ink);
+      stroke-width: 2;
+    }
+    .ear-inner { fill: var(--blush); }
+    .stripe {
+      fill: none;
+      stroke: var(--coat-marmalade-dark);
+      stroke-width: 4;
+      stroke-linecap: round;
+    }
+    .eye-white { fill: var(--paper); stroke: var(--ink); stroke-width: 2.5; }
+    .eye-green { fill: var(--coat-eye-green); }
+    .pupil { fill: var(--ink); }
+    .shine { fill: var(--paper); }
+    .cheek { fill: var(--blush); opacity: 0.9; }
+    .nose { fill: var(--coat-tongue); stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round; }
+    .grin, .whisker, .toes {
+      fill: none;
+      stroke: var(--ink);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+  </style>
+</svg>

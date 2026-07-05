@@ -1,0 +1,82 @@
+---
+interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+---
+
+<svg
+  class:list={['cat-char cat-alfred', className]}
+  viewBox="0 0 180 205"
+  aria-hidden="true"
+>
+  <path class="body tail" d="M140,182 Q176,172 172,128 Q168,96 138,90 Q162,102 160,128 Q158,160 132,164 Z" />
+
+  <path class="body" d="M40,194 Q22,194 22,152 Q22,112 58,100 L122,100 Q158,112 158,152 Q158,194 140,194 Z" />
+  <!-- white tuxedo bib -->
+  <path class="cream" d="M90,108 Q116,128 110,188 L70,188 Q64,128 90,108 Z" />
+
+  <ellipse class="body head" cx="90" cy="72" rx="42" ry="38" />
+  <path class="body ear" d="M56,42 L40,8 L52,18 L44,10 L74,40 Z" />
+  <path class="ear-inner" d="M56,34 L46,14 L66,32 Z" />
+  <path class="body ear" d="M108,40 L138,8 L122,42 Z" />
+  <path class="ear-inner" d="M112,34 L132,16 L120,36 Z" />
+
+  <!-- white muzzle mask -->
+  <path class="cream" d="M90,58 Q118,64 116,90 Q104,102 90,102 Q76,102 64,90 Q62,64 90,58 Z" />
+
+  <!-- amber eyes -->
+  <ellipse class="eye-white" cx="74" cy="68" rx="12" ry="13" />
+  <ellipse class="eye-white" cx="106" cy="68" rx="12" ry="13" />
+  <circle class="eye-amber" cx="74" cy="68" r="8" />
+  <circle class="eye-amber" cx="106" cy="68" r="8" />
+  <ellipse class="pupil" cx="75" cy="69" rx="3.5" ry="6.5" />
+  <ellipse class="pupil" cx="105" cy="69" rx="3.5" ry="6.5" />
+  <circle class="shine" cx="77" cy="64" r="2.4" />
+  <circle class="shine" cx="103" cy="64" r="2.4" />
+
+  <path class="nose" d="M84,84 L96,84 L90,91 Z" />
+  <path class="smile" d="M90,91 Q90,98 80,98 M90,91 Q90,98 100,98" />
+
+  <path class="whisker" d="M70,88 Q50,84 36,88" />
+  <path class="whisker" d="M70,94 Q50,96 36,102" />
+  <path class="whisker" d="M110,88 Q130,84 144,88" />
+  <path class="whisker" d="M110,94 Q130,96 144,102" />
+
+  <!-- dapper bowtie -->
+  <path class="bowtie" d="M90,112 L70,104 L70,124 Z" />
+  <path class="bowtie" d="M90,112 L110,104 L110,124 Z" />
+  <circle class="bowtie-knot" cx="90" cy="114" r="5" />
+
+  <!-- white socks -->
+  <ellipse class="cream paw" cx="70" cy="188" rx="14" ry="11" />
+  <ellipse class="cream paw" cx="110" cy="188" rx="14" ry="11" />
+  <path class="toes" d="M64,184 L64,191 M70,183 L70,190 M76,184 L76,191 M104,184 L104,191 M110,183 L110,190 M116,184 L116,191" />
+
+  <style>
+    .body {
+      fill: var(--coat-charcoal);
+      stroke: var(--ink);
+      stroke-width: 3;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+    .cream { fill: var(--coat-cream); stroke: var(--ink); stroke-width: 2; }
+    .paw { stroke-width: 3; }
+    .ear-inner { fill: var(--blush); }
+    .eye-white { fill: var(--paper); stroke: var(--ink); stroke-width: 2.5; }
+    .eye-amber { fill: var(--butter); }
+    .pupil { fill: var(--ink); }
+    .shine { fill: var(--paper); }
+    .nose { fill: var(--coat-tongue); stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round; }
+    .smile, .whisker, .toes {
+      fill: none;
+      stroke: var(--ink);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .bowtie { fill: var(--tangerine); stroke: var(--ink); stroke-width: 2.5; stroke-linejoin: round; }
+    .bowtie-knot { fill: var(--tangerine); stroke: var(--ink); stroke-width: 2.5; }
+  </style>
+</svg>

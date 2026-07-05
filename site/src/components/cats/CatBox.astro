@@ -1,0 +1,84 @@
+---
+interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+---
+
+<svg
+  class:list={['cat-char cat-box', className]}
+  viewBox="0 0 200 190"
+  aria-hidden="true"
+>
+  <!-- back flaps (behind the cat) -->
+  <path class="box-dark" d="M52,96 L34,66 L78,84 Z" />
+  <path class="box-dark" d="M148,96 L166,66 L122,84 Z" />
+
+  <!-- the void cat peeking out -->
+  <g class="peeker">
+    <ellipse class="void head" cx="100" cy="66" rx="38" ry="34" />
+    <path class="void ear" d="M70,40 L54,8 L66,18 L58,10 L86,38 Z" />
+    <path class="ear-inner" d="M70,32 L60,12 L80,30 Z" />
+    <path class="void ear" d="M122,38 L150,8 L136,40 Z" />
+    <path class="ear-inner" d="M126,32 L146,14 L134,34 Z" />
+
+    <!-- glowing amber eyes with slit pupils -->
+    <ellipse class="glow" cx="84" cy="64" rx="11" ry="13" />
+    <ellipse class="glow" cx="116" cy="64" rx="11" ry="13" />
+    <ellipse class="slit" cx="84" cy="64" rx="3" ry="10" />
+    <ellipse class="slit" cx="116" cy="64" rx="3" ry="10" />
+    <circle class="shine" cx="87" cy="59" r="2" />
+    <circle class="shine" cx="119" cy="59" r="2" />
+
+    <path class="nose" d="M94,78 L106,78 L100,84 Z" />
+    <path class="whisker" d="M80,80 Q60,76 46,80" />
+    <path class="whisker" d="M120,80 Q140,76 154,80" />
+  </g>
+
+  <!-- box front face (covers the cat's body — it's inside) -->
+  <path class="box" d="M46,94 L154,94 L164,176 L36,176 Z" />
+  <!-- packing tape + shipping scribble -->
+  <path class="tape" d="M100,94 L100,176" />
+  <path class="box-label" d="M60,150 L92,150 M60,160 L84,160" />
+
+  <!-- paws draped over the front edge -->
+  <ellipse class="void paw" cx="66" cy="96" rx="14" ry="10" />
+  <ellipse class="void paw" cx="134" cy="96" rx="14" ry="10" />
+  <path class="toes" d="M60,92 L60,99 M66,91 L66,98 M72,92 L72,99 M128,92 L128,99 M134,91 L134,98 M140,92 L140,99" />
+
+  <style>
+    .void {
+      fill: var(--coat-charcoal);
+      stroke: var(--ink);
+      stroke-width: 3;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+    .ear-inner { fill: var(--blush); }
+    .glow { fill: var(--butter); stroke: var(--ink); stroke-width: 2; }
+    .slit { fill: var(--ink); }
+    .shine { fill: var(--paper); }
+    .nose { fill: var(--coat-tongue); stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round; }
+    .whisker, .toes {
+      fill: none;
+      stroke: var(--ink);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .box {
+      fill: var(--coat-box);
+      stroke: var(--ink);
+      stroke-width: 3;
+      stroke-linejoin: round;
+    }
+    .box-dark {
+      fill: var(--coat-box-dark);
+      stroke: var(--ink);
+      stroke-width: 3;
+      stroke-linejoin: round;
+    }
+    .tape { fill: none; stroke: var(--coat-box-dark); stroke-width: 5; }
+    .box-label { fill: none; stroke: var(--coat-box-dark); stroke-width: 3; stroke-linecap: round; }
+  </style>
+</svg>

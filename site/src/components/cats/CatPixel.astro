@@ -1,0 +1,76 @@
+---
+interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+---
+
+<svg
+  class:list={['cat-char cat-pixel', className]}
+  viewBox="0 0 180 202"
+  aria-hidden="true"
+>
+  <!-- dark-point tail -->
+  <path class="point tail" d="M140,182 Q176,172 172,128 Q168,96 138,90 Q162,102 160,128 Q158,160 132,164 Z" />
+
+  <path class="body" d="M40,192 Q22,192 22,152 Q22,112 58,100 L122,100 Q158,112 158,152 Q158,192 140,192 Z" />
+
+  <ellipse class="body head" cx="90" cy="72" rx="42" ry="38" />
+  <!-- dark-point ears -->
+  <path class="point ear" d="M56,42 L40,8 L52,18 L44,10 L74,40 Z" />
+  <path class="ear-inner" d="M56,34 L46,14 L66,32 Z" />
+  <path class="point ear" d="M108,40 L138,8 L122,42 Z" />
+  <path class="ear-inner" d="M112,34 L132,16 L120,36 Z" />
+
+  <!-- dark face mask (points) -->
+  <path class="point mask" d="M90,54 Q120,62 118,96 Q104,108 90,108 Q76,108 62,96 Q60,62 90,54 Z" />
+
+  <!-- big blue eyes, gloriously cross-eyed -->
+  <ellipse class="eye-white" cx="73" cy="68" rx="12" ry="13" />
+  <ellipse class="eye-white" cx="107" cy="68" rx="12" ry="13" />
+  <circle class="eye-blue" cx="73" cy="68" r="8" />
+  <circle class="eye-blue" cx="107" cy="68" r="8" />
+  <circle class="pupil" cx="80" cy="70" r="4.5" />
+  <circle class="pupil" cx="100" cy="70" r="4.5" />
+  <circle class="shine" cx="82" cy="67" r="1.8" />
+  <circle class="shine" cx="102" cy="67" r="1.8" />
+
+  <path class="nose" d="M84,88 L96,88 L90,95 Z" />
+  <path class="mouth" d="M90,95 Q90,101 82,101 M90,95 Q90,101 98,101" />
+
+  <path class="whisker" d="M68,90 Q48,86 34,90" />
+  <path class="whisker" d="M68,96 Q48,98 34,104" />
+  <path class="whisker" d="M112,90 Q132,86 146,90" />
+  <path class="whisker" d="M112,96 Q132,98 146,104" />
+
+  <!-- dark socks -->
+  <ellipse class="point paw" cx="70" cy="186" rx="14" ry="11" />
+  <ellipse class="point paw" cx="110" cy="186" rx="14" ry="11" />
+  <path class="toes" d="M64,182 L64,189 M70,181 L70,188 M76,182 L76,189 M104,182 L104,189 M110,181 L110,188 M116,182 L116,189" />
+
+  <style>
+    .body {
+      fill: var(--coat-cream);
+      stroke: var(--ink);
+      stroke-width: 3;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+    .point { fill: var(--coat-cocoa); stroke: var(--ink); stroke-width: 3; stroke-linejoin: round; }
+    .mask { stroke: none; }
+    .paw { stroke-width: 3; }
+    .ear-inner { fill: var(--blush); }
+    .eye-white { fill: var(--paper); stroke: var(--ink); stroke-width: 2.5; }
+    .eye-blue { fill: var(--coat-eye-blue); }
+    .pupil { fill: var(--ink); }
+    .shine { fill: var(--paper); }
+    .nose { fill: var(--coat-tongue); stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round; }
+    .mouth, .whisker, .toes {
+      fill: none;
+      stroke: var(--ink);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+  </style>
+</svg>

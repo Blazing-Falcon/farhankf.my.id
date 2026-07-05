@@ -1,0 +1,77 @@
+---
+interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+---
+
+<svg
+  class:list={['cat-char cat-miso', className]}
+  viewBox="0 0 220 150"
+  aria-hidden="true"
+>
+  <!-- tail flopped over the loaf -->
+  <path class="body tail" d="M182,104 Q210,96 204,64 Q200,42 178,48 Q198,46 200,66 Q202,92 168,98 Z" />
+
+  <!-- loaf body -->
+  <path class="body" d="M16,124 Q16,62 70,56 Q92,20 132,56 Q186,62 186,124 Q186,134 101,134 Q16,134 16,124 Z" />
+  <!-- white belly floof -->
+  <path class="cream" d="M62,132 Q101,110 140,132 Q140,134 101,134 Q62,134 62,132 Z" />
+
+  <path class="body ear" d="M78,44 L64,10 L58,22 L52,12 L92,40 Z" />
+  <path class="ear-inner" d="M76,36 L66,16 L86,34 Z" />
+  <path class="body ear" d="M118,40 L146,10 L134,42 Z" />
+  <path class="ear-inner" d="M122,34 L142,16 L132,36 Z" />
+
+  <!-- forehead stripes -->
+  <path class="stripe" d="M94,42 L94,56 M102,40 L102,56 M110,42 L110,56" />
+
+  <!-- heavy-lidded, thoroughly unimpressed eyes -->
+  <ellipse class="eye-white" cx="82" cy="74" rx="12" ry="11" />
+  <ellipse class="eye-white" cx="122" cy="74" rx="12" ry="11" />
+  <circle class="pupil" cx="82" cy="79" r="5.5" />
+  <circle class="pupil" cx="122" cy="79" r="5.5" />
+  <circle class="shine" cx="84" cy="76" r="1.8" />
+  <circle class="shine" cx="124" cy="76" r="1.8" />
+  <!-- droopy lids -->
+  <path class="lid" d="M70,70 Q82,62 94,71" />
+  <path class="lid" d="M110,71 Q122,62 134,70" />
+
+  <ellipse class="cheek" cx="68" cy="90" rx="8" ry="5" />
+  <ellipse class="cheek" cx="136" cy="90" rx="8" ry="5" />
+  <path class="nose" d="M96,84 L108,84 L102,91 Z" />
+  <!-- the eternal frown -->
+  <path class="frown" d="M84,104 Q102,90 120,104" />
+  <path class="frown-tick" d="M102,91 L102,98" />
+
+  <path class="whisker" d="M74,88 Q52,84 38,88" />
+  <path class="whisker" d="M74,94 Q52,96 38,100" />
+  <path class="whisker" d="M130,88 Q152,84 166,88" />
+  <path class="whisker" d="M130,94 Q152,96 166,100" />
+
+  <style>
+    .body {
+      fill: var(--coat-ash);
+      stroke: var(--ink);
+      stroke-width: 3;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+    .cream { fill: var(--coat-cream); stroke: none; }
+    .ear-inner { fill: var(--blush); }
+    .stripe { fill: none; stroke: var(--coat-ash-dark); stroke-width: 4; stroke-linecap: round; }
+    .eye-white { fill: var(--paper); stroke: var(--ink); stroke-width: 2.5; }
+    .pupil { fill: var(--ink); }
+    .shine { fill: var(--paper); }
+    .lid { fill: none; stroke: var(--ink); stroke-width: 3; stroke-linecap: round; }
+    .cheek { fill: var(--blush); opacity: 0.85; }
+    .nose { fill: var(--coat-tongue); stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round; }
+    .frown, .frown-tick, .whisker {
+      fill: none;
+      stroke: var(--ink);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+  </style>
+</svg>

@@ -1,0 +1,108 @@
+---
+import CatMarmalade from './cats/CatMarmalade.astro';
+import CatMiso from './cats/CatMiso.astro';
+import CatAlfred from './cats/CatAlfred.astro';
+import CatCali from './cats/CatCali.astro';
+import CatPixel from './cats/CatPixel.astro';
+import CatBox from './cats/CatBox.astro';
+
+// The lab is, of course, staffed entirely by cats.
+const staff = [
+  { Cat: CatMarmalade, name: 'Marmalade', role: 'Head of Snacks', rotate: -4 },
+  { Cat: CatMiso, name: 'Miso', role: 'Quality Assurance', rotate: 3 },
+  { Cat: CatAlfred, name: 'Alfred', role: 'Front of House', rotate: -2 },
+  { Cat: CatCali, name: 'Cali', role: 'Chaos Engineer', rotate: 4 },
+  { Cat: CatPixel, name: 'Pixel', role: 'Data Entry', rotate: -3 },
+  { Cat: CatBox, name: 'Boxcat', role: 'Logistics', rotate: 2 },
+];
+---
+
+<div class="colony">
+  {
+    staff.map(({ Cat, name, role, rotate }) => (
+      <figure class="colony-card" style={`--r: ${rotate}deg`} data-reveal>
+        <div class="colony-portrait">
+          <Cat />
+        </div>
+        <figcaption class="colony-tag">
+          <span class="colony-name">{name}</span>
+          <span class="colony-role">{role}</span>
+        </figcaption>
+      </figure>
+    ))
+  }
+</div>
+
+<style>
+  .colony {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--space-6) var(--space-5);
+    align-items: end;
+  }
+
+  .colony-card {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    transform: rotate(var(--r));
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  /* the whole card lifts and straightens when you poke a cat */
+  .colony-card:hover {
+    transform: rotate(0deg) translateY(-6px) scale(1.04);
+    z-index: 2;
+  }
+
+  .colony-portrait {
+    width: 100%;
+    background: var(--paper);
+    border: var(--border-thick);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-hard);
+    /* generous padding so no ear, tail or paw ever clips the frame */
+    padding: var(--space-4) var(--space-3) var(--space-2);
+    display: flex;
+    justify-content: center;
+  }
+
+  .colony-portrait :global(svg) {
+    width: 100%;
+    height: auto;
+    max-height: 170px;
+    display: block;
+  }
+
+  .colony-tag {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    background: var(--butter);
+    color: var(--ink);
+    border: var(--border-thick);
+    border-radius: var(--radius-pill);
+    box-shadow: 2px 2px 0 var(--ink);
+    padding: var(--space-1) var(--space-4);
+  }
+
+  .colony-name {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  .colony-role {
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.6rem;
+    line-height: 1.2;
+  }
+</style>
