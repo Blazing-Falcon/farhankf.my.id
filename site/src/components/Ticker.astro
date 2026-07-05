@@ -6,16 +6,19 @@ interface Props {
 }
 
 const { items } = Astro.props;
+
+// Scroll speed follows content length so long rotations don't sprint.
+const duration = Math.max(24, items.length * 5);
 ---
 
-<div class="ticker" role="presentation">
+<div class="ticker" role="presentation" style={`--ticker-duration: ${duration}s;`}>
   <div class="ticker-track">
     {
       [0, 1].map((copy) => (
         <div class="ticker-set" aria-hidden={copy === 1}>
           {items.map((item) => (
             <span class="ticker-item">
-              <span>{item}</span>
+              <span class="ticker-text">{item}</span>
               <PawPrint class="ticker-paw" />
             </span>
           ))}
@@ -38,7 +41,7 @@ const { items } = Astro.props;
   .ticker-track {
     display: flex;
     width: max-content;
-    animation: ticker-scroll 24s linear infinite;
+    animation: ticker-scroll var(--ticker-duration) linear infinite;
   }
 
   .ticker-set {
@@ -56,13 +59,21 @@ const { items } = Astro.props;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     font-size: 1.1rem;
+    line-height: 1;
     padding: 0 var(--space-5);
     white-space: nowrap;
+  }
+
+  /* Uppercase Space Mono sits slightly high of true center; nudge the text
+     down so glyphs and paw share the same optical baseline. */
+  .ticker-text {
+    transform: translateY(1px);
   }
 
   :global(.ticker-paw) {
     width: 20px;
     height: 20px;
+    flex-shrink: 0;
   }
 
   @keyframes ticker-scroll {
