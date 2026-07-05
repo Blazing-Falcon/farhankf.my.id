@@ -1,5 +1,5 @@
 ---
-import CatSit from './cats/CatSit.astro';
+import CatSleep from './cats/CatSleep.astro';
 import { getAbout } from '../lib/strapi';
 
 let email: string | null = null;
@@ -12,14 +12,43 @@ try {
 } catch {
   // Strapi may be unavailable; footer degrades gracefully without contact links.
 }
+
+// SSR picks a new one on every page load.
+const catFacts = [
+  'A group of cats is called a clowder.',
+  'Cats can rotate their ears 180 degrees, mostly to ignore you better.',
+  'A cat’s purr sits around 25–150 Hz, a range linked to bone healing.',
+  'Cats spend roughly 70% of their lives asleep. Relatable.',
+  'A cat’s nose print is unique, like a fingerprint.',
+  'Cats can’t taste sweetness. They compensate with drama.',
+  'The first cat video was filmed by Thomas Edison in 1894.',
+  'Cats walk like camels and giraffes: both right legs, then both left.',
+  'Isaac Newton is often credited with inventing the cat flap.',
+  'A cat once co-authored a physics paper (F.D.C. Willard, 1975).',
+];
+const fact = catFacts[Math.floor(Math.random() * catFacts.length)];
 ---
 
 <footer class="site-footer">
+  <div class="night-sky" aria-hidden="true">
+    <span class="moon"></span>
+    <span class="star star-1"></span>
+    <span class="star star-2"></span>
+    <span class="star star-3"></span>
+    <span class="star star-4"></span>
+    <span class="star star-5"></span>
+  </div>
+
   <div class="site-footer-inner">
-    <div class="footer-cat">
-      <CatSit variant="dark" />
+    <div class="footer-cat" data-footer-cat>
+      <CatSleep variant="dark" snore />
     </div>
     <div class="footer-content">
+      <p class="lab-closed">The lab is closed for today.</p>
+      <p class="terminal-line">
+        <span class="prompt">juan@lab:~$</span> systemctl status cats
+        <span class="status-ok">● active (napping)</span>
+      </p>
       <div class="footer-links">
         {email && <a href={`mailto:${email}`}>{email}</a>}
         {githubUrl && (
@@ -28,6 +57,7 @@ try {
           </a>
         )}
       </div>
+      <p class="cat-fact">Cat fact № {catFacts.indexOf(fact) + 1}: {fact}</p>
       <p class="colophon">Built with Astro + Strapi, self-hosted on Proxmox.</p>
     </div>
   </div>
@@ -35,12 +65,78 @@ try {
 
 <style>
   .site-footer {
+    position: relative;
     background: var(--ink);
     color: var(--paper);
     border-top: var(--border-thick);
+    overflow: hidden;
+  }
+
+  .night-sky {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .moon {
+    position: absolute;
+    top: var(--space-5);
+    right: 8%;
+    width: 46px;
+    height: 46px;
+    border-radius: 999px;
+    /* crescent: paper circle with an ink shadow bite */
+    box-shadow: inset -12px 6px 0 0 var(--butter);
+    opacity: 0.9;
+  }
+
+  .star {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--paper);
+    opacity: 0.6;
+    animation: star-twinkle 4s ease-in-out infinite;
+  }
+
+  .star-1 {
+    top: 22%;
+    left: 12%;
+  }
+  .star-2 {
+    top: 55%;
+    left: 30%;
+    animation-delay: 1.2s;
+  }
+  .star-3 {
+    top: 18%;
+    left: 58%;
+    animation-delay: 2.1s;
+  }
+  .star-4 {
+    top: 40%;
+    right: 22%;
+    animation-delay: 0.6s;
+  }
+  .star-5 {
+    top: 70%;
+    right: 40%;
+    animation-delay: 2.8s;
+  }
+
+  @keyframes star-twinkle {
+    0%,
+    100% {
+      opacity: 0.25;
+    }
+    50% {
+      opacity: 0.85;
+    }
   }
 
   .site-footer-inner {
+    position: relative;
     max-width: 1200px;
     margin: 0 auto;
     padding: var(--space-7) var(--space-5);
@@ -51,7 +147,7 @@ try {
   }
 
   .footer-cat {
-    width: 100px;
+    width: 150px;
     flex-shrink: 0;
   }
 
@@ -62,6 +158,33 @@ try {
     min-width: 0;
   }
 
+  .lab-closed {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    font-size: var(--text-sub);
+    margin: 0;
+  }
+
+  .terminal-line {
+    font-family: var(--font-mono);
+    font-size: var(--text-tiny);
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .prompt {
+    color: var(--butter);
+  }
+
+  .status-ok {
+    color: var(--teal);
+    background: var(--paper);
+    border-radius: var(--radius-pill);
+    padding: 0 var(--space-2);
+    white-space: nowrap;
+  }
+
   .footer-links {
     display: flex;
     flex-wrap: wrap;
@@ -69,17 +192,32 @@ try {
     font-family: var(--font-mono);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    font-size: 0.85rem;
+    font-size: var(--text-tiny);
   }
 
   .footer-links a {
     color: var(--paper);
   }
 
+  .cat-fact {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--blush);
+    max-width: 60ch;
+    margin: 0;
+  }
+
   .colophon {
     font-family: var(--font-mono);
     font-size: 0.75rem;
     color: var(--blush);
+    opacity: 0.8;
     margin: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .star {
+      animation: none;
+    }
   }
 </style>
