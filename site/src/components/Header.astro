@@ -1,4 +1,6 @@
 ---
+import CatEars from './cats/CatEars.astro';
+
 const navItems = [
   { href: '/about', label: 'About' },
   { href: '/projects', label: 'Projects' },
@@ -10,11 +12,16 @@ const isActive = (href: string) =>
   href === currentPath || (href !== '/' && currentPath.startsWith(href));
 ---
 
-<header class="site-header">
+<header class="site-header" id="site-header">
   <div class="site-header-inner">
     <a href="/" class="wordmark">
       <span class="wordmark-letter">j</span>uan<span class="wordmark-dot">.</span>cat
     </a>
+
+    <!-- resident cat, peeking over the bottom edge of the navbar -->
+    <div class="header-cat" aria-hidden="true">
+      <CatEars />
+    </div>
 
     <nav class="nav-desktop" aria-label="Primary">
       {
@@ -66,6 +73,18 @@ const isActive = (href: string) =>
     }
     document.body.style.overflow = isOpen ? '' : 'hidden';
   });
+
+  // Tiny hard shadow once the page starts scrolling under the bar.
+  const header = document.getElementById('site-header');
+  const onScroll = () => {
+    if (window.scrollY > 8) {
+      header?.setAttribute('data-scrolled', '');
+    } else {
+      header?.removeAttribute('data-scrolled');
+    }
+  };
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
 </script>
 
 <style>
@@ -75,9 +94,15 @@ const isActive = (href: string) =>
     z-index: 100;
     background: var(--paper);
     border-bottom: var(--border-thick);
+    transition: box-shadow 0.25s ease-out;
+  }
+
+  .site-header[data-scrolled] {
+    box-shadow: 0 4px 0 rgba(26, 27, 35, 0.12);
   }
 
   .site-header-inner {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -87,9 +112,12 @@ const isActive = (href: string) =>
   }
 
   .wordmark {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     font-family: var(--font-display);
     font-weight: 800;
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     letter-spacing: -0.02em;
     color: var(--ink);
     text-decoration: none;
@@ -103,7 +131,7 @@ const isActive = (href: string) =>
   .wordmark-letter::before {
     content: '';
     position: absolute;
-    top: -0.55em;
+    top: -0.5em;
     left: 0.05em;
     width: 0;
     height: 0;
@@ -117,26 +145,58 @@ const isActive = (href: string) =>
     color: var(--tangerine);
   }
 
+  /* The peeker: anchored to the header's bottom border, only ears + eyes
+     showing. Rises a touch when someone notices it. */
+  .header-cat {
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 58px;
+    line-height: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .header-cat :global(svg) {
+    display: block;
+    transform: translateY(14px);
+    transition: transform 0.3s ease-out;
+  }
+
+  .site-header:hover .header-cat :global(svg) {
+    transform: translateY(3px);
+  }
+
   .nav-desktop {
     display: none;
-    gap: var(--space-5);
+    gap: var(--space-3);
   }
 
   .nav-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     font-family: var(--font-mono);
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: var(--ink);
     text-decoration: none;
-    padding: var(--space-1) var(--space-2);
-    position: relative;
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-pill);
+    transition: background-color 0.2s ease-out;
+  }
+
+  .nav-link:hover,
+  .nav-link:focus-visible {
+    background: var(--blush);
+    text-decoration: none;
   }
 
   .nav-link.active {
     background: var(--butter);
-    border-radius: var(--radius-pill);
   }
 
   .nav-toggle {
@@ -145,8 +205,8 @@ const isActive = (href: string) =>
     gap: 5px;
     justify-content: center;
     align-items: center;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     background: none;
     border: var(--border-thick);
     border-radius: var(--radius-card);
@@ -174,7 +234,7 @@ const isActive = (href: string) =>
   .mobile-menu {
     position: fixed;
     inset: 0;
-    top: 73px;
+    top: 78px;
     background: var(--paper);
     z-index: 99;
     padding: var(--space-6) var(--space-5);
@@ -210,6 +270,18 @@ const isActive = (href: string) =>
 
     .mobile-menu {
       display: none;
+    }
+  }
+
+  @media (max-width: 519px) {
+    .header-cat {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .header-cat :global(svg) {
+      transition: none;
     }
   }
 </style>
