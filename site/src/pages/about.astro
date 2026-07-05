@@ -4,7 +4,8 @@ import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
 import StickerBadge from '../components/StickerBadge.astro';
 import EmptyState from '../components/EmptyState.astro';
-import CatMarmalade from '../components/cats/CatMarmalade.astro';
+import CatColony from '../components/CatColony.astro';
+import CatTail from '../components/cats/CatTail.astro';
 import { getAbout, mediaUrl, type About } from '../lib/strapi';
 
 let about: About | null = null;
@@ -17,6 +18,16 @@ try {
 }
 
 const bioHtml = about?.bio ? marked.parse(about.bio) : '';
+
+// Playful profile facts; CMS fills in the boring true ones.
+const profileFacts = [
+  { label: 'Field', value: 'Statistics & machine learning' },
+  { label: 'Based in', value: about?.location ?? 'a home lab somewhere' },
+  { label: 'Current obsession', value: 'Particle swarm optimization' },
+  { label: 'Coffee intake', value: 'x̄ = 3.2 cups/day (σ = 0.8)' },
+  { label: 'Supervisors', value: '6 cats, zero mercy' },
+  { label: 'Uptime', value: 'better than the ISP’s' },
+];
 ---
 
 <Layout title="About" description={about?.tagline ?? 'About Juan'}>
@@ -28,11 +39,14 @@ const bioHtml = about?.bio ? marked.parse(about.bio) : '';
     ) : (
       <div class="about-page">
         <section class="about-hero section-inner">
-          <StickerBadge label="Who is this cat" rotate={-3} />
-          <h1 data-reveal>{about.headline}</h1>
-          {about.tagline && <p class="tagline">{about.tagline}</p>}
+          <div class="about-hero-copy">
+            <StickerBadge label="Who is this cat" rotate={-3} />
+            <h1 data-reveal>{about.headline}</h1>
+            {about.tagline && <p class="tagline">{about.tagline}</p>}
+          </div>
           {about.portrait && (
             <div class="portrait-frame">
+              <span class="portrait-tape" aria-hidden="true" />
               <Image
                 src={mediaUrl(about.portrait)}
                 width={about.portrait.width ?? 400}
@@ -43,15 +57,30 @@ const bioHtml = about?.bio ? marked.parse(about.bio) : '';
           )}
         </section>
 
-        <section class="bio-section section-inner">
+        <section class="profile-section section-inner">
+          <div class="profile-card" data-reveal>
+            <h2 class="profile-card-title">Researcher profile</h2>
+            <dl class="profile-facts">
+              {profileFacts.map((fact) => (
+                <div class="profile-fact">
+                  <dt>{fact.label}</dt>
+                  <dd>{fact.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
           <div class="bio-prose" data-reveal set:html={bioHtml} />
         </section>
 
-        <div class="divider">
-          <CatMarmalade />
+        <div class="divider" aria-hidden="true">
+          <div class="divider-line" />
+          <div class="divider-tail">
+            <CatTail />
+          </div>
         </div>
 
         <section class="skills-section section-inner">
+          <StickerBadge label="Favorite tools" rotate={2} />
           {about.skills && about.skills.length > 0 && (
             <div class="skills-groups" data-reveal>
               {about.skills.map((group) => (
@@ -66,6 +95,18 @@ const bioHtml = about?.bio ? marked.parse(about.bio) : '';
               ))}
             </div>
           )}
+        </section>
+
+        <section class="colony-section">
+          <div class="section-inner">
+            <StickerBadge label="Fully staffed" rotate={-3} />
+            <h2 class="colony-title" data-reveal>The supervision committee</h2>
+            <p class="colony-sub">
+              Every experiment in this lab is reviewed by six supervisors. They do not take
+              feedback, they do not sign off, and at least one of them is asleep on the results.
+            </p>
+            <CatColony />
+          </div>
         </section>
 
         <section class="contact-section section-inner">
@@ -94,45 +135,125 @@ const bioHtml = about?.bio ? marked.parse(about.bio) : '';
   }
 
   .about-hero {
-    padding-top: var(--space-8);
-    padding-bottom: var(--space-6);
+    padding-top: var(--space-7);
+    padding-bottom: var(--space-7);
+    display: flex;
+    align-items: center;
+    gap: var(--space-7);
+    flex-wrap: wrap;
+  }
+
+  .about-hero-copy {
+    flex: 1;
+    min-width: 280px;
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
   }
 
   .about-hero h1 {
-    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-size: var(--text-section);
   }
 
   .tagline {
-    font-size: 1.15rem;
-    max-width: 60ch;
+    font-size: var(--text-sub);
+    line-height: 1.4;
+    max-width: 40ch;
+    margin: 0;
   }
 
   .portrait-frame {
-    width: 220px;
+    position: relative;
+    width: 240px;
     border: var(--border-thick);
     border-radius: var(--radius-card);
     box-shadow: var(--shadow-hard);
-    overflow: hidden;
     background: var(--paper);
     transform: rotate(-2deg);
+    flex-shrink: 0;
+  }
+
+  .portrait-tape {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%) rotate(2deg);
+    width: 90px;
+    height: 22px;
+    background: var(--butter);
+    border: 2px solid var(--ink);
+    opacity: 0.9;
+    z-index: 1;
   }
 
   .portrait-frame :global(img) {
     width: 100%;
     height: auto;
     display: block;
+    border-radius: 10px;
   }
 
-  .bio-section {
-    padding-bottom: var(--space-6);
+  .profile-section {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-7);
+    padding-bottom: var(--space-7);
+    align-items: start;
+  }
+
+  .profile-card {
+    background: var(--paper);
+    border: var(--border-thick);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-hard);
+    padding: var(--space-5);
+    transform: rotate(-0.5deg);
+  }
+
+  .profile-card-title {
+    font-family: var(--font-mono);
+    font-size: var(--text-tiny);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-bottom: 2px dashed var(--ink);
+    padding-bottom: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .profile-facts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin: 0;
+  }
+
+  .profile-fact {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-4);
+  }
+
+  .profile-fact dt {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--teal);
+    flex-shrink: 0;
+  }
+
+  .profile-fact dd {
+    margin: 0;
+    font-size: var(--text-small);
+    font-weight: 600;
+    text-align: right;
   }
 
   .bio-prose {
     max-width: 65ch;
-    font-size: 1.05rem;
+    font-size: var(--text-body);
   }
 
   .bio-prose :global(p) {
@@ -143,13 +264,32 @@ const bioHtml = about?.bio ? marked.parse(about.bio) : '';
     color: var(--teal);
   }
 
+  /* A rule across the page with a tail sticking out from behind it, as if
+     someone is hiding under the divider. */
   .divider {
-    width: 170px;
-    margin: var(--space-7) auto var(--space-6);
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto var(--space-7);
+    padding: 0 var(--space-5);
+  }
+
+  .divider-line {
+    border-top: 2px dashed var(--ink);
+    opacity: 0.5;
+  }
+
+  .divider-tail {
+    position: absolute;
+    top: -46px;
+    right: 15%;
+    width: 40px;
   }
 
   .skills-section {
-    padding-bottom: var(--space-7);
+    padding-bottom: var(--section-gap);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
   }
 
   .skills-groups {
@@ -161,7 +301,7 @@ const bioHtml = about?.bio ? marked.parse(about.bio) : '';
   .skills-group h2 {
     font-family: var(--font-mono);
     text-transform: uppercase;
-    font-size: 0.85rem;
+    font-size: var(--text-tiny);
     letter-spacing: 0.05em;
     margin-bottom: var(--space-3);
   }
@@ -183,8 +323,29 @@ const bioHtml = about?.bio ? marked.parse(about.bio) : '';
     padding: var(--space-1) var(--space-3);
   }
 
+  /* Colony band — blush, bordered, the committee in session */
+  .colony-section {
+    background: var(--blush);
+    border-top: var(--border-thick);
+    border-bottom: var(--border-thick);
+    padding: var(--section-gap) 0;
+    margin-bottom: var(--section-gap);
+  }
+
+  .colony-title {
+    font-size: var(--text-section);
+    margin-top: var(--space-3);
+    margin-bottom: var(--space-3);
+  }
+
+  .colony-sub {
+    font-size: var(--text-body);
+    max-width: 52ch;
+    margin: 0 0 var(--space-7);
+  }
+
   .contact-section {
-    padding-bottom: var(--space-8);
+    padding-bottom: var(--section-gap);
   }
 
   .contact-block {
@@ -206,16 +367,23 @@ const bioHtml = about?.bio ? marked.parse(about.bio) : '';
     font-family: var(--font-mono);
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    font-size: 0.85rem;
+    font-size: var(--text-tiny);
     margin: 0;
   }
 
   .contact-links {
     display: flex;
-    gap: var(--space-5);
+    flex-wrap: wrap;
+    gap: var(--space-4) var(--space-5);
     font-family: var(--font-mono);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-weight: 700;
+  }
+
+  @media (min-width: 900px) {
+    .profile-section {
+      grid-template-columns: 380px 1fr;
+    }
   }
 </style>
