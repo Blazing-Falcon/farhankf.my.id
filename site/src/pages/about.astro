@@ -4,7 +4,7 @@ import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
 import StickerBadge from '../components/StickerBadge.astro';
 import EmptyState from '../components/EmptyState.astro';
-import CatLoaf from '../components/cats/CatLoaf.astro';
+import CatMarmalade from '../components/cats/CatMarmalade.astro';
 import { getAbout, mediaUrl, type About } from '../lib/strapi';
 
 let about: About | null = null;
@@ -48,7 +48,7 @@ const bioHtml = about?.bio ? marked.parse(about.bio) : '';
         </section>
 
         <div class="divider">
-          <CatLoaf />
+          <CatMarmalade />
         </div>
 
         <section class="skills-section section-inner">
@@ -111,17 +111,18 @@ const bioHtml = about?.bio ? marked.parse(about.bio) : '';
   }
 
   .portrait-frame {
-    width: 200px;
+    width: 220px;
     border: var(--border-thick);
     border-radius: var(--radius-card);
     box-shadow: var(--shadow-hard);
     overflow: hidden;
+    background: var(--paper);
+    transform: rotate(-2deg);
   }
 
   .portrait-frame :global(img) {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
     display: block;
   }
 
@@ -143,8 +144,8 @@ const bioHtml = about?.bio ? marked.parse(about.bio) : '';
   }
 
   .divider {
-    width: 140px;
-    margin: var(--space-6) auto;
+    width: 170px;
+    margin: var(--space-7) auto var(--space-6);
   }
 
   .skills-section {
@@ -187,12 +188,18 @@ const bioHtml = about?.bio ? marked.parse(about.bio) : '';
   }
 
   .contact-block {
+    background: var(--butter);
     border: var(--border-thick);
     border-radius: var(--radius-card);
+    box-shadow: var(--shadow-hard);
     padding: var(--space-6);
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
+  }
+
+  .contact-block a {
+    color: var(--ink);
   }
 
   .contact-location {

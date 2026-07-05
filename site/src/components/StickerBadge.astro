@@ -28,5 +28,7 @@ const { label, rotate = -4, class: className = '' } = Astro.props;
     border-radius: var(--radius-pill);
     padding: var(--space-2) var(--space-4);
     transform: rotate(var(--rotate));
+    /* hard shadow makes it read as a sticker pressed onto the page */
+    box-shadow: 3px 3px 0 var(--ink);
   }
 </style>

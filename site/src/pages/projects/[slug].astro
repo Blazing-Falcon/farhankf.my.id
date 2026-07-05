@@ -5,7 +5,7 @@ import Layout from '../../layouts/Layout.astro';
 import StickerBadge from '../../components/StickerBadge.astro';
 import TechPill from '../../components/TechPill.astro';
 import EmptyState from '../../components/EmptyState.astro';
-import CatLoaf from '../../components/cats/CatLoaf.astro';
+import CatMiso from '../../components/cats/CatMiso.astro';
 import { getProjectBySlug, mediaUrl, type Project } from '../../lib/strapi';
 
 const { slug } = Astro.params;
@@ -38,10 +38,10 @@ const year = project?.finishedAt ? new Date(project.finishedAt).getFullYear() : 
     ) : !project ? (
       <div class="section-inner not-found">
         <div class="not-found-cat">
-          <CatLoaf />
+          <CatMiso />
         </div>
         <h1>404: no such project</h1>
-        <p>The cat has never heard of this one. It might have been renamed or removed.</p>
+        <p>The cat has never heard of this one, and frankly resents being asked. It might have been renamed or removed.</p>
         <a href="/projects" class="btn btn-secondary press-shadow">Back to projects</a>
       </div>
     ) : (

@@ -4,6 +4,7 @@ import Ticker from '../components/Ticker.astro';
 import StickerBadge from '../components/StickerBadge.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import EmptyState from '../components/EmptyState.astro';
+import CatColony from '../components/CatColony.astro';
 import CatPeek from '../components/cats/CatPeek.astro';
 import CatCamera from '../components/cats/CatCamera.astro';
 import PawPrint from '../components/cats/PawPrint.astro';
@@ -34,6 +35,9 @@ featuredProjects = featuredProjects.slice(0, 3);
       <CatPeek />
     </div>
     <div class="hero-content">
+      <p class="hero-eyebrow">
+        <span class="hero-eyebrow-dot"></span>Stats · ML · Photography · Home lab
+      </p>
       <h1 class="hero-headline">
         <span class="hero-line-mask"><span class="hero-line" data-hero-line>DATA, PIXELS,</span></span>
         <span class="hero-line-mask"
@@ -43,6 +47,7 @@ featuredProjects = featuredProjects.slice(0, 3);
       </h1>
       <p class="hero-descriptor">
         A statistics student's lab notebook that a very confident cat has walked across.
+        Mind the paw prints.
       </p>
       <div class="hero-actions">
         <a href="/projects" class="btn btn-primary press-shadow">See projects</a>
@@ -51,9 +56,24 @@ featuredProjects = featuredProjects.slice(0, 3);
     </div>
   </section>
 
-  <Ticker items={['STATISTICS', 'MACHINE LEARNING', 'PHOTOGRAPHY', 'HOME LAB', 'D&D']} />
+  <Ticker items={['STATISTICS', 'MACHINE LEARNING', 'PHOTOGRAPHY', 'HOME LAB', 'D&D', 'CATS']} />
 
-  <section class="section">
+  <section class="colony-section">
+    <div class="section-inner">
+      <div class="colony-head">
+        <div>
+          <StickerBadge label="Fully staffed" rotate={-3} />
+          <h2 class="section-title" data-reveal>Meet the colony</h2>
+          <p class="colony-sub">
+            The lab runs on six cats and a dangerous amount of coffee. They do not take feedback.
+          </p>
+        </div>
+      </div>
+      <CatColony />
+    </div>
+  </section>
+
+  <section class="section featured-section">
     <div class="section-inner">
       <StickerBadge label="Fresh from the lab" rotate={-3} />
       <h2 class="section-title" data-reveal>Featured projects</h2>
@@ -105,23 +125,25 @@ featuredProjects = featuredProjects.slice(0, 3);
   <Ticker items={['PYTHON', 'ASTRO', 'ZFS', 'PROXMOX', 'FUJIFILM']} />
 
   <section class="section about-teaser">
-    <div class="section-inner about-teaser-inner">
-      {
-        about?.portrait && (
-          <div class="about-teaser-portrait">
-            <Image
-              src={mediaUrl(about.portrait)}
-              width={about.portrait.width ?? 400}
-              height={about.portrait.height ?? 400}
-              alt={about.portrait.alternativeText ?? 'Portrait'}
-            />
-          </div>
-        )
-      }
-      <div class="about-teaser-copy" data-reveal>
-        <StickerBadge label="Who is this cat" rotate={-2} />
-        <h2 class="section-title">{about?.tagline ?? 'About me'}</h2>
-        <a href="/about" class="btn btn-secondary press-shadow">Read the full story</a>
+    <div class="section-inner">
+      <div class="about-teaser-panel">
+        {
+          about?.portrait && (
+            <div class="about-teaser-portrait">
+              <Image
+                src={mediaUrl(about.portrait)}
+                width={about.portrait.width ?? 400}
+                height={about.portrait.height ?? 400}
+                alt={about.portrait.alternativeText ?? 'Portrait'}
+              />
+            </div>
+          )
+        }
+        <div class="about-teaser-copy" data-reveal>
+          <StickerBadge label="Who is this cat" rotate={-2} />
+          <h2 class="section-title">{about?.tagline ?? 'About me'}</h2>
+          <a href="/about" class="btn btn-secondary press-shadow">Read the full story</a>
+        </div>
       </div>
     </div>
   </section>
@@ -142,9 +164,9 @@ featuredProjects = featuredProjects.slice(0, 3);
 
   .hero-mascot {
     position: absolute;
-    top: -12px;
+    top: -20px;
     left: var(--space-6);
-    width: 140px;
+    width: 150px;
     z-index: 2;
   }
 
@@ -153,8 +175,29 @@ featuredProjects = featuredProjects.slice(0, 3);
     z-index: 1;
   }
 
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--teal);
+    margin: 0 0 var(--space-4);
+  }
+
+  .hero-eyebrow-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--tangerine);
+    border: 2px solid var(--ink);
+  }
+
   .hero-headline {
-    font-size: clamp(2.5rem, 8vw, 7rem);
+    font-size: clamp(2.6rem, 8.5vw, 7.5rem);
     display: flex;
     flex-direction: column;
   }
@@ -162,6 +205,7 @@ featuredProjects = featuredProjects.slice(0, 3);
   .hero-line-mask {
     display: block;
     overflow: hidden;
+    padding: 0.06em 0;
   }
 
   .hero-line {
@@ -171,8 +215,9 @@ featuredProjects = featuredProjects.slice(0, 3);
   .hero-highlight {
     background: var(--butter);
     color: var(--ink);
-    padding: 0 0.1em;
+    padding: 0 0.12em;
     box-decoration-break: clone;
+    box-shadow: 3px 3px 0 var(--ink);
   }
 
   .hero-descriptor {
@@ -227,6 +272,20 @@ featuredProjects = featuredProjects.slice(0, 3);
     margin-bottom: var(--space-6);
   }
 
+  /* Colony — a bold blush band; cats sit on paper cards so every coat pops */
+  .colony-section {
+    background: var(--blush);
+    border-top: var(--border-thick);
+    border-bottom: var(--border-thick);
+    padding: var(--space-8) 0 var(--space-9);
+  }
+
+  .colony-sub {
+    font-size: 1.1rem;
+    max-width: 46ch;
+    margin: 0 0 var(--space-7);
+  }
+
   .featured-projects {
     display: flex;
     flex-direction: column;
@@ -237,6 +296,7 @@ featuredProjects = featuredProjects.slice(0, 3);
     background: var(--ink);
     color: var(--paper);
     padding: var(--space-8) 0;
+    border-bottom: var(--border-thick);
   }
 
   .photography-strip .section-title {
@@ -263,14 +323,21 @@ featuredProjects = featuredProjects.slice(0, 3);
     background: var(--paper);
     padding: var(--space-2) var(--space-2) var(--space-4);
     border: var(--border-thick);
+    box-shadow: var(--shadow-hard);
     width: 220px;
     margin: 0;
+    transform: rotate(-1.5deg);
+  }
+
+  .polaroid:nth-child(even) {
+    transform: rotate(1.5deg);
   }
 
   .polaroid :global(img) {
     width: 100%;
     height: 220px;
     object-fit: cover;
+    object-position: center;
     display: block;
   }
 
@@ -284,11 +351,17 @@ featuredProjects = featuredProjects.slice(0, 3);
     text-align: center;
   }
 
-  .about-teaser-inner {
+  /* About teaser as a bold framed panel */
+  .about-teaser-panel {
     display: flex;
     align-items: center;
     gap: var(--space-7);
     flex-wrap: wrap;
+    background: var(--butter);
+    border: var(--border-thick);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-hard);
+    padding: var(--space-7);
   }
 
   .about-teaser-portrait {
@@ -298,18 +371,22 @@ featuredProjects = featuredProjects.slice(0, 3);
     border-radius: var(--radius-card);
     overflow: hidden;
     box-shadow: var(--shadow-hard);
+    background: var(--paper);
   }
 
   .about-teaser-portrait :global(img) {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
     display: block;
   }
 
   .about-teaser-copy {
     flex: 1;
     min-width: 260px;
+  }
+
+  .about-teaser-copy .section-title {
+    margin-bottom: var(--space-5);
   }
 
   .decor-paw {
@@ -324,8 +401,11 @@ featuredProjects = featuredProjects.slice(0, 3);
 
   @media (max-width: 767px) {
     .hero-mascot {
-      width: 90px;
+      width: 96px;
       left: var(--space-4);
+    }
+    .about-teaser-panel {
+      padding: var(--space-5);
     }
   }
 </style>
