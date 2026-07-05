@@ -1,0 +1,173 @@
+---
+import { getImage, Image } from 'astro:assets';
+import Layout from '../layouts/Layout.astro';
+import StickerBadge from '../components/StickerBadge.astro';
+import EmptyState from '../components/EmptyState.astro';
+import Lightbox from '../components/Lightbox.tsx';
+import { getPhotos, mediaUrl, type Photo, type PhotoCategory } from '../lib/strapi';
+
+const categories: PhotoCategory[] = ['street', 'landscape', 'portrait', 'macro', 'other'];
+const activeCategory = Astro.url.searchParams.get('category') as PhotoCategory | null;
+
+let photos: Photo[] = [];
+let hadError = false;
+
+try {
+  photos = await getPhotos(
+    activeCategory && categories.includes(activeCategory) ? { category: activeCategory } : {}
+  );
+} catch {
+  hadError = true;
+}
+
+const lightboxPhotos = await Promise.all(
+  photos.map(async (photo) => {
+    const src = mediaUrl(photo.image);
+    if (!src || !photo.image?.width || !photo.image?.height) {
+      return { src: '', width: 800, height: 600, alt: photo.title, title: photo.title, caption: photo.title, gear: photo.gear ?? '' };
+    }
+    const optimized = await getImage({
+      src,
+      width: photo.image.width,
+      height: photo.image.height,
+      format: 'webp',
+    });
+    return {
+      src: optimized.src,
+      width: photo.image.width,
+      height: photo.image.height,
+      alt: photo.image.alternativeText ?? photo.title,
+      title: photo.title,
+      caption: photo.caption ?? photo.title,
+      gear: photo.gear ?? '',
+    };
+  })
+);
+---
+
+<Layout title="Photography" description="Photography through the lens.">
+  <section class="section-inner photography-page">
+    <StickerBadge label="Through the lens" rotate={2} />
+    <h1 data-reveal>Photography</h1>
+
+    <nav class="category-filters" aria-label="Filter by category">
+      <a href="/photography" class:list={['category-pill', { active: !activeCategory }]}>All</a>
+      {
+        categories.map((category) => (
+          <a
+            href={`/photography?category=${category}`}
+            class:list={['category-pill', { active: activeCategory === category }]}
+          >
+            {category}
+          </a>
+        ))
+      }
+    </nav>
+
+    {
+      hadError ? (
+        <EmptyState message="Photos are napping. Check back once Strapi wakes up." />
+      ) : photos.length === 0 ? (
+        <EmptyState message="No photos in this category yet." />
+      ) : (
+        <div class="masonry-grid">
+          {photos.map((photo, i) => (
+            <button type="button" class="photo-thumb" data-photo-index={i} aria-label={`Open ${photo.title}`}>
+              {photo.image?.width && photo.image?.height && (
+                <Image
+                  src={mediaUrl(photo.image)}
+                  width={photo.image.width}
+                  height={photo.image.height}
+                  alt={photo.image.alternativeText ?? photo.title}
+                />
+              )}
+            </button>
+          ))}
+        </div>
+      )
+    }
+  </section>
+
+  <Lightbox photos={lightboxPhotos} client:visible />
+</Layout>
+
+<style>
+  .section-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--space-5);
+  }
+
+  .photography-page {
+    padding-top: var(--space-8);
+    padding-bottom: var(--space-9);
+  }
+
+  .photography-page h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    margin-top: var(--space-3);
+    margin-bottom: var(--space-5);
+  }
+
+  .category-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-bottom: var(--space-7);
+  }
+
+  .category-pill {
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--ink);
+    text-decoration: none;
+    padding: var(--space-2) var(--space-4);
+    border: var(--border-thick);
+    border-radius: var(--radius-pill);
+    background: var(--paper);
+  }
+
+  .category-pill.active {
+    background: var(--teal);
+    color: var(--paper);
+  }
+
+  .masonry-grid {
+    columns: 1;
+    column-gap: var(--space-5);
+  }
+
+  .photo-thumb {
+    display: block;
+    width: 100%;
+    margin-bottom: var(--space-5);
+    break-inside: avoid;
+    border: var(--border-thick);
+    border-radius: var(--radius-card);
+    padding: 0;
+    background: none;
+    cursor: pointer;
+    overflow: hidden;
+  }
+
+  .photo-thumb :global(img) {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  @media (min-width: 640px) {
+    .masonry-grid {
+      columns: 2;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .masonry-grid {
+      columns: 3;
+    }
+  }
+</style>
