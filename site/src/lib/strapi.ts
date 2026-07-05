@@ -163,14 +163,32 @@ export async function getAbout(): Promise<About | null> {
   return res.data;
 }
 
+// Everything ProjectCard renders — list pages skip the markdown `body` and
+// `gallery`, which only getProjectBySlug needs.
+const PROJECT_CARD_FIELDS = [
+  'title',
+  'slug',
+  'summary',
+  'techStack',
+  'projectUrl',
+  'repoUrl',
+  'featured',
+  'finishedAt',
+  'difficulty',
+  'stats',
+];
+
 export async function getProjects({
   featuredOnly = false,
 }: { featuredOnly?: boolean } = {}): Promise<Project[]> {
   const params: Record<string, string> = {
-    populate: '*',
+    'populate[coverImage]': 'true',
     sort: 'finishedAt:desc',
     'pagination[pageSize]': '100',
   };
+  PROJECT_CARD_FIELDS.forEach((field, i) => {
+    params[`fields[${i}]`] = field;
+  });
   if (featuredOnly) {
     params['filters[featured][$eq]'] = 'true';
   }
