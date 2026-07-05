@@ -7,8 +7,9 @@ interface Props {
 
 const { items } = Astro.props;
 
-// Scroll speed follows content length so long rotations don't sprint.
-const duration = Math.max(24, items.length * 5);
+// One item is ~160px of strip; 2s per item keeps the speed near a readable
+// ~80px/s whether the rotation has 5 items or 15.
+const duration = Math.max(12, items.length * 2);
 ---
 
 <div class="ticker" role="presentation" style={`--ticker-duration: ${duration}s;`}>
