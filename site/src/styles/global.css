@@ -109,6 +109,94 @@ button {
   box-shadow: var(--shadow-hard-pressed);
 }
 
+/* ——— Easter-egg elements (spawned by scripts/easter-eggs.ts) ——— */
+
+/* "meow" summons a cat from the bottom edge */
+.egg-meow {
+  position: fixed;
+  bottom: 0;
+  width: 140px;
+  z-index: 300;
+  transform: translateY(105%);
+  transition: transform 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.15);
+  pointer-events: none;
+  line-height: 0;
+}
+
+.egg-meow.egg-meow-up {
+  transform: translateY(10%);
+}
+
+/* the rare walk-across */
+.egg-walk {
+  position: fixed;
+  bottom: -4px;
+  left: 0;
+  width: 130px;
+  z-index: 300;
+  pointer-events: none;
+  line-height: 0;
+  transform: translateX(-160px);
+  animation: egg-walk-across 18s linear forwards;
+}
+
+@keyframes egg-walk-across {
+  from {
+    transform: translateX(-160px);
+  }
+  to {
+    transform: translateX(calc(100vw + 40px));
+  }
+}
+
+/* cat mode paw sprinkles + toast */
+.egg-paw {
+  position: fixed;
+  width: 42px;
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
+  line-height: 0;
+  animation: egg-paw-in 0.5s ease-out forwards;
+}
+
+@keyframes egg-paw-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.3;
+  }
+}
+
+.egg-toast {
+  position: fixed;
+  bottom: var(--space-6);
+  left: 50%;
+  transform: translate(-50%, 16px);
+  opacity: 0;
+  z-index: 400;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  font-size: var(--text-tiny);
+  background: var(--butter);
+  color: var(--ink);
+  border: var(--border-thick);
+  border-radius: var(--radius-pill);
+  box-shadow: 4px 4px 0 var(--ink);
+  padding: var(--space-3) var(--space-5);
+  transition:
+    transform 0.3s ease-out,
+    opacity 0.3s ease-out;
+  pointer-events: none;
+}
+
+.egg-toast.egg-toast-in {
+  transform: translate(-50%, 0);
+  opacity: 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -117,5 +205,9 @@ button {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .egg-paw {
+    opacity: 0.3;
   }
 }
