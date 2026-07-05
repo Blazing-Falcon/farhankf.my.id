@@ -1,0 +1,19 @@
+{
+  "kind": "collectionType",
+  "collectionName": "projects",
+  "info": { "singularName": "project", "pluralName": "projects", "displayName": "Project" },
+  "options": { "draftAndPublish": true },
+  "attributes": {
+    "title": { "type": "string", "required": true },
+    "slug": { "type": "uid", "targetField": "title", "required": true },
+    "summary": { "type": "text", "required": true, "maxLength": 280 },
+    "body": { "type": "richtext" },
+    "coverImage": { "type": "media", "multiple": false, "allowedTypes": ["images"] },
+    "gallery": { "type": "media", "multiple": true, "allowedTypes": ["images"] },
+    "techStack": { "type": "json" },
+    "projectUrl": { "type": "string" },
+    "repoUrl": { "type": "string" },
+    "featured": { "type": "boolean", "default": false },
+    "finishedAt": { "type": "date" }
+  }
+}

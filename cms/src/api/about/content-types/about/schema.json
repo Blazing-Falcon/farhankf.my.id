@@ -1,0 +1,16 @@
+{
+  "kind": "singleType",
+  "collectionName": "abouts",
+  "info": { "singularName": "about", "pluralName": "abouts", "displayName": "About" },
+  "options": { "draftAndPublish": true },
+  "attributes": {
+    "headline": { "type": "string", "required": true },
+    "tagline": { "type": "string" },
+    "bio": { "type": "richtext", "required": true },
+    "portrait": { "type": "media", "multiple": false, "allowedTypes": ["images"] },
+    "skills": { "type": "json" },
+    "email": { "type": "email" },
+    "githubUrl": { "type": "string" },
+    "location": { "type": "string" }
+  }
+}
