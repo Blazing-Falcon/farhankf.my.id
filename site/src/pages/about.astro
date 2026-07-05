@@ -5,13 +5,13 @@ import Layout from '../layouts/Layout.astro';
 import StickerBadge from '../components/StickerBadge.astro';
 import EmptyState from '../components/EmptyState.astro';
 import CatTail from '../components/cats/CatTail.astro';
-import { getAbout, getCats, mediaUrl, type About, type Cat } from '../lib/strapi';
+import { getCats, mediaUrl, type About, type Cat } from '../lib/strapi';
 
 let about: About | null = null;
 let hadError = false;
 
 try {
-  about = await getAbout();
+  about = await Astro.locals.about();
 } catch {
   hadError = true;
 }

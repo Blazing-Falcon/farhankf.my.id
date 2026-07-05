@@ -1,12 +1,11 @@
 ---
 import CatSleep from './cats/CatSleep.astro';
-import { getAbout } from '../lib/strapi';
 
 let email: string | null = null;
 let githubUrl: string | null = null;
 
 try {
-  const about = await getAbout();
+  const about = await Astro.locals.about();
   email = about?.email ?? null;
   githubUrl = about?.githubUrl ?? null;
 } catch {
