@@ -114,16 +114,16 @@ interface StrapiSingleResponse<T> {
   meta: Record<string, unknown>;
 }
 
-export async function strapiFetch<T>(
-  path: string,
-  params: Record<string, string> = {}
-): Promise<T> {
-  const url = new URL(`${STRAPI_URL}/api${path}`);
-  for (const [key, value] of Object.entries(params)) {
-    url.searchParams.set(key, value);
-  }
+// Content changes rarely (owner edits via admin UI), so identical GET responses
+// are cached for a short TTL. The cache stores the in-flight promise, which also
+// collapses concurrent identical requests into one Strapi round-trip. Failed
+// requests are evicted immediately: an outage degrades exactly like an uncached
+// failure (pages render EmptyState) and recovery is picked up on the next view.
+const CACHE_TTL_MS = 60_000;
+const cache = new Map<string, { expires: number; promise: Promise<unknown> }>();
 
-  const res = await fetch(url.toString(), {
+async function fetchJson<T>(url: string): Promise<T> {
+  const res = await fetch(url, {
     headers: { Authorization: `Bearer ${STRAPI_TOKEN}` },
   });
 
@@ -133,6 +133,29 @@ export async function strapiFetch<T>(
   }
 
   return res.json() as Promise<T>;
+}
+
+export async function strapiFetch<T>(
+  path: string,
+  params: Record<string, string> = {}
+): Promise<T> {
+  const url = new URL(`${STRAPI_URL}/api${path}`);
+  for (const [key, value] of Object.entries(params)) {
+    url.searchParams.set(key, value);
+  }
+  const key = url.toString();
+
+  const hit = cache.get(key);
+  if (hit && hit.expires > Date.now()) {
+    return hit.promise as Promise<T>;
+  }
+
+  const promise = fetchJson<T>(key);
+  cache.set(key, { expires: Date.now() + CACHE_TTL_MS, promise });
+  promise.catch(() => {
+    if (cache.get(key)?.promise === promise) cache.delete(key);
+  });
+  return promise;
 }
 
 export async function getAbout(): Promise<About | null> {
