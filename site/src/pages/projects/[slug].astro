@@ -92,6 +92,8 @@ const stats = project?.stats ?? [];
               src={mediaUrl(project.coverImage)}
               width={project.coverImage.width ?? 1200}
               height={project.coverImage.height ?? 675}
+              widths={[768, 1200]}
+              sizes="(max-width: 1200px) 100vw, 1136px"
               alt={project.coverImage.alternativeText ?? project.title}
             />
           </div>
@@ -119,6 +121,8 @@ const stats = project?.stats ?? [];
                   src={mediaUrl(image)}
                   width={image.width ?? 800}
                   height={image.height ?? 600}
+                  widths={[400, 800]}
+                  sizes="(min-width: 768px) 50vw, 92vw"
                   alt={image.alternativeText ?? project.title}
                 />
               </div>

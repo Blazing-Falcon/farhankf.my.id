@@ -183,6 +183,8 @@ juan@lab:~$ <span class="terminal-cursor">▌</span></pre>
                     src={mediaUrl(photo.image)}
                     width={photo.image.width}
                     height={photo.image.height}
+                    widths={[220, 440]}
+                    sizes="220px"
                     alt={photo.image.alternativeText ?? photo.title}
                   />
                 ) : null}
@@ -244,6 +246,8 @@ juan@lab:~$ <span class="terminal-cursor">▌</span></pre>
                   src={mediaUrl(about.portrait)}
                   width={about.portrait.width ?? 400}
                   height={about.portrait.height ?? 400}
+                  widths={[220, 440]}
+                  sizes="220px"
                   alt={about.portrait.alternativeText ?? 'Portrait'}
                 />
               </div>

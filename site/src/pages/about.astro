@@ -60,6 +60,8 @@ const profileFacts = [
                 src={mediaUrl(about.portrait)}
                 width={about.portrait.width ?? 400}
                 height={about.portrait.height ?? 400}
+                widths={[240, 480]}
+                sizes="240px"
                 alt={about.portrait.alternativeText ?? about.headline}
               />
             </div>
@@ -133,6 +135,8 @@ const profileFacts = [
                           src={mediaUrl(cat.photo)}
                           width={cat.photo.width}
                           height={cat.photo.height}
+                          widths={[170, 340]}
+                          sizes="170px"
                           alt={cat.photo.alternativeText ?? `${cat.name}, ${cat.role}`}
                         />
                       ) : null}
@@ -161,6 +165,8 @@ const profileFacts = [
                     src={mediaUrl(cat.photo)}
                     width={cat.photo.width}
                     height={cat.photo.height}
+                    widths={[400, 640]}
+                    sizes="(max-width: 500px) 85vw, 392px"
                     alt={cat.photo.alternativeText ?? cat.name}
                   />
                 </div>

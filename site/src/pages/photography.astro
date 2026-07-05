@@ -102,6 +102,8 @@ const shotDate = (photo: Photo) =>
                   src={mediaUrl(photo.image)}
                   width={photo.image.width}
                   height={photo.image.height}
+                  widths={[360, 720]}
+                  sizes="(min-width: 1024px) 350px, (min-width: 640px) 46vw, 92vw"
                   alt={photo.image.alternativeText ?? photo.title}
                 />
               )}
