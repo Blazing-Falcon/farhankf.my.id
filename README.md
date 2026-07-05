@@ -24,6 +24,8 @@ npm run dev
 
 Astro's data layer (`site/src/lib/strapi.ts`) fetches from Strapi server-side on every request, so Strapi should be running first. If Strapi is down, pages still render (with a cat empty-state illustration in place of the missing content) instead of a 500.
 
+Both dev servers bind to all network interfaces (`0.0.0.0`), not just `localhost`, so they're reachable from other machines on the same network (e.g. `http://<this-machine-ip>:4321`). Strapi picks this up from `HOST=0.0.0.0` in `cms/.env`; Astro uses the `--host` flag on `npm run dev` / `npm run preview`. `astro dev` prints the exact LAN/Tailscale addresses to use on startup.
+
 ## Content Editing
 
 All content (About, Projects, Photos) is managed through the Strapi admin panel:
