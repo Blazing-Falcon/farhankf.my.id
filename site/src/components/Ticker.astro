@@ -7,16 +7,30 @@ interface Props {
 
 const { items } = Astro.props;
 
-// One item is ~160px of strip; 2s per item keeps the speed near a readable
-// ~80px/s whether the rotation has 5 items or 15.
+// The classic duplicate-once + translateX(-50%) marquee breaks when one set of
+// items is narrower than the viewport: a blank gap rolls through once per
+// loop. So we estimate the set's rendered width (~10px per character plus
+// padding and the paw glyph) and stamp out enough copies that the track still
+// covers a 3840px viewport at the deepest point of the animation, then shift
+// by exactly one set (-100% / copies) per cycle, which is seamless for any
+// copy count.
+const setEstimate = items.reduce((w, item) => w + item.length * 10 + 90, 0);
+const copies = Math.max(2, Math.ceil(3840 / setEstimate) + 1);
+const shift = -(100 / copies).toFixed(4);
+
+// ~2s per item ≈ a readable ~80px/s regardless of rotation length.
 const duration = Math.max(12, items.length * 2);
 ---
 
-<div class="ticker" role="presentation" style={`--ticker-duration: ${duration}s;`}>
+<div
+  class="ticker"
+  role="presentation"
+  style={`--ticker-duration: ${duration}s; --ticker-shift: ${shift}%;`}
+>
   <div class="ticker-track">
     {
-      [0, 1].map((copy) => (
-        <div class="ticker-set" aria-hidden={copy === 1}>
+      Array.from({ length: copies }, (_, copy) => (
+        <div class="ticker-set" aria-hidden={copy > 0}>
           {items.map((item) => (
             <span class="ticker-item">
               <span class="ticker-text">{item}</span>
@@ -82,10 +96,12 @@ const duration = Math.max(12, items.length * 2);
       transform: translateX(0);
     }
     to {
-      transform: translateX(-50%);
+      transform: translateX(var(--ticker-shift));
     }
   }
 
+  /* Static under reduced motion — the multi-copy track still spans the full
+     band, so a frozen ticker never shows a gap either. */
   @media (prefers-reduced-motion: reduce) {
     .ticker-track {
       animation: none;
