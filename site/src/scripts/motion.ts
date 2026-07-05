@@ -36,14 +36,24 @@ if (heroMascot) {
 
 // Scroll reveals: fade in and rise on entering the viewport, once. The -15%
 // bottom rootMargin matches ScrollTrigger's old `start: 'top 85%'`.
+// The hidden start state is applied eagerly here (like the old gsap.set), not
+// just inside the keyframes — otherwise below-the-fold content renders visible
+// and flickers off/on when its reveal starts during a fast scroll.
 const revealEls = document.querySelectorAll<HTMLElement>('[data-reveal]');
 if (revealEls.length) {
+  revealEls.forEach((el) => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(24px)';
+  });
   const observer = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
         if (!entry.isIntersecting) continue;
         observer.unobserve(entry.target);
-        entry.target.animate(
+        const el = entry.target as HTMLElement;
+        el.style.opacity = '';
+        el.style.transform = '';
+        el.animate(
           { opacity: [0, 1], transform: ['translateY(24px)', 'translateY(0)'] },
           { duration: 600, easing: EASE_OUT_CUBIC, fill: 'backwards' }
         );
