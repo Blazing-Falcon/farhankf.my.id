@@ -1,0 +1,214 @@
+---
+import { marked } from 'marked';
+import { Image } from 'astro:assets';
+import Layout from '../layouts/Layout.astro';
+import StickerBadge from '../components/StickerBadge.astro';
+import EmptyState from '../components/EmptyState.astro';
+import CatLoaf from '../components/cats/CatLoaf.astro';
+import { getAbout, mediaUrl, type About } from '../lib/strapi';
+
+let about: About | null = null;
+let hadError = false;
+
+try {
+  about = await getAbout();
+} catch {
+  hadError = true;
+}
+
+const bioHtml = about?.bio ? marked.parse(about.bio) : '';
+---
+
+<Layout title="About" description={about?.tagline ?? 'About Juan'}>
+  {
+    hadError || !about ? (
+      <div class="section-inner">
+        <EmptyState message="The about page is napping. Check back once Strapi wakes up." />
+      </div>
+    ) : (
+      <div class="about-page">
+        <section class="about-hero section-inner">
+          <StickerBadge label="Who is this cat" rotate={-3} />
+          <h1 data-reveal>{about.headline}</h1>
+          {about.tagline && <p class="tagline">{about.tagline}</p>}
+          {about.portrait && (
+            <div class="portrait-frame">
+              <Image
+                src={mediaUrl(about.portrait)}
+                width={about.portrait.width ?? 400}
+                height={about.portrait.height ?? 400}
+                alt={about.portrait.alternativeText ?? about.headline}
+              />
+            </div>
+          )}
+        </section>
+
+        <section class="bio-section section-inner">
+          <div class="bio-prose" data-reveal set:html={bioHtml} />
+        </section>
+
+        <div class="divider">
+          <CatLoaf />
+        </div>
+
+        <section class="skills-section section-inner">
+          {about.skills && about.skills.length > 0 && (
+            <div class="skills-groups" data-reveal>
+              {about.skills.map((group) => (
+                <div class="skills-group">
+                  <h3>{group.group}</h3>
+                  <div class="skills-pills">
+                    {group.items.map((item) => (
+                      <span class="skill-pill">{item}</span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section class="contact-section section-inner">
+          <div class="contact-block">
+            {about.location && <p class="contact-location">{about.location}</p>}
+            <div class="contact-links">
+              {about.email && <a href={`mailto:${about.email}`}>{about.email}</a>}
+              {about.githubUrl && (
+                <a href={about.githubUrl} target="_blank" rel="noreferrer">
+                  GitHub
+                </a>
+              )}
+            </div>
+          </div>
+        </section>
+      </div>
+    )
+  }
+</Layout>
+
+<style>
+  .section-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--space-5);
+  }
+
+  .about-hero {
+    padding-top: var(--space-8);
+    padding-bottom: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .about-hero h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .tagline {
+    font-size: 1.15rem;
+    max-width: 60ch;
+  }
+
+  .portrait-frame {
+    width: 200px;
+    border: var(--border-thick);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-hard);
+    overflow: hidden;
+  }
+
+  .portrait-frame :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .bio-section {
+    padding-bottom: var(--space-6);
+  }
+
+  .bio-prose {
+    max-width: 65ch;
+    font-size: 1.05rem;
+  }
+
+  .bio-prose :global(p) {
+    margin-bottom: var(--space-4);
+  }
+
+  .bio-prose :global(strong) {
+    color: var(--teal);
+  }
+
+  .divider {
+    width: 140px;
+    margin: var(--space-6) auto;
+  }
+
+  .skills-section {
+    padding-bottom: var(--space-7);
+  }
+
+  .skills-groups {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-6);
+  }
+
+  .skills-group h3 {
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-3);
+  }
+
+  .skills-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .skill-pill {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: var(--blush);
+    color: var(--ink);
+    border: var(--border-thick);
+    border-radius: var(--radius-pill);
+    padding: var(--space-1) var(--space-3);
+  }
+
+  .contact-section {
+    padding-bottom: var(--space-8);
+  }
+
+  .contact-block {
+    border: var(--border-thick);
+    border-radius: var(--radius-card);
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .contact-location {
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.85rem;
+    margin: 0;
+  }
+
+  .contact-links {
+    display: flex;
+    gap: var(--space-5);
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+  }
+</style>
