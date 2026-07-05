@@ -1,0 +1,82 @@
+---
+import CatSit from './cats/CatSit.astro';
+import { getAbout } from '../lib/strapi';
+
+let email: string | null = null;
+let githubUrl: string | null = null;
+
+try {
+  const about = await getAbout();
+  email = about?.email ?? null;
+  githubUrl = about?.githubUrl ?? null;
+} catch {
+  // Strapi may be unavailable; footer degrades gracefully without contact links.
+}
+---
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="footer-cat">
+      <CatSit variant="dark" />
+    </div>
+    <div class="footer-content">
+      <div class="footer-links">
+        {email && <a href={`mailto:${email}`}>{email}</a>}
+        {githubUrl && (
+          <a href={githubUrl} target="_blank" rel="noreferrer">
+            GitHub
+          </a>
+        )}
+      </div>
+      <p class="colophon">Built with Astro + Strapi, self-hosted on Proxmox.</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--ink);
+    color: var(--paper);
+    border-top: var(--border-thick);
+  }
+
+  .site-footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-7) var(--space-5);
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+  }
+
+  .footer-cat {
+    width: 100px;
+    flex-shrink: 0;
+  }
+
+  .footer-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .footer-links {
+    display: flex;
+    gap: var(--space-5);
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.85rem;
+  }
+
+  .footer-links a {
+    color: var(--paper);
+  }
+
+  .colophon {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--blush);
+    margin: 0;
+  }
+</style>

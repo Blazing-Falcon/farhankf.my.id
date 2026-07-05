@@ -1,0 +1,30 @@
+---
+interface Props {
+  label: string;
+  rotate?: number;
+  class?: string;
+}
+
+const { label, rotate = -4, class: className = '' } = Astro.props;
+---
+
+<span class:list={['sticker-badge', className]} style={`--rotate: ${rotate}deg;`}>
+  {label}
+</span>
+
+<style>
+  .sticker-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: var(--butter);
+    color: var(--ink);
+    border: var(--border-thick);
+    border-radius: var(--radius-pill);
+    padding: var(--space-2) var(--space-4);
+    transform: rotate(var(--rotate));
+  }
+</style>

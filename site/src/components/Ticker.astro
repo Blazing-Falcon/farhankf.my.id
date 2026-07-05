@@ -1,0 +1,82 @@
+---
+import PawPrint from './cats/PawPrint.astro';
+
+interface Props {
+  items: string[];
+}
+
+const { items } = Astro.props;
+---
+
+<div class="ticker" role="presentation">
+  <div class="ticker-track">
+    {
+      [0, 1].map((copy) => (
+        <div class="ticker-set" aria-hidden={copy === 1}>
+          {items.map((item) => (
+            <span class="ticker-item">
+              <span>{item}</span>
+              <PawPrint class="ticker-paw" />
+            </span>
+          ))}
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .ticker {
+    overflow: hidden;
+    background: var(--tangerine);
+    color: var(--ink);
+    border-top: var(--border-thick);
+    border-bottom: var(--border-thick);
+    padding: var(--space-3) 0;
+  }
+
+  .ticker-track {
+    display: flex;
+    width: max-content;
+    animation: ticker-scroll 24s linear infinite;
+  }
+
+  .ticker-set {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .ticker-item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-4);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 1.1rem;
+    padding: 0 var(--space-5);
+    white-space: nowrap;
+  }
+
+  :global(.ticker-paw) {
+    width: 20px;
+    height: 20px;
+  }
+
+  @keyframes ticker-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ticker-track {
+      animation: none;
+    }
+  }
+</style>
