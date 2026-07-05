@@ -351,7 +351,9 @@ juan@lab:~$ <span class="terminal-cursor">▌</span></pre>
     position: absolute;
     top: 0;
     left: 50%;
-    transform: translateX(-50%);
+    /* `translate`, not `transform`: composes with motion.ts's `scale` pop-in
+       keyframes without the -50% offset getting scaled along (off-center cat) */
+    translate: -50%;
     width: 150px;
     z-index: 2;
   }

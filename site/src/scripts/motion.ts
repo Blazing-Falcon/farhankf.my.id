@@ -11,12 +11,17 @@ const EASE_OUT_QUART = 'cubic-bezier(0.165, 0.84, 0.44, 1)'; // gsap power3.out
 const EASE_OUT_CUBIC = 'cubic-bezier(0.215, 0.61, 0.355, 1)'; // gsap power2.out
 const EASE_BACK_OUT = 'cubic-bezier(0.34, 1.56, 0.64, 1)'; // gsap back.out(1.7)
 
+// All keyframes animate the individual `translate`/`scale` properties, never
+// `transform`: a WAAPI transform keyframe *replaces* an element's base CSS
+// transform (unlike GSAP, which merges), which un-centers the hero mascot
+// (`translateX(-50%)`) and un-tilts the rotated cards mid-reveal.
+
 // Hero load sequence: headline lines slide up from behind an overflow mask,
 // mascot pops in last with a small overshoot.
 const heroLines = document.querySelectorAll<HTMLElement>('[data-hero-line]');
 heroLines.forEach((el, i) => {
   el.animate(
-    { transform: ['translateY(110%)', 'translateY(0%)'] },
+    { translate: ['0 110%', '0 0'] },
     { duration: 700, easing: EASE_OUT_QUART, delay: i * 80, fill: 'backwards' }
   );
 });
@@ -24,7 +29,7 @@ heroLines.forEach((el, i) => {
 const heroMascot = document.querySelector<HTMLElement>('[data-hero-mascot]');
 if (heroMascot) {
   heroMascot.animate(
-    { transform: ['scale(0.6)', 'scale(1)'], opacity: [0, 1] },
+    { scale: ['0.6', '1'], opacity: [0, 1] },
     {
       duration: 600,
       easing: EASE_BACK_OUT,
@@ -43,7 +48,7 @@ const revealEls = document.querySelectorAll<HTMLElement>('[data-reveal]');
 if (revealEls.length) {
   revealEls.forEach((el) => {
     el.style.opacity = '0';
-    el.style.transform = 'translateY(24px)';
+    el.style.translate = '0 24px';
   });
   const observer = new IntersectionObserver(
     (entries) => {
@@ -52,9 +57,9 @@ if (revealEls.length) {
         observer.unobserve(entry.target);
         const el = entry.target as HTMLElement;
         el.style.opacity = '';
-        el.style.transform = '';
+        el.style.translate = '';
         el.animate(
-          { opacity: [0, 1], transform: ['translateY(24px)', 'translateY(0)'] },
+          { opacity: [0, 1], translate: ['0 24px', '0 0'] },
           { duration: 600, easing: EASE_OUT_CUBIC, fill: 'backwards' }
         );
       }
@@ -81,7 +86,7 @@ if (!isMobile && parallaxEls.length) {
     const target = -15 * progress();
     current += (target - current) * 0.12;
     parallaxEls.forEach((el) => {
-      el.style.transform = `translateY(${current.toFixed(3)}%)`;
+      el.style.translate = `0 ${current.toFixed(3)}%`;
     });
     raf = Math.abs(target - current) > 0.01 ? requestAnimationFrame(tick) : 0;
   };
