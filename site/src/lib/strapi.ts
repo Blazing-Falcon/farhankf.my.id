@@ -28,6 +28,18 @@ export interface About {
   location?: string | null;
 }
 
+export type ProjectDifficulty =
+  | 'weekend-hack'
+  | 'semester-project'
+  | 'thesis-grade'
+  | 'ongoing-saga';
+
+/** Convention-only shape for the `stats` json field, e.g. { label: "rows", value: "340k" }. */
+export interface ProjectStat {
+  label: string;
+  value: string;
+}
+
 export interface Project {
   id: number;
   documentId: string;
@@ -42,6 +54,8 @@ export interface Project {
   repoUrl?: string | null;
   featured: boolean;
   finishedAt?: string | null;
+  difficulty?: ProjectDifficulty | null;
+  stats?: ProjectStat[] | null;
 }
 
 export type PhotoCategory = 'street' | 'landscape' | 'portrait' | 'macro' | 'other';

@@ -14,6 +14,11 @@
     "projectUrl": { "type": "string" },
     "repoUrl": { "type": "string" },
     "featured": { "type": "boolean", "default": false },
-    "finishedAt": { "type": "date" }
+    "finishedAt": { "type": "date" },
+    "difficulty": {
+      "type": "enumeration",
+      "enum": ["weekend-hack", "semester-project", "thesis-grade", "ongoing-saga"]
+    },
+    "stats": { "type": "json" }
   }
 }

@@ -74,6 +74,17 @@ These JSON/array fields are free-form in Strapi and not schema-validated beyond 
 
 **Project `techStack` (JSON field):** flat array of strings, e.g. `["Python", "scikit-learn", "SMOTE"]`.
 
+**Project `stats` (JSON field):** up to ~3 tiny bragging numbers shown on the card, e.g.
+
+```json
+[
+  { "label": "rows processed", "value": "340k" },
+  { "label": "accuracy", "value": "0.94" }
+]
+```
+
+**Project `difficulty` (enum):** one of `weekend-hack`, `semester-project`, `thesis-grade`, `ongoing-saga` — rendered as a sticker on the project card. Optional.
+
 ## Design Token Reference
 
 Defined in `site/src/styles/tokens.css` as CSS custom properties; every color/size in components should derive from these rather than hardcoded values.
