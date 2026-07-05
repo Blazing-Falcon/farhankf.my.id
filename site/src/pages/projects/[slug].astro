@@ -27,6 +27,15 @@ if (hadError) {
 
 const bodyHtml = project?.body ? marked.parse(project.body) : '';
 const year = project?.finishedAt ? new Date(project.finishedAt).getFullYear() : null;
+
+const difficultyLabels: Record<string, string> = {
+  'weekend-hack': 'Weekend hack',
+  'semester-project': 'Semester project',
+  'thesis-grade': 'Thesis grade',
+  'ongoing-saga': 'Ongoing saga',
+};
+const difficulty = project?.difficulty ? difficultyLabels[project.difficulty] : null;
+const stats = project?.stats ?? [];
 ---
 
 <Layout title={project?.title ?? 'Project not found'}>
@@ -47,9 +56,22 @@ const year = project?.finishedAt ? new Date(project.finishedAt).getFullYear() : 
     ) : (
       <article class="project-detail">
         <header class="section-inner project-header">
-          <StickerBadge label={year ? String(year) : 'Project'} rotate={-3} />
+          <div class="header-badges">
+            <StickerBadge label={year ? String(year) : 'Project'} rotate={-3} />
+            {difficulty && <StickerBadge label={difficulty} rotate={2} />}
+          </div>
           <h1 data-reveal>{project.title}</h1>
           <p class="summary">{project.summary}</p>
+          {stats.length > 0 && (
+            <dl class="project-stats">
+              {stats.map((stat) => (
+                <div class="stat">
+                  <dd>{stat.value}</dd>
+                  <dt>{stat.label}</dt>
+                </div>
+              ))}
+            </dl>
+          )}
           <div class="project-links">
             {project.projectUrl && (
               <a href={project.projectUrl} target="_blank" rel="noreferrer" class="btn btn-primary press-shadow">
@@ -137,12 +159,50 @@ const year = project?.finishedAt ? new Date(project.finishedAt).getFullYear() : 
   }
 
   .project-header h1 {
-    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-size: var(--text-section);
+  }
+
+  .header-badges {
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
   }
 
   .summary {
     max-width: 60ch;
-    font-size: 1.1rem;
+    font-size: var(--text-body);
+  }
+
+  .project-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-6);
+    margin: 0;
+    width: fit-content;
+    padding: var(--space-3) var(--space-4);
+    border: 2px dashed var(--teal);
+    border-radius: var(--radius-card);
+  }
+
+  .stat {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+  }
+
+  .stat dd {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--teal);
+  }
+
+  .stat dt {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   .project-links {

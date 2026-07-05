@@ -3,6 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import StickerBadge from '../../components/StickerBadge.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import EmptyState from '../../components/EmptyState.astro';
+import CatBat from '../../components/cats/CatBat.astro';
 import { getProjects, type Project } from '../../lib/strapi';
 
 let projects: Project[] = [];
@@ -17,15 +18,31 @@ try {
 
 <Layout title="Projects" description="Machine learning and infrastructure projects.">
   <section class="section-inner projects-page">
-    <StickerBadge label="Fresh from the lab" rotate={-3} />
-    <h1 data-reveal>Projects</h1>
+    <div class="page-head">
+      <div>
+        <StickerBadge label="Fresh from the lab" rotate={-3} />
+        <h1 data-reveal>Projects</h1>
+        <p class="page-sub">
+          Everything on the lab bench, newest first: ML pipelines, from-scratch math, and the
+          infrastructure that keeps it all humming at 2am.
+        </p>
+      </div>
+      <div class="page-head-cat" aria-hidden="true">
+        <CatBat />
+      </div>
+    </div>
     {
       hadError || projects.length === 0 ? (
         <EmptyState message="Projects are napping. Check back once Strapi wakes up." />
       ) : (
         <div class="projects-grid">
-          {projects.map((project) => (
-            <ProjectCard project={project} variant="grid" />
+          {projects.map((project, i) => (
+            <ProjectCard
+              project={project}
+              variant="grid"
+              headingLevel="h2"
+              rotate={[-0.6, 0.6, 0][i % 3]}
+            />
           ))}
         </div>
       )
@@ -41,14 +58,33 @@ try {
   }
 
   .projects-page {
-    padding-top: var(--space-8);
-    padding-bottom: var(--space-9);
+    padding-top: var(--space-7);
+    padding-bottom: var(--section-gap);
   }
 
-  .projects-page h1 {
-    font-size: clamp(2rem, 5vw, 3.5rem);
-    margin-top: var(--space-3);
+  .page-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-5);
     margin-bottom: var(--space-7);
+  }
+
+  .page-head h1 {
+    font-size: var(--text-section);
+    margin-top: var(--space-3);
+    margin-bottom: var(--space-3);
+  }
+
+  .page-sub {
+    font-size: var(--text-body);
+    max-width: 52ch;
+    margin: 0;
+  }
+
+  .page-head-cat {
+    width: 140px;
+    flex-shrink: 0;
   }
 
   .projects-grid {
@@ -66,6 +102,12 @@ try {
   @media (min-width: 1024px) {
     .projects-grid {
       grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 767px) {
+    .page-head-cat {
+      display: none;
     }
   }
 </style>
