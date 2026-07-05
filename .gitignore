@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+.tmp/
+.cache/
+*.sqlite
+*.db
+cms/public/uploads/*
+!cms/public/uploads/.gitkeep
+.DS_Store
+.astro/
