@@ -196,21 +196,3 @@ button {
   transform: translate(-50%, 0);
   opacity: 1;
 }
-
-@media (prefers-reduced-motion: reduce) {
-  /* .ticker-track is exempt: the marquee keeps scrolling even under reduced
-     motion (owner's choice — Windows' system toggle was freezing it for
-     ordinary desktop visitors; see Ticker.astro). */
-  *:not(.ticker-track),
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    scroll-behavior: auto !important;
-  }
-
-  .egg-paw {
-    opacity: 0.3;
-  }
-}

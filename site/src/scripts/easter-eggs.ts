@@ -2,8 +2,6 @@
 // from <template> elements in Layout.astro, and stays out of the way of
 // content. See global.css for the .egg-* styles.
 
-const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
 function cloneTemplate(id: string): HTMLDivElement | null {
   const tpl = document.getElementById(id);
   if (!(tpl instanceof HTMLTemplateElement)) return null;
@@ -118,9 +116,8 @@ document.addEventListener('keydown', (event) => {
   }
 });
 
-// ——— Rare walk-across: low probability, once per page view, never on
-// reduced motion (a teleporting cat is not a delight).
-if (!prefersReducedMotion && Math.random() < 0.07) {
+// ——— Rare walk-across: low probability, once per page view.
+if (Math.random() < 0.07) {
   setTimeout(() => {
     const cat = cloneTemplate('egg-tpl-walk');
     if (!cat) return;
