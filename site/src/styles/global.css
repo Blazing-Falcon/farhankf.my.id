@@ -28,7 +28,7 @@ body {
   background-size: var(--grid-size) var(--grid-size);
   color: var(--ink);
   font-family: var(--font-body);
-  font-size: 1.0625rem;
+  font-size: var(--text-body);
   line-height: 1.6;
 }
 

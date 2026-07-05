@@ -30,6 +30,18 @@
   --font-body: 'Instrument Sans', system-ui, sans-serif;
   --font-mono: 'Space Mono', monospace;
 
+  /* Type scale — five stops, nothing in between. Hero 64–88, section 40–48,
+     sub 24, body 18, small 14–16 (per redesign spec). */
+  --text-hero: clamp(3.25rem, 7.5vw, 5.5rem);
+  --text-section: clamp(2.5rem, 4vw, 3rem);
+  --text-sub: 1.5rem;
+  --text-body: 1.125rem;
+  --text-small: 0.9375rem;
+  --text-tiny: 0.875rem;
+
+  /* Vertical rhythm between major groups: 48–80px */
+  --section-gap: clamp(48px, 7vw, 80px);
+
   /* Shape language */
   --radius-card: 12px;
   --radius-pill: 999px;
