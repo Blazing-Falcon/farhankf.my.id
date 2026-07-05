@@ -1,0 +1,13 @@
+{
+  "kind": "collectionType",
+  "collectionName": "cats",
+  "info": { "singularName": "cat", "pluralName": "cats", "displayName": "Cat" },
+  "options": { "draftAndPublish": true },
+  "attributes": {
+    "name": { "type": "string", "required": true },
+    "role": { "type": "string", "required": true },
+    "bio": { "type": "text" },
+    "photo": { "type": "media", "multiple": false, "allowedTypes": ["images"] },
+    "order": { "type": "integer", "default": 0 }
+  }
+}
