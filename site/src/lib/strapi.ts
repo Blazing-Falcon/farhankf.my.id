@@ -58,6 +58,14 @@ export interface Project {
   stats?: ProjectStat[] | null;
 }
 
+export interface LabNote {
+  id: number;
+  documentId: string;
+  title: string;
+  body: string;
+  order: number;
+}
+
 export type PhotoCategory = 'street' | 'landscape' | 'portrait' | 'macro' | 'other';
 
 export interface Photo {
@@ -154,6 +162,14 @@ export async function getPhotos({
     params['filters[featured][$eq]'] = 'true';
   }
   const res = await strapiFetch<StrapiListResponse<Photo>>('/photos', params);
+  return res.data;
+}
+
+export async function getLabNotes(): Promise<LabNote[]> {
+  const res = await strapiFetch<StrapiListResponse<LabNote>>('/lab-notes', {
+    sort: 'order:asc',
+    'pagination[pageSize]': '12',
+  });
   return res.data;
 }
 

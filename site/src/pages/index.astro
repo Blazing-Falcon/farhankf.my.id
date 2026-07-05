@@ -11,18 +11,30 @@ import CatKeyboard from '../components/cats/CatKeyboard.astro';
 import CatTail from '../components/cats/CatTail.astro';
 import PawPrint from '../components/cats/PawPrint.astro';
 import { Image } from 'astro:assets';
-import { getAbout, getProjects, getPhotos, mediaUrl, type Project, type Photo, type About } from '../lib/strapi';
+import {
+  getAbout,
+  getProjects,
+  getPhotos,
+  getLabNotes,
+  mediaUrl,
+  type Project,
+  type Photo,
+  type About,
+  type LabNote,
+} from '../lib/strapi';
 
 let about: About | null = null;
 let featuredProjects: Project[] = [];
 let featuredPhotos: Photo[] = [];
+let labNotes: LabNote[] = [];
 let hadError = false;
 
 try {
-  [about, featuredProjects, featuredPhotos] = await Promise.all([
+  [about, featuredProjects, featuredPhotos, labNotes] = await Promise.all([
     getAbout(),
     getProjects({ featuredOnly: true }),
     getPhotos({ featuredOnly: true }),
+    getLabNotes(),
   ]);
 } catch {
   hadError = true;
@@ -30,12 +42,8 @@ try {
 
 featuredProjects = featuredProjects.slice(0, 3);
 
-const labNotes = [
-  { title: 'Current obsession', body: 'Particle swarm optimization for hyperparameter tuning. The particles behave better than the cats.', rotate: -2 },
-  { title: 'Coffee intake', body: 'x̄ = 3.2 cups/day, σ = 0.8, n = 30. Confidence interval excludes zero. Obviously.', rotate: 1.5 },
-  { title: 'Experiment #47', body: 'Teach the cats to stay off the ZFS pool. Status: rejected at every significance level.', rotate: -1 },
-  { title: 'Reading pile', body: 'Bayesian stats, camera manuals, and one D&D module I keep pretending is research.', rotate: 2 },
-];
+// Presentation only — content comes from the CMS.
+const noteTilts = [-2, 1.5, -1, 2];
 ---
 
 <Layout title="Home">
@@ -193,17 +201,21 @@ juan@lab:~$ <span class="terminal-cursor">▌</span></pre>
           <CatKeyboard />
         </div>
       </div>
-      <div class="labnotes-grid">
-        {
-          labNotes.map((note) => (
-            <div class="labnote" style={`--tilt: ${note.rotate}deg;`} data-reveal>
-              <span class="labnote-pin" aria-hidden="true" />
-              <h3>{note.title}</h3>
-              <p>{note.body}</p>
-            </div>
-          ))
-        }
-      </div>
+      {
+        hadError || labNotes.length === 0 ? (
+          <EmptyState message="The board is empty. Pin some lab notes in Strapi." />
+        ) : (
+          <div class="labnotes-grid">
+            {labNotes.map((note, i) => (
+              <div class="labnote" style={`--tilt: ${noteTilts[i % noteTilts.length]}deg;`} data-reveal>
+                <span class="labnote-pin" aria-hidden="true" />
+                <h3>{note.title}</h3>
+                <p>{note.body}</p>
+              </div>
+            ))}
+          </div>
+        )
+      }
     </div>
   </section>
 
