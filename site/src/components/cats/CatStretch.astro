@@ -10,41 +10,39 @@ const { variant = 'light', class: className = '' } = Astro.props;
 
 <svg
   class:list={['cat-stretch', className]}
-  viewBox="0 0 230 132"
+  viewBox="0 0 230 130"
   aria-hidden="true"
   style={`--cat-fill: ${variant === 'dark' ? 'var(--ink)' : 'var(--paper)'}; --cat-stroke: ${variant === 'dark' ? 'var(--paper)' : 'var(--ink)'};`}
 >
   <!-- tail flicked up over the raised rump -->
-  <path class="cat-tail" d="M194,46 Q216,30 208,10 Q205,3 197,7" />
+  <path class="cat-tail" d="M196,62 Q222,44 210,16 Q206,8 198,12" />
 
-  <!-- body: chest low behind the head, back rising to the rump held high
-       at the hips, one hind leg planted underneath -->
+  <!-- back arcs up from the low chest to the rump; hind leg drops down -->
   <path
     class="cat-body"
-    d="M64,78 Q96,52 138,42 Q176,34 192,48 Q204,60 200,74 Q196,88 186,94 L186,108 Q186,116 178,116 L170,116 Q163,116 164,108 L166,96 Q140,102 112,96 Q88,91 78,101 Z"
+    d="M62,86 Q92,46 148,42 Q196,42 202,76 Q206,102 188,112 Q172,118 168,104 Q166,92 174,84 Q140,90 96,88 Z"
   />
 
-  <!-- front legs stretched forward beneath the chin, paws staggered -->
-  <path class="cat-leg" d="M64,98 L18,106 Q10,108 12,113 Q14,118 22,116 L68,108 Z" />
-  <path class="cat-leg" d="M76,102 L34,114 Q26,116 28,122 Q31,126 39,123 L82,110 Z" />
+  <!-- front legs stretched flat along the ground -->
+  <path class="cat-leg" d="M64,92 Q38,102 18,108 Q12,112 18,116 Q42,114 70,104 Z" />
+  <path class="cat-leg" d="M78,96 Q56,108 40,116 Q36,120 42,122 Q64,120 88,108 Z" />
 
   <!-- head low, chin nearly on the floor -->
-  <ellipse class="cat-head" cx="50" cy="76" rx="29" ry="26" />
-  <path class="cat-ear" d="M28,57 L18,25 L44,47 Z" />
-  <path class="cat-ear-inner" d="M29,51 L23,34 L39,45 Z" />
-  <path class="cat-ear" d="M58,49 L80,23 L74,53 Z" />
-  <path class="cat-ear-inner" d="M61,45 L73,31 L68,47 Z" />
+  <ellipse class="cat-head" cx="58" cy="78" rx="34" ry="30" />
+  <path class="cat-ear" d="M34,56 L20,24 L48,48 Z" />
+  <path class="cat-ear-inner" d="M35,50 L27,32 L44,46 Z" />
+  <path class="cat-ear" d="M74,48 L96,22 L88,52 Z" />
+  <path class="cat-ear-inner" d="M77,44 L91,30 L84,46 Z" />
 
   <!-- squeezed-shut happy stretch eyes -->
-  <path class="cat-eye" d="M34,76 Q40,82 46,76" />
-  <path class="cat-eye" d="M54,76 Q60,82 66,76" />
-  <ellipse class="cat-cheek" cx="30" cy="88" rx="7" ry="4.5" />
-  <ellipse class="cat-cheek" cx="68" cy="88" rx="7" ry="4.5" />
-  <path class="cat-nose" d="M46,86 L56,86 L51,92 Z" />
-  <path class="cat-mouth" d="M51,92 Q51,97 45,96 M51,92 Q51,97 57,96" />
+  <path class="cat-eye" d="M42,76 Q49,82 56,76" />
+  <path class="cat-eye" d="M62,76 Q69,82 76,76" />
+  <ellipse class="cat-cheek" cx="38" cy="88" rx="7" ry="4.5" />
+  <ellipse class="cat-cheek" cx="78" cy="88" rx="7" ry="4.5" />
+  <path class="cat-nose" d="M54,86 L62,86 L58,92 Z" />
 
-  <path class="cat-whisker" d="M24,90 Q11,88 2,92" />
-  <path class="cat-whisker" d="M24,95 Q12,96 4,101" />
+  <path class="cat-whisker" d="M40,92 Q24,90 12,94" />
+  <path class="cat-whisker" d="M78,92 Q94,90 106,94" />
 
   <style>
     .cat-body,
@@ -71,17 +69,10 @@ const { variant = 'light', class: className = '' } = Astro.props;
       opacity: 0.9;
     }
     .cat-eye,
-    .cat-mouth,
     .cat-whisker {
       fill: none;
       stroke: var(--cat-stroke);
       stroke-width: 2.5;
-      stroke-linecap: round;
-    }
-    .cat-toes {
-      fill: none;
-      stroke: var(--cat-stroke);
-      stroke-width: 2;
       stroke-linecap: round;
     }
     .cat-nose {
@@ -102,5 +93,5 @@ const { variant = 'light', class: className = '' } = Astro.props;
         transform: rotate(6deg);
       }
     }
-  </style>
+      </style>
 </svg>
