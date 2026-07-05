@@ -87,6 +87,8 @@ These JSON/array fields are free-form in Strapi and not schema-validated beyond 
 
 **Lab notes (collection):** the homepage sticky-note board. Each entry is a `title` + short `body` (max 280 chars) + `order` integer that controls left-to-right placement. Colors and tilt are assigned automatically by position — just write the note and publish it.
 
+**Cats (collection):** the supervision committee on the About page. Each entry: `name`, `role` (the staff dept line), `photo` (upload a real cat photo — square-ish crops look best), optional `bio` shown in the click-to-open staff file, and `order` for left-to-right placement. The seeded entries use renders of the old illustrated cats as placeholder photos — replace them with real ones in the Media Library.
+
 **Ticker (single type):** the two marquee bands on the homepage. `topics` (identity band, after the hero) and `tools` (stack band, after photography) are JSON arrays of uppercase strings, e.g. `["STATISTICS", "CATS", "COFFEE"]`. If the entry is missing or unpublished the site falls back to built-in defaults, so the marquees never disappear.
 
 ## Design Token Reference

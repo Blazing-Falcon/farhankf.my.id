@@ -4,9 +4,8 @@ import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
 import StickerBadge from '../components/StickerBadge.astro';
 import EmptyState from '../components/EmptyState.astro';
-import CatColony from '../components/CatColony.astro';
 import CatTail from '../components/cats/CatTail.astro';
-import { getAbout, mediaUrl, type About } from '../lib/strapi';
+import { getAbout, getCats, mediaUrl, type About, type Cat } from '../lib/strapi';
 
 let about: About | null = null;
 let hadError = false;
@@ -16,6 +15,16 @@ try {
 } catch {
   hadError = true;
 }
+
+// Committee has its own failure mode so a cats hiccup can't blank the bio.
+let cats: Cat[] = [];
+try {
+  cats = await getCats();
+} catch {
+  // section renders its empty state
+}
+
+const catTilts = [-4, 3, -2, 4, -3, 2];
 
 const bioHtml = about?.bio ? marked.parse(about.bio) : '';
 
@@ -102,12 +111,66 @@ const profileFacts = [
             <StickerBadge label="Fully staffed" rotate={-3} />
             <h2 class="colony-title" data-reveal>The supervision committee</h2>
             <p class="colony-sub">
-              Every experiment in this lab is reviewed by six supervisors. They do not take
-              feedback, they do not sign off, and at least one of them is asleep on the results.
+              Every experiment in this lab is reviewed by {cats.length || 'the'} supervisors.
+              They do not take feedback, they do not sign off, and at least one of them is
+              asleep on the results. Click a supervisor to open their staff file.
             </p>
-            <CatColony />
+            {cats.length === 0 ? (
+              <EmptyState message="The committee is out. Add cats in Strapi to staff the lab." />
+            ) : (
+              <div class="colony">
+                {cats.map((cat, i) => (
+                  <button
+                    type="button"
+                    class="colony-card"
+                    style={`--r: ${catTilts[i % catTilts.length]}deg`}
+                    data-cat-dialog={`cat-file-${cat.id}`}
+                    data-reveal
+                  >
+                    <span class="colony-portrait">
+                      {cat.photo?.width && cat.photo?.height ? (
+                        <Image
+                          src={mediaUrl(cat.photo)}
+                          width={cat.photo.width}
+                          height={cat.photo.height}
+                          alt={cat.photo.alternativeText ?? `${cat.name}, ${cat.role}`}
+                        />
+                      ) : null}
+                    </span>
+                    <span class="colony-tag">
+                      <span class="colony-name">{cat.name}</span>
+                      <span class="colony-role">{cat.role}</span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </section>
+
+        {cats.map((cat, i) => (
+          <dialog class="cat-dialog" id={`cat-file-${cat.id}`} aria-label={`Staff file: ${cat.name}`}>
+            <div class="cat-dialog-inner">
+              <p class="cat-dialog-stamp">Staff file № {i + 1}</p>
+              <button type="button" class="cat-dialog-close" data-close aria-label="Close">
+                ×
+              </button>
+              {cat.photo?.width && cat.photo?.height && (
+                <div class="cat-dialog-photo">
+                  <Image
+                    src={mediaUrl(cat.photo)}
+                    width={cat.photo.width}
+                    height={cat.photo.height}
+                    alt={cat.photo.alternativeText ?? cat.name}
+                  />
+                </div>
+              )}
+              <h3 class="cat-dialog-name">{cat.name}</h3>
+              <p class="cat-dialog-role">{cat.role}</p>
+              {cat.bio && <p class="cat-dialog-bio">{cat.bio}</p>}
+            </div>
+          </dialog>
+        ))}
 
         <section class="contact-section section-inner">
           <div class="contact-block">
@@ -126,6 +189,25 @@ const profileFacts = [
     )
   }
 </Layout>
+
+<script>
+  document.querySelectorAll('[data-cat-dialog]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-cat-dialog');
+      const dialog = id ? document.getElementById(id) : null;
+      if (dialog instanceof HTMLDialogElement) dialog.showModal();
+    });
+  });
+
+  document.querySelectorAll('dialog.cat-dialog').forEach((el) => {
+    const dialog = el as HTMLDialogElement;
+    // click on the backdrop (the dialog element itself) closes it
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+    dialog.querySelector('[data-close]')?.addEventListener('click', () => dialog.close());
+  });
+</script>
 
 <style>
   .section-inner {
@@ -342,6 +424,179 @@ const profileFacts = [
     font-size: var(--text-body);
     max-width: 52ch;
     margin: 0 0 var(--space-7);
+  }
+
+  .colony {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--space-6) var(--space-5);
+    align-items: end;
+  }
+
+  .colony-card {
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    font: inherit;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    transform: rotate(var(--r));
+    transition: transform 0.2s ease-out;
+  }
+
+  /* the whole card lifts and straightens when you poke a cat */
+  .colony-card:hover,
+  .colony-card:focus-visible {
+    transform: rotate(0deg) translateY(-6px) scale(1.04);
+    z-index: 2;
+  }
+
+  .colony-portrait {
+    width: 100%;
+    background: var(--paper);
+    border: var(--border-thick);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-hard);
+    overflow: hidden;
+    display: block;
+  }
+
+  .colony-portrait :global(img) {
+    width: 100%;
+    height: auto; /* beat the height attribute so aspect-ratio can apply */
+    aspect-ratio: 1;
+    object-fit: cover;
+    display: block;
+  }
+
+  .colony-tag {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    background: var(--butter);
+    color: var(--ink);
+    border: var(--border-thick);
+    border-radius: var(--radius-pill);
+    box-shadow: 2px 2px 0 var(--ink);
+    padding: var(--space-1) var(--space-4);
+  }
+
+  .colony-name {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  .colony-role {
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.6rem;
+    line-height: 1.2;
+  }
+
+  /* ——— The staff file dialog */
+  .cat-dialog {
+    padding: 0;
+    border: var(--border-thick);
+    border-radius: var(--radius-card);
+    box-shadow: 8px 8px 0 var(--ink);
+    background: var(--paper);
+    width: min(440px, calc(100vw - 2 * var(--space-5)));
+  }
+
+  .cat-dialog::backdrop {
+    background: rgba(26, 27, 35, 0.75);
+  }
+
+  .cat-dialog-inner {
+    position: relative;
+    padding: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .cat-dialog-stamp {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--teal);
+    border: 2px solid var(--teal);
+    border-radius: 4px;
+    padding: 2px var(--space-2);
+    width: fit-content;
+    transform: rotate(-3deg);
+    margin: 0;
+  }
+
+  .cat-dialog-close {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    font-size: 1.4rem;
+    line-height: 1;
+    background: var(--paper);
+    border: var(--border-thick);
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+
+  .cat-dialog-close:hover {
+    background: var(--blush);
+  }
+
+  .cat-dialog-photo {
+    border: var(--border-thick);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    margin-top: var(--space-2);
+  }
+
+  .cat-dialog-photo :global(img) {
+    width: 100%;
+    height: auto; /* beat the height attribute so aspect-ratio can apply */
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    display: block;
+  }
+
+  .cat-dialog-name {
+    font-size: var(--text-sub);
+    margin: 0;
+  }
+
+  .cat-dialog-role {
+    font-family: var(--font-mono);
+    font-size: var(--text-tiny);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background: var(--butter);
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-pill);
+    padding: 2px var(--space-3);
+    width: fit-content;
+    margin: 0;
+  }
+
+  .cat-dialog-bio {
+    font-size: var(--text-small);
+    line-height: 1.6;
+    margin: var(--space-2) 0 0;
   }
 
   .contact-section {

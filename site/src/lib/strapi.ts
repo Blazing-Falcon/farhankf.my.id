@@ -73,6 +73,16 @@ export interface Ticker {
   tools?: string[] | null;
 }
 
+export interface Cat {
+  id: number;
+  documentId: string;
+  name: string;
+  role: string;
+  bio?: string | null;
+  photo?: StrapiMedia | null;
+  order: number;
+}
+
 export type PhotoCategory = 'street' | 'landscape' | 'portrait' | 'macro' | 'other';
 
 export interface Photo {
@@ -169,6 +179,15 @@ export async function getPhotos({
     params['filters[featured][$eq]'] = 'true';
   }
   const res = await strapiFetch<StrapiListResponse<Photo>>('/photos', params);
+  return res.data;
+}
+
+export async function getCats(): Promise<Cat[]> {
+  const res = await strapiFetch<StrapiListResponse<Cat>>('/cats', {
+    populate: '*',
+    sort: 'order:asc',
+    'pagination[pageSize]': '50',
+  });
   return res.data;
 }
 
