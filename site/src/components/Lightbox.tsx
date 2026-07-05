@@ -87,57 +87,69 @@ export default function Lightbox({ photos }: LightboxProps) {
     };
   }, [activeIndex, close, showNext, showPrev]);
 
-  if (activeIndex === null) return null;
+  const photo = activeIndex === null ? null : photos[activeIndex];
 
-  const photo = photos[activeIndex];
-
+  // Renders a viewport-covering wrapper even when closed (inert via pointer-events)
+  // so this client:visible island always has non-zero size and hydrates immediately,
+  // instead of waiting on IntersectionObserver for a zero-area element.
   return (
-    <div className="lightbox-backdrop" role="presentation">
-      <div
-        className="lightbox-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-label={photo.title}
-        ref={dialogRef}
-      >
-        <button
-          type="button"
-          className="lightbox-close"
-          onClick={close}
-          ref={closeButtonRef}
-          aria-label="Close"
-        >
-          &times;
-        </button>
+    <div className="lightbox-root" style={{ pointerEvents: photo ? 'auto' : 'none' }}>
+      {photo && (
+        <div className="lightbox-backdrop" role="presentation">
+          <div
+            className="lightbox-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-label={photo.title}
+            ref={dialogRef}
+          >
+            <button
+              type="button"
+              className="lightbox-close"
+              onClick={close}
+              ref={closeButtonRef}
+              aria-label="Close"
+            >
+              &times;
+            </button>
 
-        <button
-          type="button"
-          className="lightbox-nav lightbox-prev"
-          onClick={showPrev}
-          aria-label="Previous photo"
-        >
-          &#8592;
-        </button>
+            <button
+              type="button"
+              className="lightbox-nav lightbox-prev"
+              onClick={showPrev}
+              aria-label="Previous photo"
+            >
+              &#8592;
+            </button>
 
-        <figure className="lightbox-figure">
-          <img src={photo.src} width={photo.width} height={photo.height} alt={photo.alt} />
-          <figcaption>
-            <span className="lightbox-caption">{photo.caption}</span>
-            {photo.gear && <span className="lightbox-gear">{photo.gear}</span>}
-          </figcaption>
-        </figure>
+            <figure className="lightbox-figure">
+              <img src={photo.src} width={photo.width} height={photo.height} alt={photo.alt} />
+              <figcaption>
+                <span className="lightbox-caption">{photo.caption}</span>
+                {photo.gear && <span className="lightbox-gear">{photo.gear}</span>}
+              </figcaption>
+            </figure>
 
-        <button
-          type="button"
-          className="lightbox-nav lightbox-next"
-          onClick={showNext}
-          aria-label="Next photo"
-        >
-          &#8594;
-        </button>
-      </div>
+            <button
+              type="button"
+              className="lightbox-nav lightbox-next"
+              onClick={showNext}
+              aria-label="Next photo"
+            >
+              &#8594;
+            </button>
+          </div>
+        </div>
+      )}
 
       <style>{`
+        .lightbox-root {
+          position: fixed;
+          inset: 0;
+          width: 100vw;
+          height: 100vh;
+          z-index: 1000;
+        }
         .lightbox-backdrop {
           position: fixed;
           inset: 0;
