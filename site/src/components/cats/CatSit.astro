@@ -29,6 +29,8 @@ const { variant = 'light', class: className = '' } = Astro.props;
 
   <path class="cat-eye" d="M74,76 Q82,84 90,76" />
   <path class="cat-eye" d="M90,76 Q98,84 106,76" />
+  <ellipse class="cat-cheek" cx="66" cy="88" rx="8" ry="5" />
+  <ellipse class="cat-cheek" cx="114" cy="88" rx="8" ry="5" />
   <path class="cat-nose" d="M86,88 L94,88 L90,94 Z" />
   <path class="cat-mouth" d="M90,94 Q90,100 82,100 M90,94 Q90,100 98,100" />
 
@@ -57,6 +59,10 @@ const { variant = 'light', class: className = '' } = Astro.props;
     }
     .cat-ear-inner {
       fill: var(--blush);
+    }
+    .cat-cheek {
+      fill: var(--blush);
+      opacity: 0.9;
     }
     .cat-eye,
     .cat-mouth,

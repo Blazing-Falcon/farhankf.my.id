@@ -24,15 +24,21 @@ const { variant = 'light', class: className = '' } = Astro.props;
   <path class="cat-ear" d="M96,30 L120,4 L108,32 Z" />
   <path class="cat-ear-inner" d="M100,26 L118,12 L106,28 Z" />
 
-  <circle class="cat-eye" cx="66" cy="58" r="3.5" />
-  <circle class="cat-eye" cx="92" cy="58" r="3.5" />
+  <ellipse class="cat-eye-white" cx="66" cy="58" rx="7" ry="8" />
+  <ellipse class="cat-eye-white" cx="92" cy="58" rx="7" ry="8" />
+  <circle class="cat-pupil" cx="67" cy="59" r="3.6" />
+  <circle class="cat-pupil" cx="93" cy="59" r="3.6" />
+  <circle class="cat-shine" cx="69" cy="56" r="1.5" />
+  <circle class="cat-shine" cx="95" cy="56" r="1.5" />
+  <ellipse class="cat-cheek" cx="56" cy="70" rx="7" ry="4.5" />
+  <ellipse class="cat-cheek" cx="102" cy="70" rx="7" ry="4.5" />
   <path class="cat-nose" d="M74,70 L82,70 L78,76 Z" />
   <path class="cat-whisker" d="M62,72 Q44,68 32,70" />
   <path class="cat-whisker" d="M94,72 Q112,68 124,70" />
 
   <ellipse class="cat-paw" cx="48" cy="144" rx="12" ry="10" />
 
-  <g class="cat-swat-paw" transform="rotate(-32 150 78)">
+  <g class="cat-swat-paw">
     <ellipse class="cat-paw" cx="150" cy="78" rx="16" ry="12" />
     <path class="cat-claw" d="M140,70 L136,62 M148,68 L146,60 M156,70 L156,62" />
   </g>
@@ -55,8 +61,20 @@ const { variant = 'light', class: className = '' } = Astro.props;
     .cat-ear-inner {
       fill: var(--blush);
     }
-    .cat-eye {
-      fill: var(--cat-stroke);
+    .cat-eye-white {
+      fill: var(--paper);
+      stroke: var(--cat-stroke);
+      stroke-width: 2.5;
+    }
+    .cat-pupil {
+      fill: var(--ink);
+    }
+    .cat-shine {
+      fill: var(--paper);
+    }
+    .cat-cheek {
+      fill: var(--blush);
+      opacity: 0.9;
     }
     .cat-nose {
       fill: var(--tangerine);
@@ -67,6 +85,30 @@ const { variant = 'light', class: className = '' } = Astro.props;
       stroke: var(--cat-stroke);
       stroke-width: 2.5;
       stroke-linecap: round;
+    }
+    /* the raised paw takes a lazy swat every few seconds */
+    .cat-swat-paw {
+      transform-box: fill-box;
+      transform-origin: bottom left;
+      animation: cat-swat 4s ease-in-out infinite;
+    }
+    @keyframes cat-swat {
+      0%,
+      70%,
+      100% {
+        transform: rotate(0deg);
+      }
+      80% {
+        transform: rotate(-24deg);
+      }
+      90% {
+        transform: rotate(6deg);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .cat-swat-paw {
+        animation: none;
+      }
     }
   </style>
 </svg>

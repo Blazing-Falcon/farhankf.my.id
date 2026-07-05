@@ -24,8 +24,14 @@ const { variant = 'light', class: className = '' } = Astro.props;
   <path class="cat-ear" d="M122,32 L148,4 L136,34 Z" />
   <path class="cat-ear-inner" d="M126,28 L146,12 L134,30 Z" />
 
-  <circle class="cat-eye" cx="84" cy="62" r="3.5" />
-  <circle class="cat-eye" cx="116" cy="62" r="3.5" />
+  <ellipse class="cat-eye-white" cx="84" cy="62" rx="8" ry="9" />
+  <ellipse class="cat-eye-white" cx="116" cy="62" rx="8" ry="9" />
+  <circle class="cat-pupil" cx="85" cy="63" r="4" />
+  <circle class="cat-pupil" cx="117" cy="63" r="4" />
+  <circle class="cat-shine" cx="87" cy="60" r="1.7" />
+  <circle class="cat-shine" cx="119" cy="60" r="1.7" />
+  <ellipse class="cat-cheek" cx="74" cy="76" rx="8" ry="5" />
+  <ellipse class="cat-cheek" cx="126" cy="76" rx="8" ry="5" />
   <path class="cat-nose" d="M96,74 L104,74 L100,80 Z" />
   <path class="cat-whisker" d="M80,76 Q60,72 46,74" />
   <path class="cat-whisker" d="M120,76 Q140,72 154,74" />
@@ -55,8 +61,20 @@ const { variant = 'light', class: className = '' } = Astro.props;
     .cat-ear-inner {
       fill: var(--blush);
     }
-    .cat-eye {
-      fill: var(--cat-stroke);
+    .cat-eye-white {
+      fill: var(--paper);
+      stroke: var(--cat-stroke);
+      stroke-width: 2.5;
+    }
+    .cat-pupil {
+      fill: var(--ink);
+    }
+    .cat-shine {
+      fill: var(--paper);
+    }
+    .cat-cheek {
+      fill: var(--blush);
+      opacity: 0.9;
     }
     .cat-nose {
       fill: var(--tangerine);
