@@ -100,11 +100,8 @@ const duration = Math.max(12, items.length * 2);
     }
   }
 
-  /* Static under reduced motion — the multi-copy track still spans the full
-     band, so a frozen ticker never shows a gap either. */
-  @media (prefers-reduced-motion: reduce) {
-    .ticker-track {
-      animation: none;
-    }
-  }
+  /* Deliberately NOT paused under prefers-reduced-motion (owner's choice):
+     Windows' "animation effects" toggle sets that flag for every desktop
+     browser, which froze the marquee for too many visitors. The global
+     reduced-motion kill-switch in global.css carries a matching exemption. */
 </style>

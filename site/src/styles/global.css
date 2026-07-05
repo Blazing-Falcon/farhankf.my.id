@@ -198,7 +198,10 @@ button {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
+  /* .ticker-track is exempt: the marquee keeps scrolling even under reduced
+     motion (owner's choice — Windows' system toggle was freezing it for
+     ordinary desktop visitors; see Ticker.astro). */
+  *:not(.ticker-track),
   *::before,
   *::after {
     animation-duration: 0.001ms !important;
