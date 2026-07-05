@@ -1,0 +1,10 @@
+{
+  "kind": "singleType",
+  "collectionName": "tickers",
+  "info": { "singularName": "ticker", "pluralName": "tickers", "displayName": "Ticker" },
+  "options": { "draftAndPublish": true },
+  "attributes": {
+    "topics": { "type": "json" },
+    "tools": { "type": "json" }
+  }
+}

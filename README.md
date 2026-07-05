@@ -87,6 +87,8 @@ These JSON/array fields are free-form in Strapi and not schema-validated beyond 
 
 **Lab notes (collection):** the homepage sticky-note board. Each entry is a `title` + short `body` (max 280 chars) + `order` integer that controls left-to-right placement. Colors and tilt are assigned automatically by position — just write the note and publish it.
 
+**Ticker (single type):** the two marquee bands on the homepage. `topics` (identity band, after the hero) and `tools` (stack band, after photography) are JSON arrays of uppercase strings, e.g. `["STATISTICS", "CATS", "COFFEE"]`. If the entry is missing or unpublished the site falls back to built-in defaults, so the marquees never disappear.
+
 ## Design Token Reference
 
 Defined in `site/src/styles/tokens.css` as CSS custom properties; every color/size in components should derive from these rather than hardcoded values.

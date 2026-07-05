@@ -587,6 +587,35 @@ export interface ApiProjectProject extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiTickerTicker extends Struct.SingleTypeSchema {
+  collectionName: 'tickers';
+  info: {
+    displayName: 'Ticker';
+    pluralName: 'tickers';
+    singularName: 'ticker';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::ticker.ticker'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    tools: Schema.Attribute.JSON;
+    topics: Schema.Attribute.JSON;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface PluginContentReleasesRelease
   extends Struct.CollectionTypeSchema {
   collectionName: 'strapi_releases';
@@ -1102,6 +1131,7 @@ declare module '@strapi/strapi' {
       'api::lab-note.lab-note': ApiLabNoteLabNote;
       'api::photo.photo': ApiPhotoPhoto;
       'api::project.project': ApiProjectProject;
+      'api::ticker.ticker': ApiTickerTicker;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

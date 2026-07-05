@@ -66,6 +66,13 @@ export interface LabNote {
   order: number;
 }
 
+export interface Ticker {
+  id: number;
+  documentId: string;
+  topics?: string[] | null;
+  tools?: string[] | null;
+}
+
 export type PhotoCategory = 'street' | 'landscape' | 'portrait' | 'macro' | 'other';
 
 export interface Photo {
@@ -162,6 +169,11 @@ export async function getPhotos({
     params['filters[featured][$eq]'] = 'true';
   }
   const res = await strapiFetch<StrapiListResponse<Photo>>('/photos', params);
+  return res.data;
+}
+
+export async function getTicker(): Promise<Ticker | null> {
+  const res = await strapiFetch<StrapiSingleResponse<Ticker>>('/ticker');
   return res.data;
 }
 

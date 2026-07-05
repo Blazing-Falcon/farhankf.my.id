@@ -16,6 +16,7 @@ import {
   getProjects,
   getPhotos,
   getLabNotes,
+  getTicker,
   mediaUrl,
   type Project,
   type Photo,
@@ -41,6 +42,35 @@ try {
 }
 
 featuredProjects = featuredProjects.slice(0, 3);
+
+// Ticker content is decorative; fall back to the defaults rather than letting
+// a missing/unpublished Ticker entry (404) drag the rest of the page down.
+const defaultTopics = [
+  'STATISTICS',
+  'MACHINE LEARNING',
+  'PHOTOGRAPHY',
+  'HOME LAB',
+  'LINUX',
+  'OPEN SOURCE',
+  'CATS',
+  'COFFEE',
+  'D&D',
+  'DATA VIZ',
+  'R',
+  'PYTHON',
+  'SQL',
+];
+const defaultTools = ['PYTHON', 'ASTRO', 'ZFS', 'PROXMOX', 'FUJIFILM', 'TAILSCALE', 'DOCKER', 'LATEX'];
+
+let tickerTopics = defaultTopics;
+let tickerTools = defaultTools;
+try {
+  const ticker = await getTicker();
+  if (ticker?.topics?.length) tickerTopics = ticker.topics;
+  if (ticker?.tools?.length) tickerTools = ticker.tools;
+} catch {
+  // keep defaults
+}
 
 // Presentation only — content comes from the CMS.
 const noteTilts = [-2, 1.5, -1, 2];
@@ -97,23 +127,7 @@ juan@lab:~$ <span class="terminal-cursor">▌</span></pre>
     </div>
   </section>
 
-  <Ticker
-    items={[
-      'STATISTICS',
-      'MACHINE LEARNING',
-      'PHOTOGRAPHY',
-      'HOME LAB',
-      'LINUX',
-      'OPEN SOURCE',
-      'CATS',
-      'COFFEE',
-      'D&D',
-      'DATA VIZ',
-      'R',
-      'PYTHON',
-      'SQL',
-    ]}
-  />
+  <Ticker items={tickerTopics} />
 
   <section class="section featured-section">
     <div class="section-inner">
@@ -185,9 +199,7 @@ juan@lab:~$ <span class="terminal-cursor">▌</span></pre>
     </div>
   </section>
 
-  <Ticker
-    items={['PYTHON', 'ASTRO', 'ZFS', 'PROXMOX', 'FUJIFILM', 'TAILSCALE', 'DOCKER', 'LATEX']}
-  />
+  <Ticker items={tickerTools} />
 
   <section class="section labnotes-section">
     <div class="section-inner">
