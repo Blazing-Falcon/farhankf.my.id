@@ -1,0 +1,143 @@
+---
+/**
+ * Side-profile walking cat, facing right. Used by the rare walk-across
+ * easter egg; the legs step, the traversal itself is driven by the caller.
+ */
+interface Props {
+  variant?: 'light' | 'dark';
+  class?: string;
+}
+
+const { variant = 'light', class: className = '' } = Astro.props;
+---
+
+<svg
+  class:list={['cat-walk', className]}
+  viewBox="0 0 180 110"
+  aria-hidden="true"
+  style={`--cat-fill: ${variant === 'dark' ? 'var(--ink)' : 'var(--paper)'}; --cat-stroke: ${variant === 'dark' ? 'var(--paper)' : 'var(--ink)'};`}
+>
+  <!-- tail high: confident business walk -->
+  <path class="cat-tail" d="M22,52 Q4,34 16,10 Q18,4 24,8" />
+
+  <!-- legs stepping, behind the body -->
+  <g class="cat-leg cat-leg-a">
+    <path d="M48,62 L44,96 Q44,102 50,102 L56,102 L58,64 Z" />
+  </g>
+  <g class="cat-leg cat-leg-b">
+    <path d="M70,62 L68,96 Q68,102 74,102 L80,102 L82,64 Z" />
+  </g>
+  <g class="cat-leg cat-leg-b">
+    <path d="M104,62 L100,96 Q100,102 106,102 L112,102 L114,64 Z" />
+  </g>
+  <g class="cat-leg cat-leg-a">
+    <path d="M126,62 L124,96 Q124,102 130,102 L136,102 L138,64 Z" />
+  </g>
+
+  <!-- body capsule -->
+  <path
+    class="cat-body"
+    d="M28,52 Q28,30 62,28 L112,28 Q142,30 142,52 Q142,68 112,70 L58,70 Q28,68 28,52 Z"
+  />
+
+  <!-- head up front -->
+  <ellipse class="cat-head" cx="140" cy="36" rx="26" ry="24" />
+  <path class="cat-ear" d="M124,26 L116,4 L138,20 Z" />
+  <path class="cat-ear" d="M148,18 L166,0 L160,24 Z" />
+  <path class="cat-ear-inner" d="M127,22 L122,10 L135,18 Z" />
+  <path class="cat-ear-inner" d="M151,14 L161,2 L158,18 Z" />
+
+  <circle class="cat-pupil" cx="150" cy="34" r="3.5" />
+  <ellipse class="cat-cheek" cx="152" cy="44" rx="6" ry="4" />
+  <path class="cat-nose" d="M160,40 L166,40 L163,45 Z" />
+  <path class="cat-whisker" d="M158,46 Q170,46 178,50" />
+
+  <style>
+    .cat-body,
+    .cat-head,
+    .cat-ear,
+    .cat-leg path {
+      fill: var(--cat-fill);
+      stroke: var(--cat-stroke);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .cat-tail {
+      fill: none;
+      stroke: var(--cat-stroke);
+      stroke-width: 3;
+      stroke-linecap: round;
+    }
+    .cat-ear-inner {
+      fill: var(--blush);
+    }
+    .cat-cheek {
+      fill: var(--blush);
+      opacity: 0.9;
+    }
+    .cat-pupil {
+      fill: var(--ink);
+    }
+    .cat-nose {
+      fill: var(--tangerine);
+    }
+    .cat-whisker {
+      fill: none;
+      stroke: var(--cat-stroke);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+    }
+
+    .cat-leg {
+      transform-box: fill-box;
+      transform-origin: top center;
+    }
+    .cat-leg-a {
+      animation: cat-step-a 0.5s ease-in-out infinite;
+    }
+    .cat-leg-b {
+      animation: cat-step-b 0.5s ease-in-out infinite;
+    }
+    .cat-tail {
+      transform-box: fill-box;
+      transform-origin: bottom right;
+      animation: cat-walk-tail 1.4s ease-in-out infinite;
+    }
+
+    @keyframes cat-step-a {
+      0%,
+      100% {
+        transform: rotate(9deg);
+      }
+      50% {
+        transform: rotate(-9deg);
+      }
+    }
+    @keyframes cat-step-b {
+      0%,
+      100% {
+        transform: rotate(-9deg);
+      }
+      50% {
+        transform: rotate(9deg);
+      }
+    }
+    @keyframes cat-walk-tail {
+      0%,
+      100% {
+        transform: rotate(0deg);
+      }
+      50% {
+        transform: rotate(8deg);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .cat-leg-a,
+      .cat-leg-b,
+      .cat-tail {
+        animation: none;
+      }
+    }
+  </style>
+</svg>

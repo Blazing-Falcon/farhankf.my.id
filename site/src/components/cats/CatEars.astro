@@ -1,0 +1,86 @@
+---
+/**
+ * Only the top of a head: ears + eyes peeking over whatever edge this is
+ * anchored to. The bottom of the viewBox is the "edge" — clip accordingly.
+ */
+interface Props {
+  variant?: 'light' | 'dark';
+  class?: string;
+}
+
+const { variant = 'light', class: className = '' } = Astro.props;
+---
+
+<svg
+  class:list={['cat-ears', className]}
+  viewBox="0 0 140 64"
+  aria-hidden="true"
+  style={`--cat-fill: ${variant === 'dark' ? 'var(--ink)' : 'var(--paper)'}; --cat-stroke: ${variant === 'dark' ? 'var(--paper)' : 'var(--ink)'};`}
+>
+  <!-- crown of the head, cut off by the edge -->
+  <path class="cat-head" d="M12,64 Q12,28 70,28 Q128,28 128,64 Z" />
+
+  <!-- left ear perky, right ear with the signature notch -->
+  <path class="cat-ear" d="M30,40 L18,6 L52,32 Z" />
+  <path class="cat-ear-inner" d="M32,34 L26,16 L44,30 Z" />
+  <path class="cat-ear" d="M92,32 L118,4 L114,14 L124,10 L104,40 Z" />
+  <path class="cat-ear-inner" d="M96,28 L112,12 L104,32 Z" />
+
+  <!-- suspicious eyes, just above the edge -->
+  <g class="cat-eyes">
+    <ellipse class="cat-eye-white" cx="50" cy="54" rx="11" ry="10" />
+    <ellipse class="cat-eye-white" cx="90" cy="54" rx="11" ry="10" />
+    <circle class="cat-pupil" cx="52" cy="56" r="5" />
+    <circle class="cat-pupil" cx="92" cy="56" r="5" />
+    <circle class="cat-shine" cx="54" cy="53" r="2" />
+    <circle class="cat-shine" cx="94" cy="53" r="2" />
+  </g>
+
+  <style>
+    .cat-head,
+    .cat-ear {
+      fill: var(--cat-fill);
+      stroke: var(--cat-stroke);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .cat-ear-inner {
+      fill: var(--blush);
+    }
+    .cat-eye-white {
+      fill: var(--paper);
+      stroke: var(--cat-stroke);
+      stroke-width: 2.5;
+    }
+    .cat-pupil {
+      fill: var(--ink);
+    }
+    .cat-shine {
+      fill: var(--paper);
+    }
+
+    .cat-eyes {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: cat-ears-blink 7s ease-in-out infinite;
+    }
+
+    @keyframes cat-ears-blink {
+      0%,
+      55%,
+      61%,
+      100% {
+        transform: scaleY(1);
+      }
+      58% {
+        transform: scaleY(0.1);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .cat-eyes {
+        animation: none;
+      }
+    }
+  </style>
+</svg>

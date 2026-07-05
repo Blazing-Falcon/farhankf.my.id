@@ -1,0 +1,102 @@
+---
+/** Full play-bow stretch: front paws forward, rump in the air. */
+interface Props {
+  variant?: 'light' | 'dark';
+  class?: string;
+}
+
+const { variant = 'light', class: className = '' } = Astro.props;
+---
+
+<svg
+  class:list={['cat-stretch', className]}
+  viewBox="0 0 230 130"
+  aria-hidden="true"
+  style={`--cat-fill: ${variant === 'dark' ? 'var(--ink)' : 'var(--paper)'}; --cat-stroke: ${variant === 'dark' ? 'var(--paper)' : 'var(--ink)'};`}
+>
+  <!-- tail flicked up over the raised rump -->
+  <path class="cat-tail" d="M196,62 Q222,44 210,16 Q206,8 198,12" />
+
+  <!-- back arcs up from the low chest to the rump; hind leg drops down -->
+  <path
+    class="cat-body"
+    d="M62,86 Q92,46 148,42 Q196,42 202,76 Q206,102 188,112 Q172,118 168,104 Q166,92 174,84 Q140,90 96,88 Z"
+  />
+
+  <!-- front legs stretched flat along the ground -->
+  <path class="cat-leg" d="M64,92 Q38,102 18,108 Q12,112 18,116 Q42,114 70,104 Z" />
+  <path class="cat-leg" d="M78,96 Q56,108 40,116 Q36,120 42,122 Q64,120 88,108 Z" />
+
+  <!-- head low, chin nearly on the floor -->
+  <ellipse class="cat-head" cx="58" cy="78" rx="34" ry="30" />
+  <path class="cat-ear" d="M34,56 L20,24 L48,48 Z" />
+  <path class="cat-ear-inner" d="M35,50 L27,32 L44,46 Z" />
+  <path class="cat-ear" d="M74,48 L96,22 L88,52 Z" />
+  <path class="cat-ear-inner" d="M77,44 L91,30 L84,46 Z" />
+
+  <!-- squeezed-shut happy stretch eyes -->
+  <path class="cat-eye" d="M42,76 Q49,82 56,76" />
+  <path class="cat-eye" d="M62,76 Q69,82 76,76" />
+  <ellipse class="cat-cheek" cx="38" cy="88" rx="7" ry="4.5" />
+  <ellipse class="cat-cheek" cx="78" cy="88" rx="7" ry="4.5" />
+  <path class="cat-nose" d="M54,86 L62,86 L58,92 Z" />
+
+  <path class="cat-whisker" d="M40,92 Q24,90 12,94" />
+  <path class="cat-whisker" d="M78,92 Q94,90 106,94" />
+
+  <style>
+    .cat-body,
+    .cat-head,
+    .cat-ear,
+    .cat-leg {
+      fill: var(--cat-fill);
+      stroke: var(--cat-stroke);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .cat-tail {
+      fill: none;
+      stroke: var(--cat-stroke);
+      stroke-width: 3;
+      stroke-linecap: round;
+    }
+    .cat-ear-inner {
+      fill: var(--blush);
+    }
+    .cat-cheek {
+      fill: var(--blush);
+      opacity: 0.9;
+    }
+    .cat-eye,
+    .cat-whisker {
+      fill: none;
+      stroke: var(--cat-stroke);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+    }
+    .cat-nose {
+      fill: var(--tangerine);
+    }
+
+    .cat-tail {
+      transform-box: fill-box;
+      transform-origin: bottom left;
+      animation: cat-stretch-tail 3s ease-in-out infinite;
+    }
+    @keyframes cat-stretch-tail {
+      0%,
+      100% {
+        transform: rotate(0deg);
+      }
+      50% {
+        transform: rotate(6deg);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .cat-tail {
+        animation: none;
+      }
+    }
+  </style>
+</svg>

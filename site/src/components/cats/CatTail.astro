@@ -1,0 +1,59 @@
+---
+/**
+ * A lone tail sticking out from behind something. The bottom of the viewBox
+ * is where the (hidden) cat is; anchor it behind a divider, card, or edge.
+ */
+interface Props {
+  variant?: 'light' | 'dark';
+  class?: string;
+}
+
+const { variant = 'light', class: className = '' } = Astro.props;
+---
+
+<svg
+  class:list={['cat-tail-solo', className]}
+  viewBox="0 0 70 130"
+  aria-hidden="true"
+  style={`--cat-fill: ${variant === 'dark' ? 'var(--ink)' : 'var(--paper)'}; --cat-stroke: ${variant === 'dark' ? 'var(--paper)' : 'var(--ink)'};`}
+>
+  <g class="cat-tail-sway">
+    <!-- tapering S-curve tail with a rounded tip -->
+    <path
+      class="cat-tail-shape"
+      d="M22,130 Q6,86 32,56 Q50,34 36,16 Q32,8 40,5 Q46,3 50,10 Q66,36 44,62 Q22,88 42,128 Z"
+    />
+  </g>
+
+  <style>
+    .cat-tail-shape {
+      fill: var(--cat-fill);
+      stroke: var(--cat-stroke);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .cat-tail-sway {
+      transform-box: fill-box;
+      transform-origin: bottom center;
+      animation: cat-tail-solo-sway 4s ease-in-out infinite;
+    }
+    @keyframes cat-tail-solo-sway {
+      0%,
+      100% {
+        transform: rotate(0deg);
+      }
+      30% {
+        transform: rotate(-7deg);
+      }
+      65% {
+        transform: rotate(4deg);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .cat-tail-sway {
+        animation: none;
+      }
+    }
+  </style>
+</svg>
