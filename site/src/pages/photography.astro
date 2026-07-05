@@ -3,6 +3,7 @@ import { getImage, Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
 import StickerBadge from '../components/StickerBadge.astro';
 import EmptyState from '../components/EmptyState.astro';
+import CatStretch from '../components/cats/CatStretch.astro';
 import Lightbox from '../components/Lightbox.tsx';
 import { getPhotos, mediaUrl, type Photo, type PhotoCategory } from '../lib/strapi';
 
@@ -43,12 +44,28 @@ const lightboxPhotos = await Promise.all(
     };
   })
 );
+
+const shotDate = (photo: Photo) =>
+  photo.shotAt
+    ? new Date(photo.shotAt).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })
+    : null;
 ---
 
 <Layout title="Photography" description="Photography through the lens.">
   <section class="section-inner photography-page">
-    <StickerBadge label="Through the lens" rotate={2} />
-    <h1 data-reveal>Photography</h1>
+    <div class="page-head">
+      <div>
+        <StickerBadge label="Through the lens" rotate={2} />
+        <h1 data-reveal>Photography</h1>
+        <p class="page-sub">
+          Field notes in light. Every frame develops straight into the lab notebook — gear and
+          coordinates stamped below.
+        </p>
+      </div>
+      <div class="page-head-cat" aria-hidden="true">
+        <CatStretch />
+      </div>
+    </div>
 
     <nav class="category-filters" aria-label="Filter by category">
       <a href="/photography" class:list={['category-pill', { active: !activeCategory }]}>All</a>
@@ -72,7 +89,14 @@ const lightboxPhotos = await Promise.all(
       ) : (
         <div class="masonry-grid">
           {photos.map((photo, i) => (
-            <button type="button" class="photo-thumb" data-photo-index={i} aria-label={`Open ${photo.title}`}>
+            <button
+              type="button"
+              class="polaroid"
+              style={`--tilt: ${[-1.5, 1, -0.5, 1.5][i % 4]}deg;`}
+              data-photo-index={i}
+              aria-label={`Open ${photo.title}`}
+            >
+              <span class="polaroid-tape" aria-hidden="true" />
               {photo.image?.width && photo.image?.height && (
                 <Image
                   src={mediaUrl(photo.image)}
@@ -81,6 +105,14 @@ const lightboxPhotos = await Promise.all(
                   alt={photo.image.alternativeText ?? photo.title}
                 />
               )}
+              <span class="polaroid-meta">
+                <span class="polaroid-title">{photo.title}</span>
+                <span class="polaroid-exif">
+                  {photo.gear && <span>{photo.gear}</span>}
+                  {shotDate(photo) && <span>{shotDate(photo)}</span>}
+                </span>
+                <span class="polaroid-stamp">{photo.category}</span>
+              </span>
             </button>
           ))}
         </div>
@@ -99,14 +131,33 @@ const lightboxPhotos = await Promise.all(
   }
 
   .photography-page {
-    padding-top: var(--space-8);
-    padding-bottom: var(--space-9);
+    padding-top: var(--space-7);
+    padding-bottom: var(--section-gap);
   }
 
-  .photography-page h1 {
-    font-size: clamp(2rem, 5vw, 3.5rem);
+  .page-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-5);
+  }
+
+  .page-head h1 {
+    font-size: var(--text-section);
     margin-top: var(--space-3);
-    margin-bottom: var(--space-5);
+    margin-bottom: var(--space-3);
+  }
+
+  .page-sub {
+    font-size: var(--text-body);
+    max-width: 52ch;
+    margin: 0 0 var(--space-5);
+  }
+
+  .page-head-cat {
+    width: 190px;
+    flex-shrink: 0;
+    margin-bottom: var(--space-2);
   }
 
   .category-filters {
@@ -117,10 +168,13 @@ const lightboxPhotos = await Promise.all(
   }
 
   .category-pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
     font-family: var(--font-mono);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    font-size: 0.8rem;
+    font-size: var(--text-tiny);
     font-weight: 700;
     color: var(--ink);
     text-decoration: none;
@@ -128,6 +182,13 @@ const lightboxPhotos = await Promise.all(
     border: var(--border-thick);
     border-radius: var(--radius-pill);
     background: var(--paper);
+    transition:
+      transform 0.2s ease-out,
+      background-color 0.2s ease-out;
+  }
+
+  .category-pill:hover {
+    transform: translateY(-2px);
   }
 
   .category-pill.active {
@@ -137,26 +198,96 @@ const lightboxPhotos = await Promise.all(
 
   .masonry-grid {
     columns: 1;
-    column-gap: var(--space-5);
+    column-gap: var(--space-6);
   }
 
-  .photo-thumb {
+  .polaroid {
+    position: relative;
     display: block;
     width: 100%;
-    margin-bottom: var(--space-5);
+    margin-bottom: var(--space-6);
     break-inside: avoid;
+    background: var(--paper);
     border: var(--border-thick);
-    border-radius: var(--radius-card);
-    padding: 0;
-    background: none;
+    box-shadow: var(--shadow-hard);
+    padding: var(--space-3) var(--space-3) var(--space-4);
     cursor: pointer;
-    overflow: hidden;
+    text-align: left;
+    transform: rotate(var(--tilt, 0deg));
+    transition:
+      transform 0.25s ease-out,
+      box-shadow 0.25s ease-out;
   }
 
-  .photo-thumb :global(img) {
+  .polaroid:hover,
+  .polaroid:focus-visible {
+    transform: rotate(0deg) translateY(-4px);
+    box-shadow: 8px 10px 0 var(--ink);
+    z-index: 1;
+  }
+
+  .polaroid-tape {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-3deg);
+    width: 76px;
+    height: 20px;
+    background: var(--butter);
+    border: 2px solid var(--ink);
+    opacity: 0.9;
+    z-index: 1;
+  }
+
+  .polaroid :global(img) {
     width: 100%;
     height: auto;
     display: block;
+    border: 2px solid var(--ink);
+  }
+
+  .polaroid-meta {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding-top: var(--space-3);
+  }
+
+  .polaroid-title {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: var(--text-tiny);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink);
+  }
+
+  .polaroid-exif {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--ink);
+    opacity: 0.75;
+  }
+
+  .polaroid-stamp {
+    position: absolute;
+    right: 0;
+    top: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--teal);
+    border: 2px solid var(--teal);
+    border-radius: 4px;
+    padding: 1px var(--space-2);
+    transform: rotate(-6deg);
+    opacity: 0.85;
   }
 
   @media (min-width: 640px) {
@@ -168,6 +299,19 @@ const lightboxPhotos = await Promise.all(
   @media (min-width: 1024px) {
     .masonry-grid {
       columns: 3;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .page-head-cat {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .polaroid,
+    .category-pill {
+      transition: none;
     }
   }
 </style>
