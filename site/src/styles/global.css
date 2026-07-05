@@ -1,0 +1,101 @@
+@import '@fontsource-variable/bricolage-grotesque';
+@import '@fontsource/instrument-sans';
+@import '@fontsource/instrument-sans/500.css';
+@import '@fontsource/instrument-sans/600.css';
+@import '@fontsource/space-mono';
+@import '@fontsource/space-mono/700.css';
+@import './tokens.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+::selection {
+  background: var(--butter);
+  color: var(--ink);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  margin: 0;
+}
+
+p {
+  margin: 0 0 var(--space-4);
+}
+
+a {
+  color: var(--teal);
+}
+
+button {
+  font-family: inherit;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 1000;
+  background: var(--butter);
+  color: var(--ink);
+  padding: var(--space-2) var(--space-4);
+  border: var(--border-thick);
+  border-radius: var(--radius-card);
+}
+
+.skip-link:focus {
+  left: var(--space-4);
+  top: var(--space-4);
+}
+
+:focus-visible {
+  outline: 2px solid var(--tangerine);
+  outline-offset: 2px;
+}
+
+.press-shadow {
+  box-shadow: var(--shadow-hard);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.press-shadow:hover,
+.press-shadow:focus-visible {
+  transform: translate(3px, 3px);
+  box-shadow: var(--shadow-hard-pressed);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

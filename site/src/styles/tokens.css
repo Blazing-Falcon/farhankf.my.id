@@ -1,0 +1,34 @@
+:root {
+  /* Color: Ink & Tangerine */
+  --paper: #fbf7ef;
+  --ink: #1a1b23;
+  --tangerine: #ff5c00;
+  --teal: #0e7c7b;
+  --butter: #ffd23f;
+  --blush: #ffc4b0;
+
+  /* Typography */
+  --font-display: 'Bricolage Grotesque Variable', system-ui, sans-serif;
+  --font-body: 'Instrument Sans', system-ui, sans-serif;
+  --font-mono: 'Space Mono', monospace;
+
+  /* Shape language */
+  --radius-card: 12px;
+  --radius-pill: 999px;
+  --radius-image: 0;
+  --border-thick: 2px solid var(--ink);
+  --shadow-hard: 6px 6px 0 var(--ink);
+  --shadow-hard-pressed: 3px 3px 0 var(--ink);
+
+  /* Spacing scale (4px base) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+  --space-10: 128px;
+}
