@@ -7,6 +7,24 @@
   --butter: #ffd23f;
   --blush: #ffc4b0;
 
+  /* Notebook surface — faint graph-paper grid the cat walks across */
+  --grid-line: rgba(14, 124, 123, 0.07);
+  --grid-size: 26px;
+
+  /* Cat coats — the colony's fur palette. Bodies keep the ink outline. */
+  --coat-marmalade: #f2a04b; /* orange tabby */
+  --coat-marmalade-dark: #d97a2b; /* its stripes */
+  --coat-ash: #9aa6b0; /* grey */
+  --coat-ash-dark: #6c7883; /* its stripes */
+  --coat-cream: #f4e6c8; /* siamese body, chests, socks */
+  --coat-cocoa: #6d4a38; /* siamese points, calico patch */
+  --coat-charcoal: #33333f; /* "black" cat — lighter than ink so the outline reads */
+  --coat-tongue: #ff8fa3; /* bleps + tongues */
+  --coat-eye-green: #7ac74f; /* green cat eyes */
+  --coat-eye-blue: #56b4d3; /* siamese blue eyes */
+  --coat-box: #d9a86a; /* cardboard */
+  --coat-box-dark: #b9863f; /* cardboard shadow/flaps */
+
   /* Typography */
   --font-display: 'Bricolage Grotesque Variable', system-ui, sans-serif;
   --font-body: 'Instrument Sans', system-ui, sans-serif;
