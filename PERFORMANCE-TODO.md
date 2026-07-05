@@ -44,7 +44,19 @@ Every shipped change has: before/after numbers recorded below, `npx astro check`
 
 ## Results
 
-_(fill in as you go)_
+All "prod" numbers measured against `npm run build` + `astro preview` on localhost (dev-server numbers are noisier and inflate script size ~25×). Baseline captured 2026-07-05 before any change.
 
 | Change | Metric | Before | After |
 |---|---|---|---|
+| P1 middleware dedupe | Strapi requests per homepage view | 6 | 5 (one `/api/about`) |
+| P2 60s TTL cache | Strapi requests per warm view | 5 | 0 |
+| P2 60s TTL cache | warm TTFB, homepage (prod) | ~0.057s | ~0.012s |
+| P3 responsive srcset | image bytes: home / about / projects / photography | 30 / 93 / 19 / 38 KB | 17 / 20 / 5 / 10 KB |
+| P4 explicit fields | `/api/projects` list payload | 11.0 KB | 6.1 KB |
+| P5 GSAP → WAAPI | script bytes per page (photography) | 111 KB (303 KB) | ~2 KB (195 KB) |
+| P5 GSAP → WAAPI | total page weight: home / projects | 362 / 258 KB | 252 / 148 KB |
+| P6 prefetch | nav hover prefetch | none | next page prefetched (+2 KB script) |
+| P6 font trim | stylesheet bytes (unused instrument-sans 500 face) | 30 KB | 29 KB |
+| whole pass | warm TTFB, all five pages (prod) | 0.02–0.07s | 0.003–0.008s |
+
+P5 verification: hero mask slide-up, mascot pop, 29 load animations, all `data-reveal` elements end at opacity 1 on every page after scroll-through, parallax paw settles at −15% at page bottom, zero console errors, side-by-side screenshots identical at 1440px and 390px.
