@@ -1,0 +1,87 @@
+---
+interface Props {
+  variant?: 'light' | 'dark';
+  class?: string;
+}
+
+const { variant = 'light', class: className = '' } = Astro.props;
+---
+
+<svg
+  class:list={['cat-camera', className]}
+  viewBox="0 0 200 180"
+  aria-hidden="true"
+  style={`--cat-fill: ${variant === 'dark' ? 'var(--ink)' : 'var(--paper)'}; --cat-stroke: ${variant === 'dark' ? 'var(--paper)' : 'var(--ink)'};`}
+>
+  <path class="cat-tail" d="M156,150 Q184,146 182,116 Q180,96 162,94" />
+  <path
+    class="cat-body"
+    d="M60,172 Q40,172 40,140 Q40,100 70,90 L130,90 Q160,100 160,140 Q160,172 140,172 Z"
+  />
+  <ellipse class="cat-head" cx="100" cy="64" rx="42" ry="38" />
+  <path class="cat-ear" d="M64,36 L48,4 L60,14 L52,6 L78,32 Z" />
+  <path class="cat-ear-inner" d="M62,28 L52,10 L72,26 Z" />
+  <path class="cat-ear" d="M122,32 L148,4 L136,34 Z" />
+  <path class="cat-ear-inner" d="M126,28 L146,12 L134,30 Z" />
+
+  <circle class="cat-eye" cx="84" cy="62" r="3.5" />
+  <circle class="cat-eye" cx="116" cy="62" r="3.5" />
+  <path class="cat-nose" d="M96,74 L104,74 L100,80 Z" />
+  <path class="cat-whisker" d="M80,76 Q60,72 46,74" />
+  <path class="cat-whisker" d="M120,76 Q140,72 154,74" />
+
+  <rect class="cat-camera-body" x="66" y="116" width="68" height="42" rx="7" />
+  <rect class="cat-camera-finder" x="90" y="106" width="20" height="12" rx="3" />
+  <circle class="cat-camera-lens" cx="100" cy="138" r="13" />
+  <circle class="cat-camera-lens-inner" cx="100" cy="138" r="6" />
+  <ellipse class="cat-paw" cx="62" cy="146" rx="12" ry="10" />
+  <ellipse class="cat-paw" cx="138" cy="146" rx="12" ry="10" />
+
+  <style>
+    .cat-body,
+    .cat-head,
+    .cat-ear,
+    .cat-paw,
+    .cat-tail {
+      fill: var(--cat-fill);
+      stroke: var(--cat-stroke);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .cat-tail {
+      fill: none;
+    }
+    .cat-ear-inner {
+      fill: var(--blush);
+    }
+    .cat-eye {
+      fill: var(--cat-stroke);
+    }
+    .cat-nose {
+      fill: var(--tangerine);
+    }
+    .cat-whisker {
+      fill: none;
+      stroke: var(--cat-stroke);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+    }
+    .cat-camera-body {
+      fill: var(--teal);
+      stroke: var(--cat-stroke);
+      stroke-width: 3;
+    }
+    .cat-camera-finder {
+      fill: var(--cat-stroke);
+    }
+    .cat-camera-lens {
+      fill: var(--ink);
+      stroke: var(--cat-stroke);
+      stroke-width: 3;
+    }
+    .cat-camera-lens-inner {
+      fill: var(--butter);
+    }
+  </style>
+</svg>

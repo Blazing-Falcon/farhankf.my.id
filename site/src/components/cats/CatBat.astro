@@ -1,0 +1,72 @@
+---
+interface Props {
+  variant?: 'light' | 'dark';
+  class?: string;
+}
+
+const { variant = 'light', class: className = '' } = Astro.props;
+---
+
+<svg
+  class:list={['cat-bat', className]}
+  viewBox="0 0 180 160"
+  aria-hidden="true"
+  style={`--cat-fill: ${variant === 'dark' ? 'var(--ink)' : 'var(--paper)'}; --cat-stroke: ${variant === 'dark' ? 'var(--paper)' : 'var(--ink)'};`}
+>
+  <path class="cat-tail" d="M112,138 Q140,150 132,122 Q128,104 108,102" />
+  <path
+    class="cat-body"
+    d="M40,150 Q26,150 26,124 Q26,96 50,88 L110,88 Q130,96 130,124 Q130,150 116,150 Z"
+  />
+  <ellipse class="cat-head" cx="78" cy="60" rx="36" ry="32" />
+  <path class="cat-ear" d="M50,34 L36,4 L46,14 L40,6 L64,30 Z" />
+  <path class="cat-ear-inner" d="M48,26 L40,10 L58,24 Z" />
+  <path class="cat-ear" d="M96,30 L120,4 L108,32 Z" />
+  <path class="cat-ear-inner" d="M100,26 L118,12 L106,28 Z" />
+
+  <circle class="cat-eye" cx="66" cy="58" r="3.5" />
+  <circle class="cat-eye" cx="92" cy="58" r="3.5" />
+  <path class="cat-nose" d="M74,70 L82,70 L78,76 Z" />
+  <path class="cat-whisker" d="M62,72 Q44,68 32,70" />
+  <path class="cat-whisker" d="M94,72 Q112,68 124,70" />
+
+  <ellipse class="cat-paw" cx="48" cy="144" rx="12" ry="10" />
+
+  <g class="cat-swat-paw" transform="rotate(-32 150 78)">
+    <ellipse class="cat-paw" cx="150" cy="78" rx="16" ry="12" />
+    <path class="cat-claw" d="M140,70 L136,62 M148,68 L146,60 M156,70 L156,62" />
+  </g>
+
+  <style>
+    .cat-body,
+    .cat-head,
+    .cat-ear,
+    .cat-paw,
+    .cat-tail {
+      fill: var(--cat-fill);
+      stroke: var(--cat-stroke);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .cat-tail {
+      fill: none;
+    }
+    .cat-ear-inner {
+      fill: var(--blush);
+    }
+    .cat-eye {
+      fill: var(--cat-stroke);
+    }
+    .cat-nose {
+      fill: var(--tangerine);
+    }
+    .cat-whisker,
+    .cat-claw {
+      fill: none;
+      stroke: var(--cat-stroke);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+    }
+  </style>
+</svg>

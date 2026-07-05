@@ -1,0 +1,65 @@
+---
+interface Props {
+  variant?: 'light' | 'dark';
+  class?: string;
+}
+
+const { variant = 'light', class: className = '' } = Astro.props;
+---
+
+<svg
+  class:list={['cat-loaf', className]}
+  viewBox="0 0 220 130"
+  aria-hidden="true"
+  style={`--cat-fill: ${variant === 'dark' ? 'var(--ink)' : 'var(--paper)'}; --cat-stroke: ${variant === 'dark' ? 'var(--paper)' : 'var(--ink)'};`}
+>
+  <path
+    class="cat-tail"
+    d="M182,98 Q208,88 202,58 Q198,38 178,42"
+  />
+  <path
+    class="cat-body"
+    d="M18,118 Q18,58 70,52 Q92,18 132,52 Q184,58 184,118 Q184,128 101,128 Q18,128 18,118 Z"
+  />
+  <path class="cat-ear" d="M78,40 L64,8 L58,20 L52,10 L92,36 Z" />
+  <path class="cat-ear-inner" d="M76,32 L66,14 L86,30 Z" />
+  <path class="cat-ear" d="M118,36 L146,8 L134,38 Z" />
+  <path class="cat-ear-inner" d="M122,30 L142,14 L132,32 Z" />
+
+  <path class="cat-eye" d="M76,72 Q85,80 94,72" />
+  <path class="cat-eye" d="M108,72 Q117,80 126,72" />
+  <path class="cat-nose" d="M97,84 L105,84 L101,90 Z" />
+
+  <path class="cat-whisker" d="M74,88 Q54,84 40,86" />
+  <path class="cat-whisker" d="M74,94 Q54,96 40,100" />
+  <path class="cat-whisker" d="M128,88 Q148,84 162,86" />
+  <path class="cat-whisker" d="M128,94 Q148,96 162,100" />
+
+  <style>
+    .cat-body,
+    .cat-ear,
+    .cat-tail {
+      fill: var(--cat-fill);
+      stroke: var(--cat-stroke);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .cat-tail {
+      fill: none;
+    }
+    .cat-ear-inner {
+      fill: var(--blush);
+    }
+    .cat-eye,
+    .cat-whisker {
+      fill: none;
+      stroke: var(--cat-stroke);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+    }
+    .cat-nose {
+      fill: var(--tangerine);
+    }
+  </style>
+</svg>

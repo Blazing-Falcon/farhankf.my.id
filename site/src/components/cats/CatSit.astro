@@ -1,0 +1,73 @@
+---
+interface Props {
+  variant?: 'light' | 'dark';
+  class?: string;
+}
+
+const { variant = 'light', class: className = '' } = Astro.props;
+---
+
+<svg
+  class:list={['cat-sit', className]}
+  viewBox="0 0 180 190"
+  aria-hidden="true"
+  style={`--cat-fill: ${variant === 'dark' ? 'var(--ink)' : 'var(--paper)'}; --cat-stroke: ${variant === 'dark' ? 'var(--paper)' : 'var(--ink)'};`}
+>
+  <path
+    class="cat-tail"
+    d="M138,168 Q170,160 168,124 Q166,96 140,88 Q160,98 158,120 Q156,144 132,152"
+  />
+  <path
+    class="cat-body"
+    d="M42,182 Q24,182 24,150 Q24,112 58,100 L122,100 Q156,112 156,150 Q156,182 138,182 Z"
+  />
+  <ellipse class="cat-head" cx="90" cy="76" rx="40" ry="36" />
+  <path class="cat-ear" d="M58,48 L42,14 L54,24 L46,16 L72,44 Z" />
+  <path class="cat-ear-inner" d="M56,40 L46,20 L66,38 Z" />
+  <path class="cat-ear" d="M108,44 L134,14 L122,46 Z" />
+  <path class="cat-ear-inner" d="M112,38 L132,22 L120,40 Z" />
+
+  <path class="cat-eye" d="M74,76 Q82,84 90,76" />
+  <path class="cat-eye" d="M90,76 Q98,84 106,76" />
+  <path class="cat-nose" d="M86,88 L94,88 L90,94 Z" />
+  <path class="cat-mouth" d="M90,94 Q90,100 82,100 M90,94 Q90,100 98,100" />
+
+  <path class="cat-whisker" d="M72,90 Q52,86 38,88" />
+  <path class="cat-whisker" d="M72,96 Q52,98 38,102" />
+  <path class="cat-whisker" d="M108,90 Q128,86 142,88" />
+  <path class="cat-whisker" d="M108,96 Q128,98 142,102" />
+
+  <ellipse class="cat-paw" cx="70" cy="176" rx="13" ry="11" />
+  <ellipse class="cat-paw" cx="110" cy="176" rx="13" ry="11" />
+
+  <style>
+    .cat-body,
+    .cat-head,
+    .cat-ear,
+    .cat-paw,
+    .cat-tail {
+      fill: var(--cat-fill);
+      stroke: var(--cat-stroke);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .cat-tail {
+      fill: none;
+    }
+    .cat-ear-inner {
+      fill: var(--blush);
+    }
+    .cat-eye,
+    .cat-mouth,
+    .cat-whisker {
+      fill: none;
+      stroke: var(--cat-stroke);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+    }
+    .cat-nose {
+      fill: var(--tangerine);
+    }
+  </style>
+</svg>

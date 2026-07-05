@@ -1,0 +1,92 @@
+---
+interface Props {
+  variant?: 'light' | 'dark';
+  class?: string;
+}
+
+const { variant = 'light', class: className = '' } = Astro.props;
+---
+
+<svg
+  class:list={['cat-peek', className]}
+  viewBox="0 0 200 130"
+  aria-hidden="true"
+  style={`--cat-fill: ${variant === 'dark' ? 'var(--ink)' : 'var(--paper)'}; --cat-stroke: ${variant === 'dark' ? 'var(--paper)' : 'var(--ink)'};`}
+>
+  <g class="cat-tail-wag">
+    <path
+      class="cat-body"
+      d="M56,96 C50,50 68,20 100,20 C132,20 150,50 144,96 Z"
+    />
+    <path class="cat-ear cat-ear-left" d="M62,38 L46,4 L58,14 L50,6 L74,32 Z" />
+    <path class="cat-ear-inner" d="M60,30 L52,12 L70,28 Z" />
+    <path class="cat-ear cat-ear-right" d="M126,32 L150,4 L138,32 Z" />
+    <path class="cat-ear-inner" d="M130,28 L148,12 L138,28 Z" />
+  </g>
+
+  <circle class="cat-eye" cx="82" cy="66" r="3.5" />
+  <circle class="cat-eye" cx="118" cy="66" r="3.5" />
+  <path class="cat-nose" d="M96,78 L104,78 L100,84 Z" />
+  <path class="cat-mouth" d="M100,84 Q100,90 92,90 M100,84 Q100,90 108,90" />
+
+  <path class="cat-whisker" d="M78,80 Q58,76 44,78" />
+  <path class="cat-whisker" d="M78,86 Q58,88 44,92" />
+  <path class="cat-whisker" d="M122,80 Q142,76 156,78" />
+  <path class="cat-whisker" d="M122,86 Q142,88 156,92" />
+
+  <ellipse class="cat-paw" cx="76" cy="112" rx="14" ry="12" />
+  <ellipse class="cat-paw" cx="124" cy="112" rx="14" ry="12" />
+
+  <style>
+    .cat-body,
+    .cat-ear,
+    .cat-paw {
+      fill: var(--cat-fill);
+      stroke: var(--cat-stroke);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .cat-ear-inner {
+      fill: var(--blush);
+    }
+    .cat-eye {
+      fill: var(--cat-stroke);
+    }
+    .cat-nose {
+      fill: var(--tangerine);
+    }
+    .cat-mouth,
+    .cat-whisker {
+      fill: none;
+      stroke: var(--cat-stroke);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+    }
+    .cat-ear-left {
+      transform-origin: 62px 20px;
+      animation: ear-twitch 6s ease-in-out infinite;
+    }
+    @keyframes ear-twitch {
+      0%,
+      92%,
+      100% {
+        transform: rotate(0deg);
+      }
+      94% {
+        transform: rotate(-8deg);
+      }
+      96% {
+        transform: rotate(4deg);
+      }
+      98% {
+        transform: rotate(0deg);
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .cat-ear-left {
+        animation: none;
+      }
+    }
+  </style>
+</svg>
