@@ -51,6 +51,8 @@ The Astro site authenticates to Strapi with a read-only API token (not the publi
 
    `site/.env.example` documents the same keys with placeholders and is the only one committed to git.
 
+   **Rotating the token:** the token is shown only at creation and cannot be viewed again. To rotate (e.g. after a suspected leak), create a new read-only token the same way, update `STRAPI_TOKEN` in `site/.env`, restart the site, then delete the old token in Settings → API Tokens.
+
 ## Local Dev Credentials
 
 Strapi admin:
