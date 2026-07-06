@@ -1,0 +1,157 @@
+---
+import Layout from '../layouts/Layout.astro';
+import StickerBadge from '../components/StickerBadge.astro';
+import CatPeek from '../components/cats/CatPeek.astro';
+import PawPrint from '../components/cats/PawPrint.astro';
+
+const path = Astro.url.pathname;
+---
+
+<Layout title="Page not found">
+  <section class="not-found">
+    <div class="not-found-cat" data-reveal>
+      <CatPeek />
+    </div>
+
+    <p class="not-found-eyebrow">
+      <span class="hero-eyebrow-dot"></span>404
+    </p>
+    <h1 class="not-found-headline">Nothing here but paw prints.</h1>
+    <p class="not-found-descriptor">
+      The cat walked across the URL bar again. Whatever you were looking for
+      isn't at this address.
+    </p>
+
+    <StickerBadge label={path} rotate={-3} class="not-found-path" />
+
+    <div class="not-found-actions">
+      <a href="/" class="btn btn-primary press-shadow">Back home</a>
+      <a href="/projects" class="btn btn-secondary press-shadow">See projects</a>
+    </div>
+
+    <div class="not-found-paw not-found-paw-1"><PawPrint /></div>
+    <div class="not-found-paw not-found-paw-2"><PawPrint /></div>
+    <div class="not-found-paw not-found-paw-3"><PawPrint /></div>
+  </section>
+</Layout>
+
+<style>
+  .not-found {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-4);
+    max-width: 640px;
+    margin: 0 auto;
+    padding: var(--space-9) var(--space-4) var(--space-8);
+    overflow: hidden;
+  }
+
+  .not-found-cat {
+    width: 160px;
+    margin-bottom: var(--space-2);
+  }
+
+  .not-found-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: var(--text-tiny);
+    color: var(--teal);
+    margin: 0;
+  }
+
+  .hero-eyebrow-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--tangerine);
+  }
+
+  .not-found-headline {
+    font-family: var(--font-display);
+    font-size: var(--text-section);
+    line-height: 1.1;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  .not-found-descriptor {
+    font-size: var(--text-body);
+    color: var(--ink);
+    max-width: 44ch;
+    margin: 0;
+  }
+
+  .not-found-path {
+    font-size: var(--text-tiny);
+  }
+
+  .not-found-actions {
+    display: flex;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: var(--space-4);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    font-size: var(--text-tiny);
+    text-decoration: none;
+    padding: var(--space-3) var(--space-5);
+    border: var(--border-thick);
+    border-radius: var(--radius-card);
+  }
+
+  .btn-primary {
+    background: var(--tangerine);
+    color: var(--ink);
+  }
+
+  .btn-secondary {
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  .not-found-paw {
+    position: absolute;
+    width: 36px;
+    opacity: 0.5;
+  }
+
+  .not-found-paw-1 {
+    top: 12%;
+    left: 8%;
+    transform: rotate(-18deg);
+  }
+
+  .not-found-paw-2 {
+    top: 32%;
+    right: 10%;
+    transform: rotate(24deg) scale(0.8);
+  }
+
+  .not-found-paw-3 {
+    bottom: 8%;
+    left: 18%;
+    transform: rotate(8deg) scale(1.1);
+  }
+
+  @media (max-width: 767px) {
+    .not-found-paw {
+      display: none;
+    }
+  }
+</style>
