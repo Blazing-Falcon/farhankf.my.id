@@ -53,11 +53,10 @@ The Astro site authenticates to Strapi with a read-only API token (not the publi
 
 ## Local Dev Credentials
 
-Strapi admin (local only, placeholder — change before any real deployment):
+Strapi admin:
 
 - URL: `http://localhost:1337/admin`
-- Email: `admin@example.com`
-- Password: `AdminPass123!`
+- The original placeholder account (`admin@example.com`) was replaced with the owner's personal credentials on 2026-07-06. They are noted in a comment at the bottom of the gitignored `cms/.env` — keep them there, never in committed files.
 
 ## Content Conventions
 
