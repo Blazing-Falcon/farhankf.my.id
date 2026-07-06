@@ -1,0 +1,11 @@
+node_modules
+dist
+.tmp
+.cache
+database
+public/uploads
+.env
+.env.*
+*.db
+Dockerfile
+.dockerignore

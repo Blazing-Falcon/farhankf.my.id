@@ -1,0 +1,33 @@
+services:
+  cms:
+    build: ./cms
+    restart: unless-stopped
+    env_file:
+      - ./cms/.env
+    environment:
+      NODE_ENV: production
+    volumes:
+      # All persistent state lives in these two host directories — the sqlite
+      # db and the media library. Back these up; the containers are disposable.
+      - ./cms/.tmp:/app/.tmp
+      - ./cms/public/uploads:/app/public/uploads
+    ports:
+      # Loopback only: the admin panel must never be internet-reachable.
+      # Reach it from your machine via: ssh -L 1337:localhost:1337 <vps>
+      - "127.0.0.1:1337:1337"
+
+  site:
+    build: ./site
+    restart: unless-stopped
+    env_file:
+      - ./site/.env # provides STRAPI_TOKEN
+    environment:
+      NODE_ENV: production
+      # Overrides the localhost value from site/.env — inside the compose
+      # network the CMS is reachable by service name.
+      STRAPI_URL: http://cms:1337
+    ports:
+      # Tighten to "127.0.0.1:4321:4321" once the Cloudflare Tunnel fronts it.
+      - "4321:4321"
+    depends_on:
+      - cms
