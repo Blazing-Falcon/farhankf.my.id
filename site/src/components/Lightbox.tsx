@@ -14,6 +14,38 @@ interface LightboxProps {
   photos: LightboxPhoto[];
 }
 
+// Inline SVGs instead of text glyphs (←/→/×): browsers center a glyph's line
+// box, not its ink, so font arrows sit visibly off-center inside the 48px
+// circles. These paths are symmetric about the 24x24 viewBox center.
+function ArrowIcon({ direction }: { direction: 'prev' | 'next' }) {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+      <path
+        d={direction === 'next' ? 'M4 12h16M14 6l6 6-6 6' : 'M20 12H4m6-6l-6 6 6 6'}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+      <path
+        d="M6 6l12 12M18 6L6 18"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 export default function Lightbox({ photos }: LightboxProps) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -110,34 +142,37 @@ export default function Lightbox({ photos }: LightboxProps) {
               ref={closeButtonRef}
               aria-label="Close"
             >
-              &times;
-            </button>
-
-            <button
-              type="button"
-              className="lightbox-nav lightbox-prev"
-              onClick={showPrev}
-              aria-label="Previous photo"
-            >
-              &#8592;
+              <CloseIcon />
             </button>
 
             <figure className="lightbox-figure">
-              <img src={photo.src} width={photo.width} height={photo.height} alt={photo.alt} />
+              {/* Arrows live in this row so they center on the image alone —
+                  flanking the whole figure centers them on image + caption,
+                  visibly below the image's midline. */}
+              <div className="lightbox-stage">
+                <button
+                  type="button"
+                  className="lightbox-nav lightbox-prev"
+                  onClick={showPrev}
+                  aria-label="Previous photo"
+                >
+                  <ArrowIcon direction="prev" />
+                </button>
+                <img src={photo.src} width={photo.width} height={photo.height} alt={photo.alt} />
+                <button
+                  type="button"
+                  className="lightbox-nav lightbox-next"
+                  onClick={showNext}
+                  aria-label="Next photo"
+                >
+                  <ArrowIcon direction="next" />
+                </button>
+              </div>
               <figcaption>
                 <span className="lightbox-caption">{photo.caption}</span>
                 {photo.gear && <span className="lightbox-gear">{photo.gear}</span>}
               </figcaption>
             </figure>
-
-            <button
-              type="button"
-              className="lightbox-nav lightbox-next"
-              onClick={showNext}
-              aria-label="Next photo"
-            >
-              &#8594;
-            </button>
           </div>
         </div>
       )}
@@ -173,7 +208,11 @@ export default function Lightbox({ photos }: LightboxProps) {
           flex-direction: column;
           align-items: center;
           gap: 12px;
-          max-width: 80vw;
+        }
+        .lightbox-stage {
+          display: flex;
+          align-items: center;
+          gap: 16px;
         }
         .lightbox-figure img {
           max-width: 80vw;
@@ -206,24 +245,29 @@ export default function Lightbox({ photos }: LightboxProps) {
           position: absolute;
           top: -48px;
           right: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0;
           background: none;
           border: 2px solid var(--paper, #fbf7ef);
           color: var(--paper, #fbf7ef);
           width: 40px;
           height: 40px;
           border-radius: 999px;
-          font-size: 1.5rem;
-          line-height: 1;
           cursor: pointer;
         }
         .lightbox-nav {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0;
           background: none;
           border: 2px solid var(--paper, #fbf7ef);
           color: var(--paper, #fbf7ef);
           width: 48px;
           height: 48px;
           border-radius: 999px;
-          font-size: 1.5rem;
           cursor: pointer;
           flex-shrink: 0;
         }
