@@ -45,6 +45,11 @@ export default defineConfig({
   },
 
   image: {
-    remotePatterns: [{ protocol: 'http', hostname: 'localhost', port: '1337' }]
+    remotePatterns: [
+      // localhost for local dev; `cms` is the Strapi service name on the
+      // docker-compose network.
+      { protocol: 'http', hostname: 'localhost', port: '1337' },
+      { protocol: 'http', hostname: 'cms', port: '1337' }
+    ]
   }
 });

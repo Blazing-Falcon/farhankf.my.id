@@ -1,5 +1,8 @@
-const STRAPI_URL = import.meta.env.STRAPI_URL;
-const STRAPI_TOKEN = import.meta.env.STRAPI_TOKEN;
+// process.env first: import.meta.env is inlined at build time, which would
+// bake these into the Docker image. process.env is read at container start;
+// the import.meta.env fallback keeps `npm run dev` (.env-file) working.
+const STRAPI_URL = process.env.STRAPI_URL ?? import.meta.env.STRAPI_URL;
+const STRAPI_TOKEN = process.env.STRAPI_TOKEN ?? import.meta.env.STRAPI_TOKEN;
 
 export interface StrapiMedia {
   id: number;
