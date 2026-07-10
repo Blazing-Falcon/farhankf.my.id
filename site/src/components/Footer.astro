@@ -58,7 +58,7 @@ const fact = catFacts[Math.floor(Math.random() * catFacts.length)];
               </a>
             )}
             {githubUrl && (
-              <a class="btn btn-dark press-shadow" href={githubUrl} target="_blank" rel="noreferrer">
+              <a class="btn btn-secondary press-shadow" href={githubUrl} target="_blank" rel="noreferrer">
                 GitHub
               </a>
             )}
@@ -198,16 +198,17 @@ const fact = catFacts[Math.floor(Math.random() * catFacts.length)];
     flex-wrap: wrap;
     gap: var(--space-4);
     margin-top: var(--space-2);
+    margin-bottom: var(--space-2);
   }
 
-  /* ink-on-ink: the shared hard shadow vanishes on the dark footer, so the
-     primary button gets the paper-shadow treatment .btn-dark already uses */
-  .footer-cta .btn-primary {
+  /* ink-on-ink: the shared hard shadow vanishes on the dark footer, so both
+     buttons get solid faces and the paper-shadow treatment instead */
+  .footer-cta .btn {
     box-shadow: 6px 6px 0 var(--paper);
   }
 
-  .footer-cta .btn-primary:hover,
-  .footer-cta .btn-primary:focus-visible {
+  .footer-cta .btn:hover,
+  .footer-cta .btn:focus-visible {
     box-shadow: 3px 3px 0 var(--paper);
   }
 
