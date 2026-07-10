@@ -48,15 +48,24 @@ const fact = catFacts[Math.floor(Math.random() * catFacts.length)];
         <span class="prompt">juan@lab:~$</span> systemctl status cats
         <span class="status-ok">● active (napping)</span>
       </p>
-      <div class="footer-links">
-        {email && <a href={`mailto:${email}`}>{email}</a>}
-        {githubUrl && (
-          <a href={githubUrl} target="_blank" rel="noreferrer">
-            GitHub
-          </a>
-        )}
-      </div>
       <p class="cat-fact">Cat fact № {catFacts.indexOf(fact) + 1}: {fact}</p>
+      {
+        (email || githubUrl) && (
+          <div class="footer-cta">
+            {email && (
+              <a class="btn btn-primary press-shadow" href={`mailto:${email}`}>
+                Email the lab
+              </a>
+            )}
+            {githubUrl && (
+              <a class="btn btn-dark press-shadow" href={githubUrl} target="_blank" rel="noreferrer">
+                GitHub
+              </a>
+            )}
+          </div>
+        )
+      }
+      {email && <p class="footer-email">or copy: {email}</p>}
       <p class="colophon">Built with Astro + Strapi, self-hosted on Proxmox.</p>
     </div>
   </div>
@@ -184,18 +193,30 @@ const fact = catFacts[Math.floor(Math.random() * catFacts.length)];
     white-space: nowrap;
   }
 
-  .footer-links {
+  .footer-cta {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-4) var(--space-5);
-    font-family: var(--font-mono);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-size: var(--text-tiny);
+    gap: var(--space-4);
+    margin-top: var(--space-2);
   }
 
-  .footer-links a {
-    color: var(--paper);
+  /* ink-on-ink: the shared hard shadow vanishes on the dark footer, so the
+     primary button gets the paper-shadow treatment .btn-dark already uses */
+  .footer-cta .btn-primary {
+    box-shadow: 6px 6px 0 var(--paper);
+  }
+
+  .footer-cta .btn-primary:hover,
+  .footer-cta .btn-primary:focus-visible {
+    box-shadow: 3px 3px 0 var(--paper);
+  }
+
+  .footer-email {
+    font-family: var(--font-mono);
+    font-size: var(--text-tiny);
+    color: var(--blush);
+    margin: 0;
+    overflow-wrap: anywhere;
   }
 
   .cat-fact {
