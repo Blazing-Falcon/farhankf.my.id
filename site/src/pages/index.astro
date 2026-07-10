@@ -450,44 +450,7 @@ juan@lab:~$ <span class="terminal-cursor">▌</span></pre>
     transform: rotate(12deg);
   }
 
-  /* ——— Shared section scaffolding */
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    font-family: var(--font-mono);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-weight: 700;
-    font-size: var(--text-tiny);
-    text-decoration: none;
-    padding: var(--space-3) var(--space-5);
-    border: var(--border-thick);
-    border-radius: var(--radius-card);
-  }
-
-  .btn-primary {
-    background: var(--tangerine);
-    color: var(--ink);
-  }
-
-  .btn-secondary {
-    background: var(--paper);
-    color: var(--ink);
-  }
-
-  .btn-dark {
-    background: var(--ink);
-    color: var(--paper);
-    border-color: var(--paper);
-    box-shadow: 6px 6px 0 var(--paper);
-  }
-
-  .btn-dark:hover,
-  .btn-dark:focus-visible {
-    box-shadow: 3px 3px 0 var(--paper);
-  }
-
+  /* ——— Shared section scaffolding (buttons live in global.css) */
   .section {
     padding: var(--section-gap) 0;
   }
