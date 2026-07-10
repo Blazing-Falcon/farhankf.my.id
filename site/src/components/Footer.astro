@@ -191,6 +191,8 @@ const fact = catFacts[Math.floor(Math.random() * catFacts.length)];
     border-radius: var(--radius-pill);
     padding: 0 var(--space-2);
     white-space: nowrap;
+    /* Astro's HTML compression eats the source whitespace before the pill */
+    margin-inline-start: var(--space-2);
   }
 
   .footer-cta {
