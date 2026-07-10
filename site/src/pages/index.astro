@@ -59,14 +59,10 @@ const defaultTopics = [
   'PYTHON',
   'SQL',
 ];
-const defaultTools = ['PYTHON', 'ASTRO', 'ZFS', 'PROXMOX', 'FUJIFILM', 'TAILSCALE', 'DOCKER', 'LATEX'];
-
 let tickerTopics = defaultTopics;
-let tickerTools = defaultTools;
 try {
   const ticker = await getTicker();
   if (ticker?.topics?.length) tickerTopics = ticker.topics;
-  if (ticker?.tools?.length) tickerTools = ticker.tools;
 } catch {
   // keep defaults
 }
@@ -199,8 +195,6 @@ juan@lab:~$ <span class="terminal-cursor">▌</span></pre>
       </div>
     </div>
   </section>
-
-  <Ticker items={tickerTools} />
 
   <section class="section labnotes-section">
     <div class="section-inner">
