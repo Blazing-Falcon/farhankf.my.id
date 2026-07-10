@@ -1,0 +1,78 @@
+---
+import type { ProfileFact } from '../lib/profileFacts';
+
+interface Props {
+  facts: ProfileFact[];
+  /** Match the page's outline: h2 under a page h1 (default), h3 under a section h2. */
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { facts, headingLevel = 'h2' } = Astro.props;
+const Heading = headingLevel;
+---
+
+<div class="profile-card" data-reveal>
+  <Heading class="profile-card-title">Researcher profile</Heading>
+  <dl class="profile-facts">
+    {
+      facts.map((fact) => (
+        <div class="profile-fact">
+          <dt>{fact.label}</dt>
+          <dd>{fact.value}</dd>
+        </div>
+      ))
+    }
+  </dl>
+</div>
+
+<style>
+  .profile-card {
+    background: var(--paper);
+    border: var(--border-thick);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-hard);
+    padding: var(--space-5);
+    transform: rotate(-0.5deg);
+  }
+
+  .profile-card-title {
+    font-family: var(--font-mono);
+    font-size: var(--text-tiny);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-bottom: 2px dashed var(--ink);
+    padding-bottom: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .profile-facts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin: 0;
+  }
+
+  .profile-fact {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-4);
+  }
+
+  .profile-fact dt {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--teal);
+    flex-shrink: 0;
+  }
+
+  .profile-fact dd {
+    margin: 0;
+    font-size: var(--text-small);
+    font-weight: 600;
+    text-align: right;
+  }
+</style>

@@ -5,6 +5,8 @@ import Layout from '../layouts/Layout.astro';
 import StickerBadge from '../components/StickerBadge.astro';
 import EmptyState from '../components/EmptyState.astro';
 import CatTail from '../components/cats/CatTail.astro';
+import ResearcherProfile from '../components/ResearcherProfile.astro';
+import { profileFacts } from '../lib/profileFacts';
 import { getCats, mediaUrl, type About, type Cat } from '../lib/strapi';
 
 let about: About | null = null;
@@ -28,15 +30,7 @@ const catTilts = [-4, 3, -2, 4, -3, 2];
 
 const bioHtml = about?.bio ? renderMarkdown(about.bio) : '';
 
-// Playful profile facts; CMS fills in the boring true ones.
-const profileFacts = [
-  { label: 'Field', value: 'Statistics & machine learning' },
-  { label: 'Based in', value: about?.location ?? 'a home lab somewhere' },
-  { label: 'Current obsession', value: 'Particle swarm optimization' },
-  { label: 'Coffee intake', value: 'x̄ = 3.2 cups/day (σ = 0.8)' },
-  { label: 'Supervisors', value: '6 cats, zero mercy' },
-  { label: 'Uptime', value: 'better than the ISP’s' },
-];
+const facts = profileFacts(about);
 ---
 
 <Layout title="About" description={about?.tagline ?? 'About Juan'}>
@@ -69,17 +63,7 @@ const profileFacts = [
         </section>
 
         <section class="profile-section section-inner">
-          <div class="profile-card" data-reveal>
-            <h2 class="profile-card-title">Researcher profile</h2>
-            <dl class="profile-facts">
-              {profileFacts.map((fact) => (
-                <div class="profile-fact">
-                  <dt>{fact.label}</dt>
-                  <dd>{fact.value}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
+          <ResearcherProfile facts={facts} />
           <div class="bio-prose" data-reveal set:html={bioHtml} />
         </section>
 
@@ -287,56 +271,6 @@ const profileFacts = [
     gap: var(--space-7);
     padding-bottom: var(--space-7);
     align-items: start;
-  }
-
-  .profile-card {
-    background: var(--paper);
-    border: var(--border-thick);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-hard);
-    padding: var(--space-5);
-    transform: rotate(-0.5deg);
-  }
-
-  .profile-card-title {
-    font-family: var(--font-mono);
-    font-size: var(--text-tiny);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    border-bottom: 2px dashed var(--ink);
-    padding-bottom: var(--space-3);
-    margin-bottom: var(--space-4);
-  }
-
-  .profile-facts {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-    margin: 0;
-  }
-
-  .profile-fact {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: var(--space-4);
-  }
-
-  .profile-fact dt {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--teal);
-    flex-shrink: 0;
-  }
-
-  .profile-fact dd {
-    margin: 0;
-    font-size: var(--text-small);
-    font-weight: 600;
-    text-align: right;
   }
 
   .bio-prose {
