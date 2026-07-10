@@ -10,6 +10,8 @@ import CatSleep from '../components/cats/CatSleep.astro';
 import CatKeyboard from '../components/cats/CatKeyboard.astro';
 import CatTail from '../components/cats/CatTail.astro';
 import PawPrint from '../components/cats/PawPrint.astro';
+import ResearcherProfile from '../components/ResearcherProfile.astro';
+import { profileFacts } from '../lib/profileFacts';
 import { Image } from 'astro:assets';
 import {
   getProjects,
@@ -69,6 +71,10 @@ try {
 
 // Presentation only — content comes from the CMS.
 const noteTilts = [-2, 1.5, -1, 2];
+
+// The teaser shows the four funniest rows; the About page shows all six.
+const teaserFactLabels = ['Field', 'Based in', 'Current obsession', 'Supervisors'];
+const teaserFacts = profileFacts(about).filter((f) => teaserFactLabels.includes(f.label));
 ---
 
 <Layout title="Home">
@@ -249,8 +255,11 @@ juan@lab:~$ <span class="terminal-cursor">▌</span></pre>
           }
           <div class="about-teaser-copy" data-reveal>
             <StickerBadge label="Who is this cat" rotate={-2} />
-            <h2 class="section-title">{about?.tagline ?? 'About me'}</h2>
+            <h2 class="section-title">One student, six cats, and an ISP that fights back.</h2>
             <a href="/about" class="btn btn-secondary press-shadow">Read the full story</a>
+          </div>
+          <div class="about-teaser-profile">
+            <ResearcherProfile facts={teaserFacts} headingLevel="h3" />
           </div>
         </div>
       </div>
@@ -689,6 +698,12 @@ juan@lab:~$ <span class="terminal-cursor">▌</span></pre>
 
   .about-teaser-copy .section-title {
     margin-bottom: var(--space-5);
+  }
+
+  .about-teaser-profile {
+    flex: 1;
+    min-width: 280px;
+    max-width: 420px;
   }
 
   .decor-paw {
