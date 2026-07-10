@@ -11,9 +11,11 @@ interface Props {
   rotate?: number;
   /** Match the page's outline: h3 under a section h2 (default), h2 under a page h1. */
   headingLevel?: 'h2' | 'h3';
+  /** Trim the card's vertical weight: 2-line summary, 1 stat, 3 pills. */
+  compact?: boolean;
 }
 
-const { project, variant = 'grid', rotate = 0, headingLevel = 'h3' } = Astro.props;
+const { project, variant = 'grid', rotate = 0, headingLevel = 'h3', compact = false } = Astro.props;
 const Heading = headingLevel;
 const cover = project.coverImage;
 const coverSrc = mediaUrl(cover);
@@ -33,13 +35,13 @@ const difficultyLabels: Record<string, string> = {
   'ongoing-saga': 'Ongoing saga',
 };
 const difficulty = project.difficulty ? difficultyLabels[project.difficulty] : null;
-const stats = (project.stats ?? []).slice(0, 3);
-const pills = (project.techStack ?? []).slice(0, 5);
+const stats = (project.stats ?? []).slice(0, compact ? 1 : 3);
+const pills = (project.techStack ?? []).slice(0, compact ? 3 : 5);
 const extraPills = (project.techStack?.length ?? 0) - pills.length;
 ---
 
 <article
-  class:list={['project-card', variant]}
+  class:list={['project-card', variant, { compact }]}
   style={`--rotate: ${rotate}deg;`}
   data-reveal
 >
@@ -292,6 +294,13 @@ const extraPills = (project.techStack?.length ?? 0) - pills.length;
     margin: 0;
     color: var(--ink);
     font-size: var(--text-small);
+  }
+
+  .project-card.compact .project-card-summary {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .project-card-stats {

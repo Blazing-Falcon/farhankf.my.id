@@ -151,7 +151,7 @@ juan@lab:~$ <span class="terminal-cursor">▌</span></pre>
         ) : (
           <div class="featured-projects">
             {featuredProjects.map((project, i) => (
-              <ProjectCard project={project} variant="featured" rotate={i % 2 === 0 ? -1 : 1} />
+              <ProjectCard project={project} variant="grid" compact rotate={i % 2 === 0 ? -1 : 1} />
             ))}
           </div>
         )
@@ -502,15 +502,28 @@ juan@lab:~$ <span class="terminal-cursor">▌</span></pre>
     justify-content: flex-start;
   }
 
-  /* ——— Featured projects: solid cream band, no grid, so the cards pop */
+  /* ——— Featured projects: solid cream band so the cards pop */
   .featured-section {
     background: var(--paper);
   }
 
+  /* same breakpoints as .projects-grid on /projects */
   .featured-projects {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-7);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 640px) {
+    .featured-projects {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .featured-projects {
+      grid-template-columns: repeat(3, 1fr);
+    }
   }
 
   /* ——— Photography: the dark room */
