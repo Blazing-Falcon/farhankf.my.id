@@ -1,4 +1,4 @@
-# juan.cat — Portfolio
+# farhan.cat
 
 Self-hosted portfolio site
 
