@@ -1,52 +1,15 @@
 {
   "kind": "collectionType",
   "collectionName": "photos",
-  "info": {
-    "singularName": "photo",
-    "pluralName": "photos",
-    "displayName": "Photo"
-  },
-  "options": {
-    "draftAndPublish": true
-  },
-  "pluginOptions": {},
+  "info": { "singularName": "photo", "pluralName": "photos", "displayName": "Photo" },
+  "options": { "draftAndPublish": true },
   "attributes": {
-    "title": {
-      "type": "string",
-      "required": true
-    },
-    "image": {
-      "type": "media",
-      "multiple": false,
-      "required": true,
-      "allowedTypes": [
-        "images"
-      ]
-    },
-    "caption": {
-      "type": "text"
-    },
-    "category": {
-      "type": "enumeration",
-      "default": "other",
-      "enum": [
-        "street",
-        "landscape",
-        "astro",
-        "portrait",
-        "macro",
-        "other"
-      ]
-    },
-    "shotAt": {
-      "type": "date"
-    },
-    "gear": {
-      "type": "string"
-    },
-    "featured": {
-      "type": "boolean",
-      "default": false
-    }
+    "title": { "type": "string", "required": true },
+    "image": { "type": "media", "multiple": false, "required": true, "allowedTypes": ["images"] },
+    "caption": { "type": "text" },
+    "category": { "type": "enumeration", "enum": ["street", "landscape", "portrait", "macro", "other"], "default": "other" },
+    "shotAt": { "type": "date" },
+    "gear": { "type": "string" },
+    "featured": { "type": "boolean", "default": false }
   }
 }
