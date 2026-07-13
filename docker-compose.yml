@@ -12,9 +12,13 @@ services:
       - ./cms/data:/app/data
       - ./cms/public/uploads:/app/public/uploads
     ports:
-      # Loopback only: the admin panel must never be internet-reachable.
-      # Reach it from your machine via: ssh -L 1337:localhost:1337 <vps>
-      - "127.0.0.1:1337:1337"
+      # Published on all interfaces so the admin is reachable over the LAN and
+      # Tailscale (a 127.0.0.1 binding only accepts loopback, so a request
+      # arriving on the tailscale0 interface never lands).
+      # This assumes the host is NOT directly internet-exposed — on a public VPS
+      # this puts the admin panel on the internet. There, bind it to the
+      # tailscale IP instead: "100.x.y.z:8108:1337".
+      - "8108:1337"
 
   site:
     build: ./site
@@ -27,7 +31,7 @@ services:
       # network the CMS is reachable by service name.
       STRAPI_URL: http://cms:1337
     ports:
-      # Tighten to "127.0.0.1:4321:4321" once the Cloudflare Tunnel fronts it.
-      - "4321:4321"
+      # Public entrypoint: point the Cloudflare Tunnel at http://<host>:8100.
+      - "8100:4321"
     depends_on:
       - cms

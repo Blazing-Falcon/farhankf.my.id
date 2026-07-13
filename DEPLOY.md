@@ -2,8 +2,19 @@
 
 The stack is two containers built from `cms/Dockerfile` and `site/Dockerfile`,
 wired together by `docker-compose.yml`. The site reaches Strapi over the
-internal compose network (`http://cms:1337`); only the site's port is meant to
-be reachable from outside.
+internal compose network (`http://cms:1337`); on the host, two ports are
+published:
+
+| | host port | who should reach it |
+|---|---|---|
+| site | `8100` | the world, via the Cloudflare Tunnel |
+| admin | `8108` | you only — LAN / Tailscale |
+
+Both bind all interfaces, so they work over Tailscale (a `127.0.0.1` binding
+accepts loopback only, so a request arriving on the `tailscale0` interface
+never lands). **This assumes the host is not directly internet-exposed.** On a
+public VPS, `8108` would put the Strapi admin on the internet — bind it to the
+Tailscale IP there instead: `"100.x.y.z:8108:1337"`.
 
 **All persistent state lives in two host directories** (bind-mounted into the
 CMS container):
@@ -19,12 +30,17 @@ The containers themselves are disposable. Those two directories plus the two
 ```bash
 cd portfolio
 docker compose up -d --build
-# site:  http://localhost:4321
-# admin: http://localhost:1337/admin (loopback only)
+# site:  http://localhost:8100
+# admin: http://localhost:8108/admin
 ```
 
-Stop your dev servers first (both want the same ports). `docker compose down`
-tears it down; content is untouched (it lives in the bind mounts).
+Both are also reachable from any other machine on the LAN or Tailscale, at
+`http://<host-ip>:8100` / `:8108`.
+
+`docker compose down` tears it down; content is untouched (it lives in the bind
+mounts). The dev servers use different ports (`4321`/`1337`), so they can run
+alongside the containers — but they share the same SQLite file, and two
+processes writing it will corrupt it. Run one or the other, not both.
 
 ## First deploy to the VPS
 
@@ -54,21 +70,15 @@ tears it down; content is untouched (it lives in the bind mounts).
 
 ## Reaching the admin panel
 
-`1337` is bound to loopback on purpose — the admin must not be
-internet-reachable. From your machine:
-
-```bash
-ssh -L 1337:localhost:1337 user@vps
-# then open http://localhost:1337/admin locally
-```
+Open `http://<host>:8108/admin` over the LAN or Tailscale. The admin must never
+be *internet*-reachable — keep it out of the Cloudflare Tunnel, and if the host
+ever gets a public IP, bind the port to the Tailscale address as noted above.
 
 ## Exposing the site
 
-Front `:4321` with the Cloudflare Tunnel (map the tunnel to
-`http://localhost:4321`, site only — never `:1337`). Once the tunnel works,
-tighten the site port in `docker-compose.yml` to `"127.0.0.1:4321:4321"` and
-`docker compose up -d` again. HSTS and caching/rate rules for `/_image` belong
-in the Cloudflare dashboard.
+Front `:8100` with the Cloudflare Tunnel (map the tunnel to
+`http://<host>:8100` — the site only, never `:8108`). HSTS and caching/rate
+rules for `/_image` belong in the Cloudflare dashboard.
 
 ## Updating
 
