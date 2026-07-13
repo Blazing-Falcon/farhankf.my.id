@@ -5,7 +5,7 @@ import StickerBadge from '../components/StickerBadge.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import EmptyState from '../components/EmptyState.astro';
 import CatPeek from '../components/cats/CatPeek.astro';
-import CatDoze from '../components/cats/CatDoze.astro';
+import CatCamera from '../components/cats/CatCamera.astro';
 import CatSleep from '../components/cats/CatSleep.astro';
 import CatKeyboard from '../components/cats/CatKeyboard.astro';
 import CatTail from '../components/cats/CatTail.astro';
@@ -175,7 +175,7 @@ juan@lab:~$ <span class="terminal-cursor">▌</span></pre>
         ) : (
           <div class="photo-row">
             <div class="photo-row-mascot">
-              <CatDoze variant="dark" />
+              <CatCamera variant="dark" />
             </div>
             {featuredPhotos.slice(0, 8).map((photo, i) => (
               <figure class="polaroid" style={`--tilt: ${i % 2 === 0 ? -1.5 : 1.5}deg;`}>
@@ -554,9 +554,7 @@ juan@lab:~$ <span class="terminal-cursor">▌</span></pre>
 
   .photo-row-mascot {
     flex-shrink: 0;
-    /* CatDoze is landscape (212x126) — wider slot than the old portrait
-       camera cat so the mascot keeps its presence next to the polaroids */
-    width: 180px;
+    width: 120px;
     align-self: flex-end;
   }
 

@@ -3,7 +3,7 @@ import { getImage, Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
 import StickerBadge from '../components/StickerBadge.astro';
 import EmptyState from '../components/EmptyState.astro';
-import CatStretch from '../components/cats/CatStretch.astro';
+import CatDoze from '../components/cats/CatDoze.astro';
 import Lightbox from '../components/Lightbox.tsx';
 import { getPhotos, mediaUrl, type Photo, type PhotoCategory } from '../lib/strapi';
 
@@ -63,7 +63,7 @@ const shotDate = (photo: Photo) =>
         </p>
       </div>
       <div class="page-head-cat" aria-hidden="true">
-        <CatStretch />
+        <CatDoze />
       </div>
     </div>
 
