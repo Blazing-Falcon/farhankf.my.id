@@ -1,0 +1,130 @@
+---
+interface Props {
+  variant?: 'light' | 'dark';
+  class?: string;
+}
+
+const { variant = 'light', class: className = '' } = Astro.props;
+---
+
+<svg
+  class:list={['cat-doze', className]}
+  viewBox="0 0 212 126"
+  aria-hidden="true"
+  style={`--cat-fill: ${variant === 'dark' ? 'var(--ink)' : 'var(--paper)'}; --cat-stroke: ${variant === 'dark' ? 'var(--paper)' : 'var(--ink)'};`}
+>
+  <g class="cat-zzz">
+    <text class="cat-z cat-z-1" x="90" y="35">z</text>
+    <text class="cat-z cat-z-2" x="102" y="23">z</text>
+    <text class="cat-z cat-z-3" x="114" y="13">z</text>
+  </g>
+
+  <g class="cat-breathe">
+    <!-- tail draped over the edge the cat is loafing on -->
+    <path class="cat-tail" d="M148,81 q46,-6 54,18 q5,16 -14,20" />
+    <!-- body loaf -->
+    <path class="cat-body" d="M42,91 q-4,-52 56,-54 q58,-2 60,54 Z" />
+    <!-- head resting in front, chin on the ground -->
+    <path class="cat-head" d="M14,91 q-8,-44 34,-46 q40,-2 36,46 Z" />
+    <path class="cat-ear" d="M20,53 l-4,-18 l18,8 Z" />
+    <path class="cat-ear" d="M66,50 l6,-17 l-19,6 Z" />
+    <path class="cat-ear-inner" d="M22,51 l-1.5,-9 l9,4 Z" />
+    <path class="cat-ear-inner" d="M64,48 l3,-8.5 l-9.5,3 Z" />
+
+    <!-- fast asleep -->
+    <path class="cat-eye" d="M26,73 q4,5 9,0" />
+    <path class="cat-eye" d="M50,73 q4,5 9,0" />
+    <path class="cat-mouth" d="M39,82 q3,3 6,0" />
+    <circle class="cat-cheek" cx="21" cy="82" r="3.5" />
+    <circle class="cat-cheek" cx="62" cy="82" r="3.5" />
+    <path class="cat-whisker" d="M6,75 h10 M6,83 h10 M68,75 h10 M68,83 h10" />
+
+    <!-- front paws tucked under the chin -->
+    <path class="cat-paw" d="M30,91 q2,7 9,7 q7,0 8,-7" />
+    <path class="cat-paw" d="M50,91 q2,7 9,7 q7,0 8,-7" />
+  </g>
+
+  <style>
+    .cat-body,
+    .cat-head,
+    .cat-ear,
+    .cat-paw {
+      fill: var(--cat-fill);
+      stroke: var(--cat-stroke);
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .cat-tail {
+      fill: none;
+      stroke: var(--cat-stroke);
+      stroke-width: 3;
+      stroke-linecap: round;
+    }
+    .cat-ear-inner {
+      fill: var(--blush);
+    }
+    .cat-cheek {
+      fill: var(--blush);
+      opacity: 0.85;
+    }
+    .cat-eye,
+    .cat-mouth,
+    .cat-whisker {
+      fill: none;
+      stroke: var(--cat-stroke);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+    }
+    .cat-mouth {
+      stroke-width: 2;
+    }
+
+    .cat-breathe {
+      transform-box: fill-box;
+      transform-origin: bottom center;
+      animation: cat-doze-breathe 4.5s ease-in-out infinite;
+    }
+
+    .cat-z {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      fill: var(--cat-stroke);
+      opacity: 0;
+    }
+    .cat-z-1 {
+      font-size: 16px;
+      animation: cat-doze-z 4.5s ease-in-out infinite;
+    }
+    .cat-z-2 {
+      font-size: 13px;
+      animation: cat-doze-z 4.5s ease-in-out infinite 0.5s;
+    }
+    .cat-z-3 {
+      font-size: 11px;
+      animation: cat-doze-z 4.5s ease-in-out infinite 1s;
+    }
+
+    @keyframes cat-doze-breathe {
+      0%,
+      100% {
+        transform: scale(1, 1);
+      }
+      50% {
+        transform: scale(1.015, 1.035);
+      }
+    }
+    @keyframes cat-doze-z {
+      0%,
+      100% {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+      40%,
+      70% {
+        opacity: 0.85;
+        transform: translateY(-2px);
+      }
+    }
+  </style>
+</svg>
