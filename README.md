@@ -1,70 +1,88 @@
 # juan.cat — Portfolio
 
-Self-hosted portfolio site for Juan: statistics/ML student, photographer, home lab enthusiast, and tabletop RPG player. Astro (SSR) frontend with React islands, Strapi 5 CMS, GSAP motion.
+Self-hosted portfolio site
+
+Two independent Node projects, no monorepo tooling — `cd` into each and run its own npm scripts:
+
+- **`cms/`** — Strapi 5 (SQLite), the admin panel and content API. Port `1337`.
+- **`site/`** — Astro 5 in SSR mode, one React island (the photo lightbox), motion via the Web Animations API. Port `4321`.
+
+Every page is server-rendered per request: Astro fetches from Strapi in the page frontmatter, so **Strapi should be running first**. If it isn't, pages still render — a cat illustration takes the place of the missing content instead of a 500.
 
 ## Prerequisites
 
-- Node.js: an even-numbered LTS release (v22.x, v24.x, or v26.x). Strapi 5 does not support odd-numbered "current" releases.
-- npm v10+
-- No global installs needed — everything lives in `cms/node_modules` and `site/node_modules`.
+- **Node.js — an even-numbered LTS** (v22/v24/v26). Strapi 5 rejects odd-numbered "current" releases, and `better-sqlite3` fails to build first.
+- npm v10+. Nothing needs installing globally.
 
-## Running Locally
+## First-time setup
 
-Two dev servers run side by side:
+The database and uploads are **not in git**, so a fresh clone starts with no content.
 
 ```bash
-# Terminal 1 — CMS (Strapi), http://localhost:1337
+# 1. CMS
 cd cms
-npm run develop
+cp .env.example .env          # then fill it in, see below
+npm install
+npm run develop               # http://localhost:1337/admin — create your admin account
 
-# Terminal 2 — Site (Astro), http://localhost:4321
+# 2. Site (new terminal)
 cd site
-npm run dev
+cp .env.example .env          # then paste the API token, see below
+npm install
+npm run dev                   # http://localhost:4321
 ```
 
-Astro's data layer (`site/src/lib/strapi.ts`) fetches from Strapi server-side on every request, so Strapi should be running first. If Strapi is down, pages still render (with a cat empty-state illustration in place of the missing content) instead of a 500.
+**`cms/.env`** — replace every `tobemodified` placeholder with a random secret (`openssl rand -base64 32`), and add this line, which the scaffold leaves out:
 
-Both dev servers bind to all network interfaces (`0.0.0.0`), not just `localhost`, so they're reachable from other machines on the same network (e.g. `http://<this-machine-ip>:4321`). Strapi picks this up from `HOST=0.0.0.0` in `cms/.env`; Astro uses the `--host` flag on `npm run dev` / `npm run preview`. `astro dev` prints the exact LAN/Tailscale addresses to use on startup.
+```ini
+DATABASE_FILENAME=.tmp/data.db
+```
 
-## Content Editing
+Without it Strapi tries to open the `cms/` directory itself as the database and dies with `SqliteError: unable to open database file`.
 
-All content (About, Projects, Photos) is managed through the Strapi admin panel:
+**`site/.env`** — the site talks to Strapi with a read-only API token, so the content API isn't anonymously readable. In the admin panel: **Settings → API Tokens → Create new API Token**, type **Read-only**, duration **Unlimited**. The token is shown once:
 
-- URL: `http://localhost:1337/admin`
+```ini
+STRAPI_URL=http://localhost:1337
+STRAPI_TOKEN=<paste token here>
+```
 
-Content types are defined as code in `cms/src/api/*/content-types/*/schema.json` — edit the schema files and restart `npm run develop` to change fields, rather than using the admin UI's content-type builder.
+To rotate it, create a new one, update `site/.env`, restart the site, then delete the old token.
 
-**Remember to click Publish** on any entry — Draft & Publish is enabled, and only published entries are returned by the API.
+## Day-to-day
 
-## Strapi API Token Setup
+```bash
+cd cms  && npm run develop    # CMS,  http://localhost:1337/admin
+cd site && npm run dev        # site, http://localhost:4321
+cd site && npx astro check    # typecheck — there is no test suite
+```
 
-The Astro site authenticates to Strapi with a read-only API token (not the public role), so the content API isn't anonymously readable.
+Both dev servers bind to `0.0.0.0`, so they're reachable from other machines on the network; `astro dev` prints the LAN address on startup.
 
-1. In the admin panel: Settings → API Tokens → Create new API Token.
-2. Name: `astro-site`. Type: **Read-only**. Duration: **Unlimited**.
-3. Copy the token (shown once) into `site/.env`:
+## Editing content
 
-   ```
-   STRAPI_URL=http://localhost:1337
-   STRAPI_TOKEN=<paste token here>
-   ```
+Everything — About, projects, photos, lab notes, the cat committee — is edited in the Strapi admin at `http://localhost:1337/admin`.
 
-   `site/.env.example` documents the same keys with placeholders and is the only one committed to git.
+**Click Publish on every entry.** Draft & Publish is on, and the API only returns published entries. If something you just added isn't showing up, check that first. (Responses are also cached for 60s, so give edits up to a minute to appear.)
 
-   **Rotating the token:** the token is shown only at creation and cannot be viewed again. To rotate (e.g. after a suspected leak), create a new read-only token the same way, update `STRAPI_TOKEN` in `site/.env`, restart the site, then delete the old token in Settings → API Tokens.
+Content types are defined **as code** in `cms/src/api/*/content-types/*/schema.json`. Add or change fields there and restart Strapi — don't use the admin UI's content-type builder.
 
-## Local Dev Credentials
+### Content types
 
-Strapi admin:
+| Type | What it is |
+|---|---|
+| **About** (single) | Headline, bio (markdown), portrait, skills, contact links. |
+| **Project** (collection) | Title, slug, summary, body (markdown), cover image, gallery, tech stack, links, `featured`, difficulty, stats. |
+| **Photo** (collection) | Image, caption, `category`, date, gear, `featured`. Categories: `street`, `landscape`, `portrait`, `macro`, `astrophotography`, `cat`, `other`. |
+| **Lab note** (collection) | The homepage sticky-note board: `title` + `body` (max 280 chars) + `order` for placement. Color and tilt are automatic. |
+| **Cat** (collection) | The About page's supervision committee: `name`, `role`, `photo`, `bio`, `order`. Cards open a click-through staff file. |
+| **Ticker** (single) | `topics` — an array of uppercase strings for the homepage marquee, e.g. `["STATISTICS", "CATS", "COFFEE"]`. The site falls back to built-in defaults if it's missing. (The schema also has an unused `tools` field, left over from a second marquee that was removed.) |
 
-- URL: `http://localhost:1337/admin`
-- The original placeholder account (`admin@example.com`) was replaced with the owner's personal credentials on 2026-07-06. They are noted in a comment at the bottom of the gitignored `cms/.env` — keep them there, never in committed files.
+### JSON field shapes
 
-## Content Conventions
+These are conventions the frontend expects, not schema-validated — get them wrong and the field just won't render.
 
-These JSON/array fields are free-form in Strapi and not schema-validated beyond "json"/"array of string", so the shape is a convention enforced by the Astro client and seed data only.
-
-**About `skills` (JSON field):**
+**About `skills`** — grouped:
 
 ```json
 [
@@ -73,9 +91,9 @@ These JSON/array fields are free-form in Strapi and not schema-validated beyond 
 ]
 ```
 
-**Project `techStack` (JSON field):** flat array of strings, e.g. `["Python", "scikit-learn", "SMOTE"]`.
+**Project `techStack`** — a flat array of strings: `["Python", "scikit-learn", "SMOTE"]`.
 
-**Project `stats` (JSON field):** up to ~3 tiny bragging numbers shown on the card, e.g.
+**Project `stats`** — up to ~3 bragging numbers shown on the card:
 
 ```json
 [
@@ -84,35 +102,23 @@ These JSON/array fields are free-form in Strapi and not schema-validated beyond 
 ]
 ```
 
-**Project `difficulty` (enum):** one of `weekend-hack`, `semester-project`, `thesis-grade`, `ongoing-saga` — rendered as a sticker on the project card. Optional.
+**Project `difficulty`** — optional sticker on the card: `weekend-hack`, `semester-project`, `thesis-grade`, or `ongoing-saga`.
 
-**Lab notes (collection):** the homepage sticky-note board. Each entry is a `title` + short `body` (max 280 chars) + `order` integer that controls left-to-right placement. Colors and tilt are assigned automatically by position — just write the note and publish it.
+## Design system
 
-**Cats (collection):** the supervision committee on the About page. Each entry: `name`, `role` (the staff dept line), `photo` (upload a real cat photo — square-ish crops look best), optional `bio` shown in the click-to-open staff file, and `order` for left-to-right placement. The seeded entries use renders of the old illustrated cats as placeholder photos — replace them with real ones in the Media Library.
-
-**Ticker (single type):** the two marquee bands on the homepage. `topics` (identity band, after the hero) and `tools` (stack band, after photography) are JSON arrays of uppercase strings, e.g. `["STATISTICS", "CATS", "COFFEE"]`. If the entry is missing or unpublished the site falls back to built-in defaults, so the marquees never disappear.
-
-## Design Token Reference
-
-Defined in `site/src/styles/tokens.css` as CSS custom properties; every color/size in components should derive from these rather than hardcoded values.
-
-**Color — "Ink & Tangerine"**
+"Ink & Tangerine": heavy ink borders, hard offset shadows that press in on hover, and a cat mascot drawn as inline SVG. All colors, spacing, and shapes are CSS custom properties in **`site/src/styles/tokens.css`** — use the tokens, don't hardcode hex values or magic pixel numbers.
 
 | Token | Hex | Use |
 |---|---|---|
 | `--paper` | `#FBF7EF` | Page background |
 | `--ink` | `#1A1B23` | Text, borders, dark sections |
 | `--tangerine` | `#FF5C00` | Primary accent: CTAs, marquee, focus ring |
-| `--teal` | `#0E7C7B` | Secondary accent: links, tags |
-| `--butter` | `#FFD23F` | Highlight: selection, sticker badges |
-| `--blush` | `#FFC4B0` | Soft fill: card backgrounds |
+| `--teal` | `#0E7C7B` | Links, tags |
+| `--butter` | `#FFD23F` | Selection, sticker badges |
+| `--blush` | `#FFC4B0` | Soft card fills |
 
-**Typography**
+Type: **Bricolage Grotesque** for display, **Instrument Sans** for body, **Space Mono** for tickers and captions.
 
-| Role | Face | Usage |
-|---|---|---|
-| Display | Bricolage Grotesque (variable) | Headlines, weight 700–800 |
-| Body | Instrument Sans | Paragraphs, UI text |
-| Utility | Space Mono | Tickers, tags, captions |
+## Deploying
 
-**Shape:** `2px solid var(--ink)` borders, hard drop shadows (`6px 6px 0 var(--ink)`, pressing to `3px 3px 0` on hover), `12px` card radius, `999px` pill radius, spacing scale in steps of 4px (4/8/12/16/24/32/48/64/96/128).
+Docker Compose, two containers. See **[DEPLOY.md](DEPLOY.md)** — the short version is that all persistent state is the `cms/.tmp/` (database) and `cms/public/uploads/` (media) directories, and the containers are disposable.
