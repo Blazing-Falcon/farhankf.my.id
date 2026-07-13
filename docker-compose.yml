@@ -17,8 +17,8 @@ services:
       # arriving on the tailscale0 interface never lands).
       # This assumes the host is NOT directly internet-exposed — on a public VPS
       # this puts the admin panel on the internet. There, bind it to the
-      # tailscale IP instead: "100.x.y.z:8108:1337".
-      - "8108:1337"
+      # tailscale IP instead: "100.x.y.z:7108:1337".
+      - "7108:1337"
 
   site:
     build: ./site
@@ -31,7 +31,7 @@ services:
       # network the CMS is reachable by service name.
       STRAPI_URL: http://cms:1337
     ports:
-      # Public entrypoint: point the Cloudflare Tunnel at http://<host>:8100.
-      - "8100:4321"
+      # Public entrypoint: point the Cloudflare Tunnel at http://<host>:7100.
+      - "7100:4321"
     depends_on:
       - cms

@@ -7,14 +7,14 @@ published:
 
 | | host port | who should reach it |
 |---|---|---|
-| site | `8100` | the world, via the Cloudflare Tunnel |
-| admin | `8108` | you only — LAN / Tailscale |
+| site | `7100` | the world, via the Cloudflare Tunnel |
+| admin | `7108` | you only — LAN / Tailscale |
 
 Both bind all interfaces, so they work over Tailscale (a `127.0.0.1` binding
 accepts loopback only, so a request arriving on the `tailscale0` interface
 never lands). **This assumes the host is not directly internet-exposed.** On a
-public VPS, `8108` would put the Strapi admin on the internet — bind it to the
-Tailscale IP there instead: `"100.x.y.z:8108:1337"`.
+public VPS, `7108` would put the Strapi admin on the internet — bind it to the
+Tailscale IP there instead: `"100.x.y.z:7108:1337"`.
 
 **All persistent state lives in two host directories** (bind-mounted into the
 CMS container):
@@ -30,12 +30,12 @@ The containers themselves are disposable. Those two directories plus the two
 ```bash
 cd portfolio
 docker compose up -d --build
-# site:  http://localhost:8100
-# admin: http://localhost:8108/admin
+# site:  http://localhost:7100
+# admin: http://localhost:7108/admin
 ```
 
 Both are also reachable from any other machine on the LAN or Tailscale, at
-`http://<host-ip>:8100` / `:8108`.
+`http://<host-ip>:7100` / `:7108`.
 
 `docker compose down` tears it down; content is untouched (it lives in the bind
 mounts). The dev servers use different ports (`4321`/`1337`), so they can run
@@ -70,14 +70,14 @@ processes writing it will corrupt it. Run one or the other, not both.
 
 ## Reaching the admin panel
 
-Open `http://<host>:8108/admin` over the LAN or Tailscale. The admin must never
+Open `http://<host>:7108/admin` over the LAN or Tailscale. The admin must never
 be *internet*-reachable — keep it out of the Cloudflare Tunnel, and if the host
 ever gets a public IP, bind the port to the Tailscale address as noted above.
 
 ## Exposing the site
 
-Front `:8100` with the Cloudflare Tunnel (map the tunnel to
-`http://<host>:8100` — the site only, never `:8108`). HSTS and caching/rate
+Front `:7100` with the Cloudflare Tunnel (map the tunnel to
+`http://<host>:7100` — the site only, never `:7108`). HSTS and caching/rate
 rules for `/_image` belong in the Cloudflare dashboard.
 
 ## Updating
