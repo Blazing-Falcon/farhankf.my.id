@@ -148,6 +148,45 @@ button {
   box-shadow: 3px 3px 0 var(--paper);
 }
 
+/* ——— Scroll-reveal hidden state ———
+   Lives here rather than being applied from motion.ts, so it takes effect
+   before the first paint. motion.ts is a deferred script: hiding elements
+   from there happens *after* the server-rendered content has painted, which
+   on a slow connection reads as a flash of content that then blanks.
+
+   `scripting: enabled` keeps the JS-off contract that motion.ts's old eager
+   inline-style hide gave us for free — with JS disabled the rule never applies
+   and all content stays visible. (An inline <head> script would be the usual
+   way to do this, but Astro does not hash `is:inline` scripts, so CSP blocks
+   it — verified against a prod build. CSS has no such problem.)
+
+   motion.ts reveals an element by removing its data-reveal attribute, at which
+   point none of this matches it any more. */
+@media (scripting: enabled) {
+  [data-reveal] {
+    opacity: 0;
+    translate: 0 24px;
+    /* Dead-man's switch. The hidden state above is now CSS, so a motion.ts
+       that never runs (JS error before it starts) would strand the page blank
+       forever — a far worse failure than a skipped animation. If nothing has
+       claimed the reveal within 3s, CSS shows the content itself. */
+    animation: reveal-failsafe 400ms ease-out 3s forwards;
+  }
+
+  /* motion.ts sets .motion-ready on <html> as its first act: it is alive and
+     owns every reveal from here, so stand the switch down. */
+  .motion-ready [data-reveal] {
+    animation: none;
+  }
+}
+
+@keyframes reveal-failsafe {
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
 /* ——— Easter-egg elements (spawned by scripts/easter-eggs.ts) ——— */
 
 /* "meow" summons a cat from the bottom edge */

@@ -46,11 +46,22 @@ if (heroMascot) {
   );
 }
 
-// Scroll reveals: fade in and rise, once. The hidden start state is applied
-// eagerly here (like the old gsap.set), not just inside the keyframes —
-// otherwise below-the-fold content renders visible and flickers off/on when
-// its reveal starts during a fast scroll.
+// Scroll reveals: fade in and rise, once.
 //
+// The hidden start state lives in global.css (`[data-reveal]` under
+// `@media (scripting: enabled)`), NOT here. This script is deferred, so hiding
+// elements at this point happens after the server-rendered content has already
+// painted — a flash of content that then blanks on a slow connection. Revealing
+// an element therefore means removing its `data-reveal` attribute, which stops
+// the CSS rule from matching.
+//
+// This class stands down the CSS dead-man's switch that would otherwise reveal
+// everything at 3s. Set it here — after the hero code, immediately before the
+// observer that takes over responsibility for revealing — and not at the top of
+// the file: if anything above throws, the reveal setup below never runs either,
+// and we want CSS to still show the content rather than strand it blank.
+document.documentElement.classList.add('motion-ready');
+
 // The trigger runs *ahead* of the viewport (positive bottom rootMargin), not
 // inside it. It used to be `-15%` — porting ScrollTrigger's `start: 'top 85%'`
 // literally — which left an element whose top sat just past the 85% line blank
@@ -59,8 +70,8 @@ if (heroMascot) {
 // (the fade still plays as you approach) and content is simply there.
 const REVEAL_LEAD_PX = 300;
 // Failsafe: an element that never intersects (zero area, display quirk) would
-// otherwise stay at opacity 0 forever. Hidden content is a worse failure than
-// a skipped animation, so unhide anything still pending after this.
+// otherwise stay hidden forever. Hidden content is a worse failure than a
+// skipped animation, so show anything still pending after this.
 const REVEAL_FAILSAFE_MS = 3000;
 
 const revealEls = document.querySelectorAll<HTMLElement>('[data-reveal]');
@@ -70,8 +81,7 @@ if (revealEls.length) {
   const show = (el: HTMLElement, animate: boolean) => {
     if (!pending.delete(el)) return;
     observer.unobserve(el);
-    el.style.opacity = '';
-    el.style.translate = '';
+    el.removeAttribute('data-reveal');
     if (animate) {
       el.animate(
         { opacity: [0, 1], translate: ['0 24px', '0 0'] },
@@ -89,11 +99,7 @@ if (revealEls.length) {
     { rootMargin: `0px 0px ${REVEAL_LEAD_PX}px 0px` }
   );
 
-  revealEls.forEach((el) => {
-    el.style.opacity = '0';
-    el.style.translate = '0 24px';
-    observer.observe(el);
-  });
+  revealEls.forEach((el) => observer.observe(el));
 
   setTimeout(() => {
     for (const el of [...pending]) show(el, false);
