@@ -45,7 +45,7 @@ const fact = catFacts[Math.floor(Math.random() * catFacts.length)];
     <div class="footer-content">
       <p class="lab-closed">The lab is closed for today.</p>
       <p class="terminal-line">
-        <span class="prompt">juan@lab:~$</span> systemctl status cats
+        <span class="prompt">farhankf@lab:~$</span> systemctl status cats
         <span class="status-ok">● active (napping)</span>
       </p>
       <p class="cat-fact">Cat fact № {catFacts.indexOf(fact) + 1}: {fact}</p>
@@ -65,7 +65,7 @@ const fact = catFacts[Math.floor(Math.random() * catFacts.length)];
           </div>
         )
       }
-      {email && <p class="footer-email">or copy: {email}</p>}
+      {email && <p class="footer-email">email: {email}</p>}
       <p class="colophon">Built with Astro + Strapi, self-hosted on Proxmox.</p>
     </div>
   </div>

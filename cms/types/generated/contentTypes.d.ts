@@ -549,7 +549,15 @@ export interface ApiPhotoPhoto extends Struct.CollectionTypeSchema {
   attributes: {
     caption: Schema.Attribute.Text;
     category: Schema.Attribute.Enumeration<
-      ['street', 'landscape', 'portrait', 'macro', 'other']
+      [
+        'street',
+        'landscape',
+        'portrait',
+        'macro',
+        'astrophotography',
+        'cat',
+        'other',
+      ]
     > &
       Schema.Attribute.DefaultTo<'other'>;
     createdAt: Schema.Attribute.DateTime;

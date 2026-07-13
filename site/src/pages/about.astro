@@ -33,7 +33,7 @@ const bioHtml = about?.bio ? renderMarkdown(about.bio) : '';
 const facts = profileFacts(about);
 ---
 
-<Layout title="About" description={about?.tagline ?? 'About Juan'}>
+<Layout title="About" description={about?.tagline ?? 'About Farhan'}>
   {
     hadError || !about ? (
       <div class="section-inner">
@@ -98,8 +98,7 @@ const facts = profileFacts(about);
             <h2 class="colony-title" data-reveal>The supervision committee</h2>
             <p class="colony-sub">
               Every experiment in this lab is reviewed by {cats.length || 'the'} supervisors.
-              They do not take feedback, they do not sign off, and at least one of them is
-              asleep on the results. Click a supervisor to open their staff file.
+              Click a supervisor to open their staff file.
             </p>
             {cats.length === 0 ? (
               <EmptyState message="The committee is out. Add cats in Strapi to staff the lab." />
@@ -180,7 +179,7 @@ const facts = profileFacts(about);
                 </a>
               )}
             </div>
-            {about.email && <p class="contact-copy">or copy: {about.email}</p>}
+            {about.email && <p class="contact-copy">email: {about.email}</p>}
           </div>
         </section>
       </div>
@@ -593,7 +592,16 @@ const facts = profileFacts(about);
 
   @media (min-width: 900px) {
     .profile-section {
-      grid-template-columns: 380px 1fr;
+      grid-template-columns: 1fr 380px;
+    }
+
+    /* Card visually moves to the right (infobox-style), but stays first
+       in source order so it's read before the bio on mobile/screen readers. */
+    .profile-section :global(.profile-card) {
+      order: 2;
+      position: sticky;
+      /* clear the sticky site header (78px) before pinning */
+      top: calc(78px + var(--space-5));
     }
   }
 </style>

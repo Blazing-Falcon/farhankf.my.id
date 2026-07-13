@@ -81,7 +81,7 @@ const teaserFacts = profileFacts(about).filter((f) => teaserFactLabels.includes(
   <section class="hero">
     <div class="hero-content">
       <p class="hero-eyebrow">
-        <span class="hero-eyebrow-dot"></span>Stats · ML · Photography · Home lab
+        <span class="hero-eyebrow-dot"></span>CompSci · ML · Stats · Photography · Home lab
       </p>
       <h1 class="hero-headline">
         <span class="hero-line-mask"><span class="hero-line" data-hero-line>DATA, PIXELS,</span></span>
@@ -91,8 +91,10 @@ const teaserFacts = profileFacts(about).filter((f) => teaserFactLabels.includes(
         >
       </h1>
       <p class="hero-descriptor">
-        A statistics student's lab notebook that a very confident cat has walked across.
+        A CompSci student's for fun lab notebook that has been messed up and thrown into chaos by a cat.
         Mind the paw prints.
+        <br><br>
+        Also how did you get here? this is just my for fun about me page
       </p>
       <div class="hero-actions">
         <a href="/projects" class="btn btn-primary press-shadow">See projects</a>
@@ -111,13 +113,13 @@ const teaserFacts = profileFacts(about).filter((f) => teaserFactLabels.includes(
           <span class="terminal-dot"></span>
           <span class="terminal-title">train.log</span>
         </div>
-        <pre class="terminal-body">juan@lab:~$ python train.py --data life.csv
+        <pre class="terminal-body">farhankf@lab:~$ python train.py --data life.csv
 loading 9 lives .......... ok
-fitting StudentLifeClassifier
-[████████░░] epoch 8/10
-accuracy: 0.94   loss: naps
-warn: cat on keyboard, resuming…
-juan@lab:~$ <span class="terminal-cursor">▌</span></pre>
+fitting StudentLife
+[████████░░] epoch 6/7
+accuracy: 0.87   loss: naps
+warn: cat on keyboard.....
+farhankf@lab:~$ <span class="terminal-cursor">▌</span></pre>
       </div>
       <div class="sticky-note">
         <strong>TODO</strong>
@@ -137,8 +139,7 @@ juan@lab:~$ <span class="terminal-cursor">▌</span></pre>
           <StickerBadge label="Fresh from the lab" rotate={-3} />
           <h2 class="section-title" data-reveal>Featured projects</h2>
           <p class="section-sub">
-            The experiments that made it past peer review (the cats). Full write-ups, data
-            and regrets included.
+            The experiments that made it past the cats and has been approved.
           </p>
         </div>
         <div class="section-head-cat" aria-hidden="true">
@@ -167,7 +168,7 @@ juan@lab:~$ <span class="terminal-cursor">▌</span></pre>
       <StickerBadge label="Through the lens" rotate={2} />
       <h2 class="section-title" data-reveal>Photography</h2>
       <p class="section-sub">
-        Off-hours evidence collection. Fuji in hand, cats judging the compositions.
+        Off-hours photography collection, when i'm away from keyboard
       </p>
       {
         hadError || featuredPhotos.length === 0 ? (
@@ -208,7 +209,7 @@ juan@lab:~$ <span class="terminal-cursor">▌</span></pre>
         <div>
           <StickerBadge label="Pinned to the board" rotate={-2} />
           <h2 class="section-title" data-reveal>Lab notes</h2>
-          <p class="section-sub">Current state of the laboratory, updated whenever the supervisors allow it.</p>
+          <p class="section-sub">Current state of the laboratory</p>
         </div>
         <div class="section-head-cat labnotes-cat" aria-hidden="true">
           <CatKeyboard />
@@ -255,7 +256,7 @@ juan@lab:~$ <span class="terminal-cursor">▌</span></pre>
           }
           <div class="about-teaser-copy" data-reveal>
             <StickerBadge label="Who is this cat" rotate={-2} />
-            <h2 class="section-title">One student, six cats, and an ISP that fights back.</h2>
+            <h2 class="section-title">student, troublemaker, and i'm tired fighting my isp and PLN...</h2>
             <a href="/about" class="btn btn-secondary press-shadow">Read the full story</a>
           </div>
           <div class="about-teaser-profile">

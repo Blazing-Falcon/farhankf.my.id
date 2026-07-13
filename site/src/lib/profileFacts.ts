@@ -9,11 +9,10 @@ export interface ProfileFact {
 // About page (all rows) and the homepage teaser (a subset).
 export function profileFacts(about: About | null): ProfileFact[] {
   return [
-    { label: 'Field', value: 'Statistics & machine learning' },
+    { label: 'Field', value: 'CompSci, Statistics, ML, Proxmox' },
     { label: 'Based in', value: about?.location ?? 'a home lab somewhere' },
-    { label: 'Current obsession', value: 'Particle swarm optimization' },
-    { label: 'Coffee intake', value: 'x̄ = 3.2 cups/day (σ = 0.8)' },
-    { label: 'Supervisors', value: '6 cats, zero mercy' },
-    { label: 'Uptime', value: 'better than the ISP’s' },
+    { label: 'Coffee intake', value: 'i lost track' },
+    { label: 'Supervisors', value: 'cats' },
+    { label: 'Uptime', value: 'better than your ISP’s' },
   ];
 }
