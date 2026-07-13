@@ -86,7 +86,14 @@ export interface Cat {
   order: number;
 }
 
-export type PhotoCategory = 'street' | 'landscape' | 'portrait' | 'macro' | 'other';
+export type PhotoCategory =
+  | 'street'
+  | 'landscape'
+  | 'portrait'
+  | 'macro'
+  | 'astrophotography'
+  | 'cat'
+  | 'other';
 
 export interface Photo {
   id: number;

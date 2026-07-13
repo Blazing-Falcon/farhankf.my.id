@@ -7,7 +7,15 @@ import CatDoze from '../components/cats/CatDoze.astro';
 import Lightbox from '../components/Lightbox.tsx';
 import { getPhotos, mediaUrl, type Photo, type PhotoCategory } from '../lib/strapi';
 
-const categories: PhotoCategory[] = ['street', 'landscape', 'portrait', 'macro', 'other'];
+const categories: PhotoCategory[] = [
+  'street',
+  'landscape',
+  'portrait',
+  'macro',
+  'astrophotography',
+  'cat',
+  'other',
+];
 const activeCategory = Astro.url.searchParams.get('category') as PhotoCategory | null;
 
 let photos: Photo[] = [];
