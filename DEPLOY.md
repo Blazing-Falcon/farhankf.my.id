@@ -68,7 +68,7 @@ Front `:4321` with the Cloudflare Tunnel (map the tunnel to
 `http://localhost:4321`, site only — never `:1337`). Once the tunnel works,
 tighten the site port in `docker-compose.yml` to `"127.0.0.1:4321:4321"` and
 `docker compose up -d` again. HSTS and caching/rate rules for `/_image` belong
-in the Cloudflare dashboard (see CLAUDE.md security notes).
+in the Cloudflare dashboard.
 
 ## Updating
 

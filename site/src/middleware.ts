@@ -38,7 +38,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     );
   }
   // HSTS is deliberately absent: TLS terminates at Cloudflare, so it belongs
-  // in the Cloudflare dashboard, not here (see CLAUDE.md security notes).
+  // in the Cloudflare dashboard, not here.
 
   return response;
 });
