@@ -1,10 +1,11 @@
 ---
-import { getImage, Image } from 'astro:assets';
+import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
 import StickerBadge from '../components/StickerBadge.astro';
 import EmptyState from '../components/EmptyState.astro';
 import CatDoze from '../components/cats/CatDoze.astro';
 import Lightbox from '../components/Lightbox.tsx';
+import { toLightboxPhotos } from '../lib/lightbox';
 import { getPhotos, mediaUrl, type Photo, type PhotoCategory } from '../lib/strapi';
 
 const categories: PhotoCategory[] = [
@@ -29,29 +30,7 @@ try {
   hadError = true;
 }
 
-const lightboxPhotos = await Promise.all(
-  photos.map(async (photo) => {
-    const src = mediaUrl(photo.image);
-    if (!src || !photo.image?.width || !photo.image?.height) {
-      return { src: '', width: 800, height: 600, alt: photo.title, title: photo.title, caption: photo.title, gear: photo.gear ?? '' };
-    }
-    const optimized = await getImage({
-      src,
-      width: photo.image.width,
-      height: photo.image.height,
-      format: 'webp',
-    });
-    return {
-      src: optimized.src,
-      width: photo.image.width,
-      height: photo.image.height,
-      alt: photo.image.alternativeText ?? photo.title,
-      title: photo.title,
-      caption: photo.caption ?? photo.title,
-      gear: photo.gear ?? '',
-    };
-  })
-);
+const lightboxPhotos = await toLightboxPhotos(photos);
 
 const shotDate = (photo: Photo) =>
   photo.shotAt

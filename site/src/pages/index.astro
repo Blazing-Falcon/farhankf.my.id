@@ -13,7 +13,8 @@ import PawPrint from '../components/cats/PawPrint.astro';
 import ResearcherProfile from '../components/ResearcherProfile.astro';
 import Lightbox from '../components/Lightbox.tsx';
 import { profileFacts } from '../lib/profileFacts';
-import { getImage, Image } from 'astro:assets';
+import { toLightboxPhotos } from '../lib/lightbox';
+import { Image } from 'astro:assets';
 import {
   getProjects,
   getPhotos,
@@ -48,38 +49,7 @@ featuredProjects = featuredProjects.slice(0, 3);
 // The strip and the lightbox must iterate the same list, in the same order —
 // the island opens by index, so slicing in the template would desync them.
 const stripPhotos = featuredPhotos.slice(0, 8);
-
-const lightboxPhotos = await Promise.all(
-  stripPhotos.map(async (photo) => {
-    const src = mediaUrl(photo.image);
-    if (!src || !photo.image?.width || !photo.image?.height) {
-      return {
-        src: '',
-        width: 800,
-        height: 600,
-        alt: photo.title,
-        title: photo.title,
-        caption: photo.title,
-        gear: photo.gear ?? '',
-      };
-    }
-    const optimized = await getImage({
-      src,
-      width: photo.image.width,
-      height: photo.image.height,
-      format: 'webp',
-    });
-    return {
-      src: optimized.src,
-      width: photo.image.width,
-      height: photo.image.height,
-      alt: photo.image.alternativeText ?? photo.title,
-      title: photo.title,
-      caption: photo.caption ?? photo.title,
-      gear: photo.gear ?? '',
-    };
-  })
-);
+const lightboxPhotos = await toLightboxPhotos(stripPhotos);
 
 // Ticker content is decorative; fall back to the defaults rather than letting
 // a missing/unpublished Ticker entry (404) drag the rest of the page down.
