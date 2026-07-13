@@ -11,8 +11,9 @@ import CatKeyboard from '../components/cats/CatKeyboard.astro';
 import CatTail from '../components/cats/CatTail.astro';
 import PawPrint from '../components/cats/PawPrint.astro';
 import ResearcherProfile from '../components/ResearcherProfile.astro';
+import Lightbox from '../components/Lightbox.tsx';
 import { profileFacts } from '../lib/profileFacts';
-import { Image } from 'astro:assets';
+import { getImage, Image } from 'astro:assets';
 import {
   getProjects,
   getPhotos,
@@ -43,6 +44,42 @@ try {
 }
 
 featuredProjects = featuredProjects.slice(0, 3);
+
+// The strip and the lightbox must iterate the same list, in the same order —
+// the island opens by index, so slicing in the template would desync them.
+const stripPhotos = featuredPhotos.slice(0, 8);
+
+const lightboxPhotos = await Promise.all(
+  stripPhotos.map(async (photo) => {
+    const src = mediaUrl(photo.image);
+    if (!src || !photo.image?.width || !photo.image?.height) {
+      return {
+        src: '',
+        width: 800,
+        height: 600,
+        alt: photo.title,
+        title: photo.title,
+        caption: photo.title,
+        gear: photo.gear ?? '',
+      };
+    }
+    const optimized = await getImage({
+      src,
+      width: photo.image.width,
+      height: photo.image.height,
+      format: 'webp',
+    });
+    return {
+      src: optimized.src,
+      width: photo.image.width,
+      height: photo.image.height,
+      alt: photo.image.alternativeText ?? photo.title,
+      title: photo.title,
+      caption: photo.caption ?? photo.title,
+      gear: photo.gear ?? '',
+    };
+  })
+);
 
 // Ticker content is decorative; fall back to the defaults rather than letting
 // a missing/unpublished Ticker entry (404) drag the rest of the page down.
@@ -178,8 +215,14 @@ farhankf@lab:~$ <span class="terminal-cursor">▌</span></pre>
             <div class="photo-row-mascot">
               <CatCamera variant="dark" />
             </div>
-            {featuredPhotos.slice(0, 8).map((photo, i) => (
-              <figure class="polaroid" style={`--tilt: ${i % 2 === 0 ? -1.5 : 1.5}deg;`}>
+            {stripPhotos.map((photo, i) => (
+              <button
+                type="button"
+                class="polaroid"
+                style={`--tilt: ${i % 2 === 0 ? -1.5 : 1.5}deg;`}
+                data-photo-index={i}
+                aria-label={`Open ${photo.title}`}
+              >
                 <span class="polaroid-tape" aria-hidden="true" />
                 {photo.image?.url && photo.image.width && photo.image.height ? (
                   <Image
@@ -191,8 +234,8 @@ farhankf@lab:~$ <span class="terminal-cursor">▌</span></pre>
                     alt={photo.image.alternativeText ?? photo.title}
                   />
                 ) : null}
-                <figcaption>{photo.title}</figcaption>
-              </figure>
+                <span class="polaroid-caption">{photo.title}</span>
+              </button>
             ))}
           </div>
         )
@@ -270,6 +313,8 @@ farhankf@lab:~$ <span class="terminal-cursor">▌</span></pre>
   <div class="decor-paw" data-parallax aria-hidden="true">
     <PawPrint />
   </div>
+
+  <Lightbox photos={lightboxPhotos} client:visible />
 </Layout>
 
 <style>
@@ -561,6 +606,7 @@ farhankf@lab:~$ <span class="terminal-cursor">▌</span></pre>
 
   .polaroid {
     position: relative;
+    display: block;
     flex-shrink: 0;
     scroll-snap-align: start;
     background: var(--paper);
@@ -569,11 +615,16 @@ farhankf@lab:~$ <span class="terminal-cursor">▌</span></pre>
     box-shadow: 6px 6px 0 rgba(251, 247, 239, 0.25);
     width: 220px;
     margin: 0;
+    font: inherit;
+    color: inherit;
+    text-align: center;
+    cursor: pointer;
     transform: rotate(var(--tilt, -1.5deg));
     transition: transform 0.25s ease-out;
   }
 
-  .polaroid:hover {
+  .polaroid:hover,
+  .polaroid:focus-visible {
     transform: rotate(0deg) translateY(-4px);
   }
 
@@ -597,7 +648,8 @@ farhankf@lab:~$ <span class="terminal-cursor">▌</span></pre>
     display: block;
   }
 
-  .polaroid figcaption {
+  .polaroid-caption {
+    display: block;
     font-family: var(--font-mono);
     color: var(--ink);
     font-size: 0.75rem;
