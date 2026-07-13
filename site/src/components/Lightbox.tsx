@@ -276,6 +276,32 @@ export default function Lightbox({ photos }: LightboxProps) {
           outline: 2px solid var(--tangerine, #ff5c00);
           outline-offset: 2px;
         }
+
+        /* Flanking the image costs 80vw + 128px of width, which overflows a
+           phone: the next arrow lands past the right edge and is unreachable.
+           Below 640px the arrows sit on top of the image instead. */
+        @media (max-width: 640px) {
+          .lightbox-stage {
+            position: relative;
+            gap: 0;
+          }
+          .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            translate: 0 -50%;
+            z-index: 2;
+            background: rgba(26, 27, 35, 0.7);
+          }
+          .lightbox-prev {
+            left: 8px;
+          }
+          .lightbox-next {
+            right: 8px;
+          }
+          .lightbox-figure img {
+            max-width: 92vw;
+          }
+        }
       `}</style>
     </div>
   );
