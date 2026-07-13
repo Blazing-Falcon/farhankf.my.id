@@ -8,7 +8,7 @@ be reachable from outside.
 **All persistent state lives in two host directories** (bind-mounted into the
 CMS container):
 
-- `cms/.tmp/` — the SQLite database (all content)
+- `cms/data/` — the SQLite database (all content)
 - `cms/public/uploads/` — the media library
 
 The containers themselves are disposable. Those two directories plus the two
@@ -41,7 +41,7 @@ tears it down; content is untouched (it lives in the bind mounts).
      portfolio/ user@vps:~/portfolio/
    ```
 
-   Do **not** exclude `cms/.tmp`, `cms/public/uploads`, `cms/.env`, or
+   Do **not** exclude `cms/data`, `cms/public/uploads`, `cms/.env`, or
    `site/.env` — that's your content and secrets; none of it is in git.
    (Consider stripping the credentials comment from the bottom of `cms/.env`
    before it leaves your machine.)
@@ -80,6 +80,6 @@ in the Cloudflare dashboard.
 
 ## Backups
 
-Everything is `cms/.tmp/data.db` + `cms/public/uploads/` + the two `.env`
+Everything is `cms/data/data.db` + `cms/public/uploads/` + the two `.env`
 files. A cron'd `tar` of those, shipped anywhere off the box, is a complete
 backup. Restore = put the files back, `docker compose up -d`.

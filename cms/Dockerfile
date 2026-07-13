@@ -26,6 +26,6 @@ COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/public ./public
 # Mount points for persistent state (sqlite db + media). docker-compose binds these.
-RUN mkdir -p .tmp public/uploads database/migrations
+RUN mkdir -p data public/uploads database/migrations
 EXPOSE 1337
 CMD ["npx", "strapi", "start"]

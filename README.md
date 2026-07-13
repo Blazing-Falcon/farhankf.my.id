@@ -35,7 +35,7 @@ npm run dev                   # http://localhost:4321
 **`cms/.env`** — replace every `tobemodified` placeholder with a random secret (`openssl rand -base64 32`), and add this line, which the scaffold leaves out:
 
 ```ini
-DATABASE_FILENAME=.tmp/data.db
+DATABASE_FILENAME=data/data.db
 ```
 
 Without it Strapi tries to open the `cms/` directory itself as the database and dies with `SqliteError: unable to open database file`.
@@ -121,4 +121,4 @@ Type: **Bricolage Grotesque** for display, **Instrument Sans** for body, **Space
 
 ## Deploying
 
-Docker Compose, two containers. See **[DEPLOY.md](DEPLOY.md)** — the short version is that all persistent state is the `cms/.tmp/` (database) and `cms/public/uploads/` (media) directories, and the containers are disposable.
+Docker Compose, two containers. See **[DEPLOY.md](DEPLOY.md)** — the short version is that all persistent state is the `cms/data/` (database) and `cms/public/uploads/` (media) directories, and the containers are disposable.

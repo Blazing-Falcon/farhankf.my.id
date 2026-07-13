@@ -9,7 +9,7 @@ services:
     volumes:
       # All persistent state lives in these two host directories — the sqlite
       # db and the media library. Back these up; the containers are disposable.
-      - ./cms/.tmp:/app/.tmp
+      - ./cms/data:/app/data
       - ./cms/public/uploads:/app/public/uploads
     ports:
       # Loopback only: the admin panel must never be internet-reachable.
