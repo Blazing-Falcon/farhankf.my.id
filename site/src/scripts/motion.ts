@@ -46,34 +46,58 @@ if (heroMascot) {
   );
 }
 
-// Scroll reveals: fade in and rise on entering the viewport, once. The -15%
-// bottom rootMargin matches ScrollTrigger's old `start: 'top 85%'`.
-// The hidden start state is applied eagerly here (like the old gsap.set), not
-// just inside the keyframes — otherwise below-the-fold content renders visible
-// and flickers off/on when its reveal starts during a fast scroll.
+// Scroll reveals: fade in and rise, once. The hidden start state is applied
+// eagerly here (like the old gsap.set), not just inside the keyframes —
+// otherwise below-the-fold content renders visible and flickers off/on when
+// its reveal starts during a fast scroll.
+//
+// The trigger runs *ahead* of the viewport (positive bottom rootMargin), not
+// inside it. It used to be `-15%` — porting ScrollTrigger's `start: 'top 85%'`
+// literally — which left an element whose top sat just past the 85% line blank
+// until you nudged the scroll: the project detail body copy begins right below
+// the cover image and did exactly that. Revealing early costs nothing visually
+// (the fade still plays as you approach) and content is simply there.
+const REVEAL_LEAD_PX = 300;
+// Failsafe: an element that never intersects (zero area, display quirk) would
+// otherwise stay at opacity 0 forever. Hidden content is a worse failure than
+// a skipped animation, so unhide anything still pending after this.
+const REVEAL_FAILSAFE_MS = 3000;
+
 const revealEls = document.querySelectorAll<HTMLElement>('[data-reveal]');
 if (revealEls.length) {
-  revealEls.forEach((el) => {
-    el.style.opacity = '0';
-    el.style.translate = '0 24px';
-  });
+  const pending = new Set<HTMLElement>(revealEls);
+
+  const show = (el: HTMLElement, animate: boolean) => {
+    if (!pending.delete(el)) return;
+    observer.unobserve(el);
+    el.style.opacity = '';
+    el.style.translate = '';
+    if (animate) {
+      el.animate(
+        { opacity: [0, 1], translate: ['0 24px', '0 0'] },
+        { duration: 600, easing: EASE_OUT_CUBIC, fill: 'backwards' }
+      );
+    }
+  };
+
   const observer = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        observer.unobserve(entry.target);
-        const el = entry.target as HTMLElement;
-        el.style.opacity = '';
-        el.style.translate = '';
-        el.animate(
-          { opacity: [0, 1], translate: ['0 24px', '0 0'] },
-          { duration: 600, easing: EASE_OUT_CUBIC, fill: 'backwards' }
-        );
+        if (entry.isIntersecting) show(entry.target as HTMLElement, true);
       }
     },
-    { rootMargin: '0% 0% -15% 0%' }
+    { rootMargin: `0px 0px ${REVEAL_LEAD_PX}px 0px` }
   );
-  revealEls.forEach((el) => observer.observe(el));
+
+  revealEls.forEach((el) => {
+    el.style.opacity = '0';
+    el.style.translate = '0 24px';
+    observer.observe(el);
+  });
+
+  setTimeout(() => {
+    for (const el of [...pending]) show(el, false);
+  }, REVEAL_FAILSAFE_MS);
 }
 
 // Parallax accents: decorative paw prints drift slower than scroll. The lerp
