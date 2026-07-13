@@ -9,6 +9,10 @@ import react from '@astrojs/react';
 export default defineConfig({
   output: 'server',
 
+  // Public origin. Link-preview crawlers (WhatsApp, Discord, Slack) require an
+  // absolute og:image URL, so this is what Layout.astro resolves them against.
+  site: 'https://farhankf.my.id',
+
   prefetch: true,
 
   adapter: node({
