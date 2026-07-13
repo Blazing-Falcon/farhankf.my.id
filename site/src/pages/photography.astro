@@ -10,10 +10,10 @@ import { getPhotos, mediaUrl, type Photo, type PhotoCategory } from '../lib/stra
 const categories: PhotoCategory[] = [
   'street',
   'landscape',
-  'portrait',
-  'macro',
   'astrophotography',
   'cat',
+  'portrait',
+  'macro',
   'other',
 ];
 const activeCategory = Astro.url.searchParams.get('category') as PhotoCategory | null;
