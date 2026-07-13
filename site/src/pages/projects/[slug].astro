@@ -87,15 +87,17 @@ const stats = project?.stats ?? [];
         </header>
 
         {project.coverImage && (
-          <div class="cover-frame section-inner">
-            <Image
-              src={mediaUrl(project.coverImage)}
-              width={project.coverImage.width ?? 1200}
-              height={project.coverImage.height ?? 675}
-              widths={[768, 1200]}
-              sizes="(max-width: 1200px) 100vw, 1136px"
-              alt={project.coverImage.alternativeText ?? project.title}
-            />
+          <div class="cover-wrap section-inner">
+            <div class="cover-frame">
+              <Image
+                src={mediaUrl(project.coverImage)}
+                width={project.coverImage.width ?? 1200}
+                height={project.coverImage.height ?? 675}
+                widths={[768, 1200]}
+                sizes="(max-width: 720px) 100vw, 720px"
+                alt={project.coverImage.alternativeText ?? project.title}
+              />
+            </div>
           </div>
         )}
 
@@ -215,17 +217,24 @@ const stats = project?.stats ?? [];
     margin-top: var(--space-3);
   }
 
+  .cover-wrap {
+    margin-bottom: var(--space-7);
+  }
+
   .cover-frame {
+    max-width: 720px;
+    margin: 0 auto;
     border: var(--border-thick);
     border-radius: var(--radius-card);
     overflow: hidden;
-    margin-bottom: var(--space-7);
     box-shadow: var(--shadow-hard);
+    aspect-ratio: 3 / 2;
   }
 
   .cover-frame :global(img) {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
     display: block;
   }
 
