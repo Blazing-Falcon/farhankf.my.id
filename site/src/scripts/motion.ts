@@ -26,26 +26,6 @@ heroLines.forEach((el, i) => {
   );
 });
 
-const heroMascot = document.querySelector<HTMLElement>('[data-hero-mascot]');
-if (heroMascot) {
-  // Slides in from the right while growing. These keyframes override the
-  // element's base `translate: -50%` centering while playing, so they include
-  // it via calc() and end exactly on the base value.
-  heroMascot.animate(
-    {
-      translate: ['calc(-50% + 80px) 0', '-50% 0'],
-      scale: ['0.6', '1'],
-      opacity: [0, 1],
-    },
-    {
-      duration: 600,
-      easing: EASE_BACK_OUT,
-      delay: heroLines.length ? heroLines.length * 80 + 200 : 0,
-      fill: 'backwards',
-    }
-  );
-}
-
 // Scroll reveals: fade in and rise, once.
 //
 // The hidden start state lives in global.css (`[data-reveal]` under

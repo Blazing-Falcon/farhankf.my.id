@@ -3,7 +3,6 @@ import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
 import StickerBadge from '../components/StickerBadge.astro';
 import EmptyState from '../components/EmptyState.astro';
-import CatDoze from '../components/cats/CatDoze.astro';
 import Lightbox from '../components/Lightbox.tsx';
 import { toLightboxPhotos } from '../lib/lightbox';
 import { getPhotos, mediaUrl, type Photo, type PhotoCategory } from '../lib/strapi';
@@ -50,9 +49,6 @@ const shotDate = (photo: Photo) =>
         <p class="page-sub">
           Sometimes you just need to take ur mind off things
         </p>
-      </div>
-      <div class="page-head-cat" aria-hidden="true">
-        <CatDoze />
       </div>
     </div>
 
@@ -143,12 +139,6 @@ const shotDate = (photo: Photo) =>
     font-size: var(--text-body);
     max-width: 52ch;
     margin: 0 0 var(--space-5);
-  }
-
-  .page-head-cat {
-    width: 190px;
-    flex-shrink: 0;
-    margin-bottom: var(--space-2);
   }
 
   .category-filters {
@@ -293,9 +283,4 @@ const shotDate = (photo: Photo) =>
     }
   }
 
-  @media (max-width: 767px) {
-    .page-head-cat {
-      display: none;
-    }
-  }
 </style>

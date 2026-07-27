@@ -4,7 +4,6 @@ import Ticker from '../components/Ticker.astro';
 import StickerBadge from '../components/StickerBadge.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import EmptyState from '../components/EmptyState.astro';
-import CatPeek from '../components/cats/CatPeek.astro';
 import CatCamera from '../components/cats/CatCamera.astro';
 import CatSleep from '../components/cats/CatSleep.astro';
 import CatKeyboard from '../components/cats/CatKeyboard.astro';
@@ -114,9 +113,6 @@ const teaserFacts = profileFacts(about).filter((f) => teaserFactLabels.includes(
     </div>
 
     <div class="lab-bench" aria-hidden="true">
-      <div class="bench-cat" data-hero-mascot>
-        <CatPeek />
-      </div>
       <div class="terminal">
         <div class="terminal-bar">
           <span class="terminal-dot"></span>
@@ -362,23 +358,11 @@ farhankf@lab:~$ <span class="terminal-cursor">▌</span></pre>
     flex-wrap: wrap;
   }
 
-  /* ——— The lab bench: terminal + sticky note + supervising cat */
+  /* ——— The lab bench: terminal + sticky note */
   .lab-bench {
     position: relative;
     justify-self: center;
     width: min(100%, 420px);
-    padding-top: 84px; /* room for the cat hooked over the terminal */
-  }
-
-  .bench-cat {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    /* `translate`, not `transform`: composes with motion.ts's `scale` pop-in
-       keyframes without the -50% offset getting scaled along (off-center cat) */
-    translate: -50%;
-    width: 150px;
-    z-index: 2;
   }
 
   .terminal {
