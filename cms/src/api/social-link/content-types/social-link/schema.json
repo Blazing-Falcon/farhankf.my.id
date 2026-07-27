@@ -1,0 +1,17 @@
+{
+  "kind": "collectionType",
+  "collectionName": "social_links",
+  "info": { "singularName": "social-link", "pluralName": "social-links", "displayName": "Social link" },
+  "options": { "draftAndPublish": true },
+  "attributes": {
+    "label": { "type": "string", "required": true },
+    "url": { "type": "string", "required": true },
+    "icon": {
+      "type": "enumeration",
+      "enum": ["github", "instagram", "spotify", "email"],
+      "required": true
+    },
+    "handle": { "type": "string" },
+    "order": { "type": "integer", "default": 0 }
+  }
+}

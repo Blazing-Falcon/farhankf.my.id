@@ -624,6 +624,41 @@ export interface ApiProjectProject extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiSocialLinkSocialLink extends Struct.CollectionTypeSchema {
+  collectionName: 'social_links';
+  info: {
+    displayName: 'Social link';
+    pluralName: 'social-links';
+    singularName: 'social-link';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    handle: Schema.Attribute.String;
+    icon: Schema.Attribute.Enumeration<
+      ['github', 'instagram', 'spotify', 'email']
+    > &
+      Schema.Attribute.Required;
+    label: Schema.Attribute.String & Schema.Attribute.Required;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::social-link.social-link'
+    > &
+      Schema.Attribute.Private;
+    order: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    url: Schema.Attribute.String & Schema.Attribute.Required;
+  };
+}
+
 export interface ApiTickerTicker extends Struct.SingleTypeSchema {
   collectionName: 'tickers';
   info: {
@@ -1169,6 +1204,7 @@ declare module '@strapi/strapi' {
       'api::lab-note.lab-note': ApiLabNoteLabNote;
       'api::photo.photo': ApiPhotoPhoto;
       'api::project.project': ApiProjectProject;
+      'api::social-link.social-link': ApiSocialLinkSocialLink;
       'api::ticker.ticker': ApiTickerTicker;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
