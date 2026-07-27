@@ -1,0 +1,187 @@
+---
+import Layout from '../layouts/Layout.astro';
+import StickerBadge from '../components/StickerBadge.astro';
+import EmptyState from '../components/EmptyState.astro';
+import { Icon } from 'astro-icon/components';
+import { getSocialLinks, type SocialIcon, type SocialLink } from '../lib/strapi';
+
+let links: SocialLink[] = [];
+let hadError = false;
+
+try {
+  links = await getSocialLinks();
+} catch {
+  hadError = true;
+}
+
+// Tabler's brand set, restyled to the house 3px stroke by .link-icon below.
+const iconNames: Record<SocialIcon, string> = {
+  github: 'tabler:brand-github',
+  instagram: 'tabler:brand-instagram',
+  spotify: 'tabler:brand-spotify',
+  email: 'tabler:mail',
+};
+const fallbackIcon = 'tabler:link';
+---
+
+<Layout
+  title="Links"
+  description="Where to find Farhan Kurnia Febriansyah elsewhere: GitHub, Instagram, Spotify, and email."
+>
+  <section class="section-inner links-page">
+    <header class="page-head">
+      <StickerBadge label="Say hello" rotate={-3} />
+      <h1 data-reveal>Links</h1>
+      <p class="page-sub">Profiles and contact details.</p>
+    </header>
+
+    {
+      hadError || links.length === 0 ? (
+        <EmptyState message="The address book is napping. Check back once Strapi wakes up." />
+      ) : (
+        <ul class="link-list">
+          {links.map((link) => {
+            const isMail = link.url.startsWith('mailto:');
+            return (
+              <li data-reveal>
+                <a
+                  class="link-card press-shadow"
+                  href={link.url}
+                  target={isMail ? undefined : '_blank'}
+                  rel={isMail ? undefined : 'me noreferrer'}
+                >
+                  <span class="link-main">
+                    <span class="link-icon">
+                      <Icon name={iconNames[link.icon] ?? fallbackIcon} />
+                    </span>
+                    <span class="link-label">{link.label}</span>
+                  </span>
+                  {link.handle && <span class="link-handle">{link.handle}</span>}
+                  <span class="link-go" aria-hidden="true">
+                    <Icon name={isMail ? 'tabler:send' : 'tabler:arrow-up-right'} />
+                  </span>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      )
+    }
+  </section>
+</Layout>
+
+<style>
+  .section-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--space-5);
+  }
+
+  .links-page {
+    padding-top: var(--space-7);
+    padding-bottom: var(--section-gap);
+  }
+
+  .page-head {
+    max-width: 46ch;
+    margin: 0 auto var(--space-7);
+    text-align: center;
+  }
+
+  .page-head h1 {
+    font-size: var(--text-section);
+    margin-top: var(--space-3);
+    margin-bottom: var(--space-3);
+  }
+
+  .page-sub {
+    font-size: var(--text-body);
+    margin: 0;
+  }
+
+  .link-list {
+    list-style: none;
+    margin: 0 auto;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    max-width: 480px;
+  }
+
+  .link-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    /* Symmetric space-7 keeps the label optically centred *and* clears the
+       absolutely-placed arrow, which occupies 16–34px in from the right edge.
+       Don't reduce it on narrow viewports — the handle then overlaps the arrow. */
+    padding: var(--space-4) var(--space-7);
+    background: var(--paper);
+    color: var(--ink);
+    border: var(--border-thick);
+    border-radius: var(--radius-card);
+    text-decoration: none;
+  }
+
+  .link-main {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .link-icon,
+  .link-go {
+    display: flex;
+    flex: none;
+  }
+
+  /* Tabler ships at stroke-width 2; 3 is the weight the cat SVGs use. */
+  .link-icon [data-icon] {
+    width: 26px;
+    height: 26px;
+    stroke-width: 3;
+  }
+
+  .link-go {
+    position: absolute;
+    right: var(--space-4);
+    top: 50%;
+    /* the `translate` property, not `transform` — the card's press-shadow
+       hover already owns `transform`, and these must not fight */
+    translate: 0 -50%;
+    opacity: 0.55;
+  }
+
+  .link-go [data-icon] {
+    width: 18px;
+    height: 18px;
+    stroke-width: 3;
+  }
+
+  .link-label {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: var(--text-tiny);
+  }
+
+  .link-handle {
+    font-family: var(--font-mono);
+    font-size: var(--text-tiny);
+    opacity: 0.65;
+    overflow-wrap: anywhere;
+    text-align: center;
+  }
+
+  .link-card:hover .link-icon,
+  .link-card:focus-visible .link-icon,
+  .link-card:hover .link-go,
+  .link-card:focus-visible .link-go {
+    color: var(--tangerine);
+    opacity: 1;
+  }
+</style>

@@ -69,6 +69,18 @@ export interface LabNote {
   order: number;
 }
 
+export type SocialIcon = 'github' | 'instagram' | 'spotify' | 'email';
+
+export interface SocialLink {
+  id: number;
+  documentId: string;
+  label: string;
+  url: string;
+  icon: SocialIcon;
+  handle?: string | null;
+  order: number;
+}
+
 export interface Ticker {
   id: number;
   documentId: string;
@@ -249,6 +261,14 @@ export async function getTicker(): Promise<Ticker | null> {
 
 export async function getLabNotes(): Promise<LabNote[]> {
   const res = await strapiFetch<StrapiListResponse<LabNote>>('/lab-notes', {
+    sort: 'order:asc',
+    'pagination[pageSize]': '12',
+  });
+  return res.data;
+}
+
+export async function getSocialLinks(): Promise<SocialLink[]> {
+  const res = await strapiFetch<StrapiListResponse<SocialLink>>('/social-links', {
     sort: 'order:asc',
     'pagination[pageSize]': '12',
   });

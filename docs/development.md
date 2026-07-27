@@ -76,6 +76,7 @@ Content types are defined **as code** in `cms/src/api/*/content-types/*/schema.j
 | **Photo** (collection) | Image, caption, `category`, date, gear, `featured`. Categories: `street`, `landscape`, `portrait`, `macro`, `astrophotography`, `cat`, `other`. |
 | **Lab note** (collection) | The homepage sticky-note board: `title` + `body` (max 280 chars) + `order` for placement. Color and tilt are automatic. |
 | **Cat** (collection) | The About page's supervision committee: `name`, `role`, `photo`, `bio`, `order`. Cards open a click-through staff file. |
+| **Social link** (collection) | The `/links` page: `label`, `url`, `icon` (one of `github`, `instagram`, `spotify`, `email`), `handle` (optional subtext), `order`. Use a full `mailto:` URL for the email entry. |
 | **Ticker** (single) | `topics` — an array of uppercase strings for the homepage marquee, e.g. `["STATISTICS", "CATS", "COFFEE"]`. The site falls back to built-in defaults if it's missing. (The schema also has an unused `tools` field, left over from a second marquee that was removed.) |
 
 ### JSON field shapes

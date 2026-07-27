@@ -5,6 +5,8 @@ import node from '@astrojs/node';
 
 import react from '@astrojs/react';
 
+import icon from 'astro-icon';
+
 // https://astro.build/config
 export default defineConfig({
   output: 'server',
@@ -19,7 +21,7 @@ export default defineConfig({
     mode: 'standalone'
   }),
 
-  integrations: [react()],
+  integrations: [react(), icon()],
 
   build: {
     // Keep all styles as external <link>s: if any stylesheet were inlined,
