@@ -33,7 +33,10 @@ const bioHtml = about?.bio ? renderMarkdown(about.bio) : '';
 const facts = profileFacts(about);
 ---
 
-<Layout title="About" description={about?.tagline ?? 'About Farhan'}>
+<Layout
+  title="About"
+  description="Farhan Kurnia Febriansyah, mahasiswa Informatika di Universitas Muhammadiyah Malang. Machine learning, statistika, homelab Proxmox, fotografi, dan beberapa kucing."
+>
   {
     hadError || !about ? (
       <div class="section-inner">

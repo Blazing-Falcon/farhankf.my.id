@@ -38,7 +38,7 @@ const difficulty = project?.difficulty ? difficultyLabels[project.difficulty] : 
 const stats = project?.stats ?? [];
 ---
 
-<Layout title={project?.title ?? 'Project not found'}>
+<Layout title={project?.title ?? 'Project not found'} description={project?.summary}>
   {
     hadError ? (
       <div class="section-inner">

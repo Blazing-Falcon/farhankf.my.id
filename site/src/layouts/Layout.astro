@@ -5,25 +5,92 @@ import Footer from '../components/Footer.astro';
 import CatPeek from '../components/cats/CatPeek.astro';
 import CatWalk from '../components/cats/CatWalk.astro';
 import PawPrint from '../components/cats/PawPrint.astro';
+import { getImage } from 'astro:assets';
+import { getSocialLinks, mediaUrl, type About } from '../lib/strapi';
 
 interface Props {
   title: string;
+  /** Overrides the `title · name` composition when a page wants the whole thing. */
+  fullTitle?: string;
   description?: string;
   /** Absolute or root-relative image for the link preview. Defaults to /og.png. */
   image?: string;
 }
 
+const OWNER = 'Farhan Kurnia Febriansyah';
+
 const {
   title,
-  description = 'ComSci, Statistics, machine learning, photography, and a home lab.',
+  fullTitle: fullTitleProp,
+  description = `${OWNER} — ComSci, statistics, machine learning, photography, and a home lab.`,
   image,
 } = Astro.props;
 
-const fullTitle = `${title} · farhankf.cat`;
+const fullTitle = fullTitleProp ?? `${title} · ${OWNER}`;
 // Crawlers reject relative og:image/og:url — resolve against the configured site.
 const base = Astro.site ?? Astro.url;
 const canonical = new URL(Astro.url.pathname, base).href;
 const ogImage = new URL(image ?? '/og.png', base).href;
+const siteUrl = new URL('/', base).href;
+
+// Structured data tying this domain to a person. Both sources are cached
+// (about() is memoized per request; social links share strapi.ts's 60s cache),
+// and both degrade to null so a Strapi outage can't take the page down.
+let about: About | null = null;
+let profileUrls: string[] = [];
+try {
+  about = await Astro.locals.about();
+} catch {
+  // no-op: Person falls back to name + url only
+}
+try {
+  profileUrls = (await getSocialLinks())
+    .filter((link) => !link.url.startsWith('mailto:'))
+    .map((link) => link.url);
+} catch {
+  // no-op: sameAs is simply omitted
+}
+
+// mediaUrl() yields the Strapi origin, which in production is the internal
+// compose hostname (http://cms:1337) — unreachable by a crawler. Route the
+// portrait through /_image so the URL we publish is the public one.
+let portrait = '';
+const portraitSrc = mediaUrl(about?.portrait);
+if (portraitSrc && about?.portrait?.width && about.portrait.height) {
+  try {
+    const width = Math.min(about.portrait.width, 800);
+    const height = Math.round(about.portrait.height * (width / about.portrait.width));
+    const optimized = await getImage({ src: portraitSrc, width, height, format: 'webp' });
+    portrait = new URL(optimized.src, base).href;
+  } catch {
+    // no-op: image is simply omitted from the Person node
+  }
+}
+const person = {
+  '@type': 'Person',
+  '@id': `${siteUrl}#person`,
+  name: OWNER,
+  url: siteUrl,
+  ...(portrait && { image: portrait }),
+  ...(about?.email && { email: about.email }),
+  ...(about?.tagline && { description: about.tagline }),
+  ...(about?.location && { homeLocation: { '@type': 'Place', name: about.location } }),
+  ...(profileUrls.length > 0 && { sameAs: profileUrls }),
+  alumniOf: { '@type': 'CollegeOrUniversity', name: 'Universitas Muhammadiyah Malang' },
+};
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    person,
+    {
+      '@type': 'WebSite',
+      '@id': `${siteUrl}#website`,
+      url: siteUrl,
+      name: OWNER,
+      publisher: { '@id': `${siteUrl}#person` },
+    },
+  ],
+};
 ---
 
 <!doctype html>
@@ -37,9 +104,13 @@ const ogImage = new URL(image ?? '/og.png', base).href;
     <link rel="canonical" href={canonical} />
     <title>{fullTitle}</title>
 
+    {/* Identity for search engines: which person this domain belongs to. */}
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
+
+
     {/* Link previews: WhatsApp, Discord, Slack, Telegram all read these. */}
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="farhankf.cat" />
+    <meta property="og:site_name" content={OWNER} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
