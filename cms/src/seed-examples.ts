@@ -110,4 +110,26 @@ export async function seedExampleContent(strapi: Core.Strapi) {
       status: 'published',
     });
   }
+
+  const defaultCategories = [
+    { name: 'Street', slug: 'street', order: 1 },
+    { name: 'Landscape', slug: 'landscape', order: 2 },
+    { name: 'Astrophotography', slug: 'astrophotography', order: 3 },
+    { name: 'Cat', slug: 'cat', order: 4 },
+    { name: 'Portrait', slug: 'portrait', order: 5 },
+    { name: 'Macro', slug: 'macro', order: 6 },
+    { name: 'Other', slug: 'other', order: 7 },
+  ];
+
+  for (const cat of defaultCategories) {
+    const existing = await strapi.db.query('api::photo-category.photo-category').findOne({
+      where: { slug: cat.slug },
+    });
+    if (!existing) {
+      await strapi.documents('api::photo-category.photo-category').create({
+        data: cat,
+        status: 'published',
+      });
+    }
+  }
 }

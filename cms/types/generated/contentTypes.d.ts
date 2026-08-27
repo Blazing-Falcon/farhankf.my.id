@@ -587,6 +587,41 @@ export interface ApiLabNoteLabNote extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiPhotoCategoryPhotoCategory
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'photo_categories';
+  info: {
+    description: 'Categories for filtering photography items.';
+    displayName: 'Photo Category';
+    pluralName: 'photo-categories';
+    singularName: 'photo-category';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::photo-category.photo-category'
+    > &
+      Schema.Attribute.Private;
+    name: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique;
+    order: Schema.Attribute.Integer & Schema.Attribute.DefaultTo<0>;
+    photos: Schema.Attribute.Relation<'oneToMany', 'api::photo.photo'>;
+    publishedAt: Schema.Attribute.DateTime;
+    slug: Schema.Attribute.UID<'name'> & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiPhotoPhoto extends Struct.CollectionTypeSchema {
   collectionName: 'photos';
   info: {
@@ -599,18 +634,10 @@ export interface ApiPhotoPhoto extends Struct.CollectionTypeSchema {
   };
   attributes: {
     caption: Schema.Attribute.Text;
-    category: Schema.Attribute.Enumeration<
-      [
-        'street',
-        'landscape',
-        'portrait',
-        'macro',
-        'astrophotography',
-        'cat',
-        'other',
-      ]
-    > &
-      Schema.Attribute.DefaultTo<'other'>;
+    category: Schema.Attribute.Relation<
+      'manyToOne',
+      'api::photo-category.photo-category'
+    >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1262,6 +1289,7 @@ declare module '@strapi/strapi' {
       'api::blog-post.blog-post': ApiBlogPostBlogPost;
       'api::cat.cat': ApiCatCat;
       'api::lab-note.lab-note': ApiLabNoteLabNote;
+      'api::photo-category.photo-category': ApiPhotoCategoryPhotoCategory;
       'api::photo.photo': ApiPhotoPhoto;
       'api::project.project': ApiProjectProject;
       'api::social-link.social-link': ApiSocialLinkSocialLink;

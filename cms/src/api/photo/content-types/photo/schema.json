@@ -6,8 +6,15 @@
   "attributes": {
     "title": { "type": "string", "required": true },
     "image": { "type": "media", "multiple": false, "required": true, "allowedTypes": ["images"] },
-    "caption": { "type": "text" },
-    "category": { "type": "enumeration", "enum": ["street", "landscape", "portrait", "macro", "astrophotography", "cat", "other"], "default": "other" },
+    "caption": {
+      "type": "text"
+    },
+    "category": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::photo-category.photo-category",
+      "inversedBy": "photos"
+    },
     "shotAt": { "type": "date" },
     "gear": { "type": "string" },
     "featured": { "type": "boolean", "default": false }
