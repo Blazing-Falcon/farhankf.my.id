@@ -6,6 +6,7 @@ import StickerBadge from '../../components/StickerBadge.astro';
 import TechPill from '../../components/TechPill.astro';
 import EmptyState from '../../components/EmptyState.astro';
 import CatMiso from '../../components/cats/CatMiso.astro';
+import ArticleContent from '../../components/ArticleContent.astro';
 import { getProjectBySlug, mediaUrl, type Project } from '../../lib/strapi';
 
 const { slug } = Astro.params;
@@ -26,6 +27,7 @@ if (hadError) {
 }
 
 const bodyHtml = project?.body ? renderMarkdown(project.body) : '';
+const hasBlocks = project?.contentBlocks && project.contentBlocks.length > 0;
 const year = project?.finishedAt ? new Date(project.finishedAt).getFullYear() : null;
 
 const difficultyLabels: Record<string, string> = {
@@ -102,7 +104,13 @@ const stats = project?.stats ?? [];
         )}
 
         <div class="section-inner project-body-grid">
-          <div class="project-body" data-reveal set:html={bodyHtml} />
+          <div class="project-body" data-reveal>
+            {hasBlocks ? (
+              <ArticleContent blocks={project.contentBlocks} />
+            ) : bodyHtml ? (
+              <div set:html={bodyHtml} />
+            ) : null}
+          </div>
           {project.techStack && project.techStack.length > 0 && (
             <aside class="tech-sidebar">
               <h2>Tech stack</h2>

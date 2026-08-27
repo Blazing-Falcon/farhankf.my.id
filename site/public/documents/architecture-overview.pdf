@@ -1,0 +1,74 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 4 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 7 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 7 0 R >> >> /Contents 6 0 R >>
+endobj
+5 0 obj
+<< /Length 818 >>
+stream
+BT
+/F1 20 Tf
+72 770 Td (Architecture Overview Document) Tj
+/F1 11 Tf
+0 -28 Td (Sample technical documentation PDF.) Tj
+0 -24 Td (Page 1 of 2 - sample document for preview.) Tj
+0 -30 Td (Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor inc) Tj
+0 -16 Td (ididunt ut labore et dolore magna aliqua.) Tj
+0 -30 Td (Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip) Tj
+0 -16 Td ( ex ea commodo consequat.) Tj
+0 -30 Td (Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fu) Tj
+0 -16 Td (giat nulla pariatur.) Tj
+0 -30 Td (Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt) Tj
+0 -16 Td ( mollit anim id est laborum.) Tj
+0 -34 Td (Replace this file through the PDF Document component in Strapi.) Tj
+ET
+endstream
+endobj
+6 0 obj
+<< /Length 834 >>
+stream
+BT
+/F1 20 Tf
+72 770 Td (Sample Continuation Page) Tj
+/F1 11 Tf
+0 -28 Td (Second page ensures multi-page navigation works properly.) Tj
+0 -24 Td (Page 2 of 2 - sample document for preview.) Tj
+0 -30 Td (Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor inc) Tj
+0 -16 Td (ididunt ut labore et dolore magna aliqua.) Tj
+0 -30 Td (Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip) Tj
+0 -16 Td ( ex ea commodo consequat.) Tj
+0 -30 Td (Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fu) Tj
+0 -16 Td (giat nulla pariatur.) Tj
+0 -30 Td (Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt) Tj
+0 -16 Td ( mollit anim id est laborum.) Tj
+0 -34 Td (Replace this file through the PDF Document component in Strapi.) Tj
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 8
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000127 00000 n 
+0000000253 00000 n 
+0000000379 00000 n 
+0000001248 00000 n 
+0000002133 00000 n 
+trailer
+<< /Size 8 /Root 1 0 R >>
+startxref
+2203
+%%EOF

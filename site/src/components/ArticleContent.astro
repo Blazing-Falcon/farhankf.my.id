@@ -1,0 +1,277 @@
+---
+import { Image } from 'astro:assets';
+import { renderMarkdown } from '../lib/markdown';
+import {
+  mediaUrl,
+  pdfUrl,
+  type ArticleContentBlock,
+  type ArticleImageBlock,
+  type MarkdownTextBlock,
+  type PdfDocumentBlock,
+  type YouTubeVideoBlock,
+} from '../lib/strapi';
+import { youtubeEmbedUrl } from '../lib/youtube';
+import PdfViewer from './PdfViewer.astro';
+
+interface Props {
+  blocks?: ArticleContentBlock[] | null;
+}
+
+const { blocks = [] } = Astro.props;
+const contentBlocks = blocks ?? [];
+---
+
+<div class="article-content">
+  {
+    contentBlocks.map((block) => {
+      if (block.__component === 'article.markdown-text') {
+        const markdown = block as MarkdownTextBlock;
+        return <section class="markdown-block" set:html={renderMarkdown(markdown.body)} />;
+      }
+
+      if (block.__component === 'article.captioned-image') {
+        const imageBlock = block as ArticleImageBlock;
+        const image = imageBlock.image;
+        return (
+          <figure class="article-figure">
+            {image?.width && image.height ? (
+              <Image
+                src={mediaUrl(image)}
+                width={image.width}
+                height={image.height}
+                widths={[640, 960, 1280]}
+                sizes="(max-width: 900px) 92vw, 760px"
+                alt={imageBlock.altText}
+              />
+            ) : image?.url ? (
+              <img src={mediaUrl(image)} alt={imageBlock.altText} loading="lazy" />
+            ) : null}
+            {(imageBlock.caption || imageBlock.source) && (
+              <figcaption>
+                {imageBlock.caption && <span>{imageBlock.caption}</span>}
+                {imageBlock.source && <small>Source: {imageBlock.source}</small>}
+              </figcaption>
+            )}
+          </figure>
+        );
+      }
+
+      if (block.__component === 'article.pdf-document') {
+        const pdfBlock = block as PdfDocumentBlock;
+        const source = pdfUrl(pdfBlock.pdfFile);
+        if (!source) return null;
+        return (
+          <section class="pdf-block">
+            <div class="pdf-heading">
+              <div>
+                <p class="block-label">PDF Document</p>
+                <h2>{pdfBlock.title}</h2>
+                {pdfBlock.description && <span>{pdfBlock.description}</span>}
+              </div>
+              <a href={source} target="_blank" rel="noreferrer" class="btn btn-secondary">
+                Open / Download PDF <span aria-hidden="true">↗</span>
+              </a>
+            </div>
+            <PdfViewer source={source} title={pdfBlock.title} />
+          </section>
+        );
+      }
+
+      if (block.__component === 'article.youtube-video') {
+        const videoBlock = block as YouTubeVideoBlock;
+        const source = youtubeEmbedUrl(videoBlock.youtubeUrl);
+        if (!source) return null;
+        return (
+          <section class="video-block">
+            <div class="video-heading">
+              <div>
+                <p class="block-label">YouTube Video</p>
+                <h2>{videoBlock.title}</h2>
+                {videoBlock.caption && <span>{videoBlock.caption}</span>}
+              </div>
+              <a href={videoBlock.youtubeUrl} target="_blank" rel="noreferrer" class="btn btn-secondary">
+                Watch on YouTube <span aria-hidden="true">↗</span>
+              </a>
+            </div>
+            <div class="video-frame">
+              <iframe
+                src={source}
+                title={`YouTube Video: ${videoBlock.title}`}
+                loading="lazy"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+              />
+            </div>
+          </section>
+        );
+      }
+
+      return null;
+    })
+  }
+</div>
+
+<style>
+  .article-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    width: 100%;
+  }
+
+  .markdown-block {
+    font-size: var(--text-body);
+    line-height: 1.7;
+    color: var(--ink);
+  }
+
+  .markdown-block :global(h2) {
+    font-size: 1.75rem;
+    margin-top: var(--space-6);
+    margin-bottom: var(--space-3);
+  }
+
+  .markdown-block :global(h3) {
+    font-size: 1.35rem;
+    margin-top: var(--space-5);
+    margin-bottom: var(--space-2);
+  }
+
+  .markdown-block :global(p) {
+    margin-bottom: var(--space-4);
+  }
+
+  .markdown-block :global(ul),
+  .markdown-block :global(ol) {
+    margin: 0 0 var(--space-4) var(--space-5);
+    padding: 0;
+  }
+
+  .markdown-block :global(li) {
+    margin-bottom: var(--space-2);
+  }
+
+  .markdown-block :global(blockquote) {
+    margin: var(--space-5) 0;
+    padding: var(--space-4) var(--space-5);
+    background: var(--blush);
+    border-left: 4px solid var(--tangerine);
+    border-radius: var(--radius-card);
+    font-style: italic;
+  }
+
+  .markdown-block :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    background: var(--butter);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+    border: 1px solid rgba(26, 27, 35, 0.15);
+  }
+
+  .markdown-block :global(pre) {
+    background: var(--ink);
+    color: var(--paper);
+    padding: var(--space-4);
+    border-radius: var(--radius-card);
+    overflow-x: auto;
+    border: var(--border-thick);
+    box-shadow: var(--shadow-hard);
+  }
+
+  .markdown-block :global(pre code) {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: inherit;
+  }
+
+  .article-figure {
+    margin: var(--space-4) 0;
+    border: var(--border-thick);
+    border-radius: var(--radius-card);
+    background: var(--paper);
+    overflow: hidden;
+    box-shadow: var(--shadow-hard);
+  }
+
+  .article-figure img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .article-figure figcaption {
+    padding: var(--space-3) var(--space-4);
+    border-top: var(--border-thick);
+    font-family: var(--font-mono);
+    font-size: var(--text-tiny);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: var(--paper);
+  }
+
+  .article-figure figcaption small {
+    opacity: 0.7;
+  }
+
+  .pdf-block,
+  .video-block {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .pdf-heading,
+  .video-heading {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: var(--space-3);
+  }
+
+  .block-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-tiny);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--teal);
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .pdf-heading h2,
+  .video-heading h2 {
+    font-size: 1.35rem;
+    margin: var(--space-1) 0;
+  }
+
+  .pdf-heading span,
+  .video-heading span {
+    font-size: var(--text-tiny);
+    color: var(--ink);
+    opacity: 0.8;
+  }
+
+  .video-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: var(--border-thick);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    box-shadow: var(--shadow-hard);
+    background: var(--ink);
+  }
+
+  .video-frame iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+</style>

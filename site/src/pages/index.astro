@@ -18,32 +18,37 @@ import {
   getProjects,
   getPhotos,
   getLabNotes,
+  getBlogPosts,
   getTicker,
   mediaUrl,
   type Project,
   type Photo,
   type About,
   type LabNote,
+  type BlogPost,
 } from '../lib/strapi';
 
 let about: About | null = null;
 let featuredProjects: Project[] = [];
 let featuredPhotos: Photo[] = [];
 let labNotes: LabNote[] = [];
+let latestPosts: BlogPost[] = [];
 let hadError = false;
 
 try {
-  [about, featuredProjects, featuredPhotos, labNotes] = await Promise.all([
+  [about, featuredProjects, featuredPhotos, labNotes, latestPosts] = await Promise.all([
     Astro.locals.about(),
     getProjects({ featuredOnly: true }),
     getPhotos({ featuredOnly: true }),
     getLabNotes(),
+    getBlogPosts(),
   ]);
 } catch {
   hadError = true;
 }
 
 featuredProjects = featuredProjects.slice(0, 3);
+latestPosts = latestPosts.slice(0, 3);
 
 // The strip and the lightbox must iterate the same list, in the same order —
 // the island opens by index, so slicing in the template would desync them.
@@ -166,6 +171,57 @@ farhankf@lab:~$ <span class="terminal-cursor">▌</span></pre>
       }
       <div class="section-more">
         <a href="/projects" class="btn btn-secondary press-shadow">All projects</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section blog-section">
+    <div class="section-inner">
+      <div class="section-head">
+        <div>
+          <StickerBadge label="Lab Journal" rotate={2} />
+          <h2 class="section-title" data-reveal>Latest essays & notes</h2>
+          <p class="section-sub">
+            Deep dives into ML architectures, backend engineering, and system design.
+          </p>
+        </div>
+      </div>
+      {
+        latestPosts.length === 0 ? (
+          <EmptyState message="No journal entries published yet. Check back soon." />
+        ) : (
+          <div class="home-blog-grid">
+            {latestPosts.map((post) => (
+              <article class="home-post-card press-shadow" data-reveal>
+                <div class="home-post-meta">
+                  <span class="category-pill">{post.category}</span>
+                  {post.readTime && <span class="read-time">{post.readTime}</span>}
+                </div>
+                <h3>
+                  <a href={`/blog/${post.slug}`}>{post.title}</a>
+                </h3>
+                <p>{post.summary}</p>
+                <div class="home-post-footer">
+                  {post.publishedDate && (
+                    <time datetime={post.publishedDate}>
+                      {new Date(post.publishedDate).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </time>
+                  )}
+                  <a href={`/blog/${post.slug}`} class="post-link">
+                    Read →
+                  </a>
+                </div>
+              </article>
+            ))}
+          </div>
+        )
+      }
+      <div class="section-more">
+        <a href="/blog" class="btn btn-secondary press-shadow">Visit blog</a>
       </div>
     </div>
   </section>
@@ -528,6 +584,97 @@ farhankf@lab:~$ <span class="terminal-cursor">▌</span></pre>
     .featured-projects {
       grid-template-columns: repeat(3, 1fr);
     }
+  }
+
+  /* ——— Blog section ——— */
+  .blog-section {
+    border-top: var(--border-thick);
+  }
+
+  .home-blog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--space-5);
+  }
+
+  .home-post-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--space-3);
+    background: var(--paper);
+    border: var(--border-thick);
+    border-radius: var(--radius-card);
+    padding: var(--space-5);
+  }
+
+  .home-post-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--text-tiny);
+  }
+
+  .category-pill {
+    background: var(--tangerine);
+    color: var(--ink);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 8px;
+    border: 1px solid var(--ink);
+    border-radius: var(--radius-pill);
+  }
+
+  .read-time,
+  time {
+    color: var(--ink);
+    opacity: 0.8;
+  }
+
+  .home-post-card h3 {
+    font-size: 1.3rem;
+    line-height: 1.25;
+  }
+
+  .home-post-card h3 a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .home-post-card h3 a:hover {
+    color: var(--teal);
+    text-decoration: underline wavy var(--tangerine);
+  }
+
+  .home-post-card p {
+    font-size: var(--text-body);
+    margin: 0;
+    flex-grow: 1;
+  }
+
+  .home-post-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--space-3);
+    padding-top: var(--space-3);
+    border-top: 1px dashed var(--grid-line);
+    font-family: var(--font-mono);
+    font-size: var(--text-tiny);
+  }
+
+  .post-link {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--teal);
+    text-decoration: none;
+  }
+
+  .post-link:hover {
+    text-decoration: underline;
   }
 
   /* ——— Photography: the dark room */

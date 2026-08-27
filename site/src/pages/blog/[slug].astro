@@ -1,0 +1,248 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import StickerBadge from '../../components/StickerBadge.astro';
+import EmptyState from '../../components/EmptyState.astro';
+import CatMiso from '../../components/cats/CatMiso.astro';
+import ArticleContent from '../../components/ArticleContent.astro';
+import { Image } from 'astro:assets';
+import { getBlogPostBySlug, mediaUrl, type BlogPost } from '../../lib/strapi';
+
+const { slug } = Astro.params;
+
+let post: BlogPost | null = null;
+let hadError = false;
+
+try {
+  post = await getBlogPostBySlug(slug!);
+} catch {
+  hadError = true;
+}
+
+const fallbackPost: BlogPost = {
+  id: 1,
+  documentId: 'sample-post-1',
+  title: 'Building Distributed ML Pipelines on Proxmox',
+  slug: 'building-distributed-ml-pipelines-on-proxmox',
+  summary: 'A deep dive into setting up high-throughput inference nodes with zero-downtime container updates and local SQLite replication.',
+  category: 'engineering',
+  featured: true,
+  readTime: '6 min read',
+  publishedDate: '2026-08-20',
+  contentBlocks: [
+    {
+      id: 1,
+      __component: 'article.markdown-text',
+      body: `### High-Throughput Inference on Budget Hardware\n\nWhen running machine learning workloads locally, resource utilization efficiency is everything. This architecture outlines the setup for scaling containerized workers on Proxmox VE without incurring cloud egress penalties.\n\nKey advantages:\n- **Isolated memory pools** via LXC containers\n- **Sub-millisecond IPC** across co-located service pods\n- **Automated snapshot failover** using ZFS storage pools\n\n\`\`\`python\nimport torch\nimport torch.nn as nn\n\nclass InferenceWorker(nn.Module):\n    def __init__(self, model_dim=512):\n        super().__init__()\n        self.backbone = nn.TransformerEncoderLayer(d_model=model_dim, nhead=8)\n\n    def forward(self, x):\n        return self.backbone(x)\n\`\`\``,
+    },
+    {
+      id: 2,
+      __component: 'article.pdf-document',
+      title: 'Cluster Architecture & Benchmark Report',
+      description: 'Full hardware spec sheet, network topology diagram, and load test results under synthetic traffic.',
+      pdfFile: {
+        id: 1,
+        documentId: 'doc-1',
+        url: '/documents/example-research-paper.pdf',
+      },
+    },
+    {
+      id: 3,
+      __component: 'article.markdown-text',
+      body: `### Lessons Learned & Production Considerations\n\nMonitoring state with Prometheus and lightweight exporter agents revealed that memory thrashing occurs primarily during batch quantization. Enforcing hard swap limits on worker nodes resolved all tail latency spikes.`,
+    },
+    {
+      id: 4,
+      __component: 'article.youtube-video',
+      title: 'Cluster Monitoring & Live Quantization Demo',
+      youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+      caption: 'Real-time telemetry and throughput graphs under sustained 1,000 req/sec inference workloads.',
+    },
+  ],
+};
+
+const displayPost = post ?? (hadError && slug === fallbackPost.slug ? fallbackPost : null);
+
+if (hadError && !displayPost) {
+  Astro.response.status = 502;
+} else if (!displayPost) {
+  Astro.response.status = 404;
+}
+---
+
+<Layout
+  title={displayPost?.title ?? 'Post not found'}
+  description={displayPost?.summary}
+>
+  {
+    hadError && !displayPost ? (
+      <div class="section-inner">
+        <EmptyState message="This blog post is temporarily unavailable. Check back once Strapi wakes up." />
+      </div>
+    ) : !displayPost ? (
+      <div class="section-inner not-found">
+        <div class="not-found-cat">
+          <CatMiso />
+        </div>
+        <h1>404: Article not found</h1>
+        <p>The requested journal entry could not be located. It may have been archived or moved.</p>
+        <a href="/blog" class="btn btn-secondary press-shadow">Back to blog</a>
+      </div>
+    ) : (
+      <article class="blog-detail">
+        <header class="section-inner post-header">
+          <div class="header-badges">
+            <a href="/blog" class="back-link">
+              ← All Articles
+            </a>
+            <StickerBadge label={displayPost.category.toUpperCase()} rotate={-2} />
+          </div>
+          <h1 data-reveal>{displayPost.title}</h1>
+          <p class="summary">{displayPost.summary}</p>
+          <div class="post-meta-bar">
+            {displayPost.publishedDate && (
+              <time datetime={displayPost.publishedDate}>
+                Published on{' '}
+                {new Date(displayPost.publishedDate).toLocaleDateString('en-US', {
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
+              </time>
+            )}
+            {displayPost.readTime && <span class="read-estimate">• {displayPost.readTime}</span>}
+          </div>
+        </header>
+
+        {displayPost.coverImage && (
+          <div class="cover-wrap section-inner">
+            <div class="cover-frame">
+              <Image
+                src={mediaUrl(displayPost.coverImage)}
+                width={displayPost.coverImage.width ?? 1200}
+                height={displayPost.coverImage.height ?? 675}
+                widths={[768, 1200]}
+                sizes="(max-width: 900px) 100vw, 900px"
+                alt={displayPost.coverImage.alternativeText ?? displayPost.title}
+              />
+            </div>
+          </div>
+        )}
+
+        <div class="section-inner post-body-wrap">
+          {displayPost.contentBlocks && displayPost.contentBlocks.length > 0 ? (
+            <ArticleContent blocks={displayPost.contentBlocks} />
+          ) : (
+            <div class="empty-content">
+              <p>No content blocks available for this post.</p>
+            </div>
+          )}
+        </div>
+      </article>
+    )
+  }
+</Layout>
+
+<style>
+  .section-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 var(--space-5);
+  }
+
+  .not-found {
+    padding: var(--space-9) var(--space-5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--space-4);
+  }
+
+  .not-found-cat {
+    width: 160px;
+  }
+
+  .post-header {
+    padding-top: var(--space-8);
+    padding-bottom: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .post-header h1 {
+    font-size: var(--text-section);
+    line-height: 1.1;
+  }
+
+  .header-badges {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-2);
+  }
+
+  .back-link {
+    font-family: var(--font-mono);
+    font-size: var(--text-tiny);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--teal);
+    text-decoration: none;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  .summary {
+    max-width: 65ch;
+    font-size: 1.2rem;
+    color: var(--ink);
+    opacity: 0.9;
+  }
+
+  .post-meta-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-mono);
+    font-size: var(--text-tiny);
+    color: var(--ink);
+    opacity: 0.75;
+    padding-top: var(--space-2);
+    border-top: 1px dashed var(--grid-line);
+  }
+
+  .cover-wrap {
+    margin-bottom: var(--space-7);
+  }
+
+  .cover-frame {
+    margin: 0 auto;
+    border: var(--border-thick);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    box-shadow: var(--shadow-hard);
+  }
+
+  .cover-frame :global(img) {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .post-body-wrap {
+    padding-bottom: var(--space-9);
+  }
+
+  .empty-content {
+    padding: var(--space-6);
+    border: 2px dashed var(--teal);
+    border-radius: var(--radius-card);
+    text-align: center;
+    font-family: var(--font-mono);
+  }
+</style>

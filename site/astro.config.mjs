@@ -41,7 +41,10 @@ export default defineConfig({
       styleDirective: { resources: ["'self'", "'unsafe-inline'"] },
       directives: [
         "default-src 'self'",
-        "img-src 'self' data:",
+        "img-src 'self' data: http://localhost:1337 http://cms:1337",
+        "connect-src 'self' http://localhost:1337 http://cms:1337 data: blob:",
+        "frame-src 'self' https://www.youtube-nocookie.com",
+        "worker-src 'self' blob:",
         "object-src 'none'",
         "base-uri 'self'",
         "form-action 'self'",

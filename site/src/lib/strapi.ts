@@ -43,6 +43,64 @@ export interface ProjectStat {
   value: string;
 }
 
+export interface MarkdownTextBlock {
+  id: number;
+  __component: 'article.markdown-text';
+  body: string;
+}
+
+export interface ArticleImageBlock {
+  id: number;
+  __component: 'article.captioned-image';
+  image: StrapiMedia;
+  altText: string;
+  caption?: string | null;
+  source?: string | null;
+}
+
+export interface PdfDocumentBlock {
+  id: number;
+  __component: 'article.pdf-document';
+  title: string;
+  pdfFile: StrapiMedia;
+  description?: string | null;
+}
+
+export interface YouTubeVideoBlock {
+  id: number;
+  __component: 'article.youtube-video';
+  title: string;
+  youtubeUrl: string;
+  caption?: string | null;
+}
+
+export type ArticleContentBlock =
+  | MarkdownTextBlock
+  | ArticleImageBlock
+  | PdfDocumentBlock
+  | YouTubeVideoBlock;
+
+export type BlogCategory =
+  | 'engineering'
+  | 'design'
+  | 'data-science'
+  | 'notes'
+  | 'cats';
+
+export interface BlogPost {
+  id: number;
+  documentId: string;
+  title: string;
+  slug: string;
+  summary: string;
+  category: BlogCategory;
+  coverImage?: StrapiMedia | null;
+  featured: boolean;
+  readTime?: string | null;
+  publishedDate?: string | null;
+  contentBlocks?: ArticleContentBlock[] | null;
+}
+
 export interface Project {
   id: number;
   documentId: string;
@@ -50,6 +108,7 @@ export interface Project {
   slug: string;
   summary: string;
   body?: string | null;
+  contentBlocks?: ArticleContentBlock[] | null;
   coverImage?: StrapiMedia | null;
   gallery?: StrapiMedia[] | null;
   techStack?: string[] | null;
@@ -275,7 +334,41 @@ export async function getSocialLinks(): Promise<SocialLink[]> {
   return res.data;
 }
 
+export async function getBlogPosts({
+  category,
+  featuredOnly = false,
+}: { category?: BlogCategory; featuredOnly?: boolean } = {}): Promise<BlogPost[]> {
+  const params: Record<string, string> = {
+    'populate[coverImage]': 'true',
+    'populate[contentBlocks][populate]': '*',
+    sort: 'publishedDate:desc',
+    'pagination[pageSize]': '100',
+  };
+  if (category) {
+    params['filters[category][$eq]'] = category;
+  }
+  if (featuredOnly) {
+    params['filters[featured][$eq]'] = 'true';
+  }
+  const res = await strapiFetch<StrapiListResponse<BlogPost>>('/blog-posts', params);
+  return res.data;
+}
+
+export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
+  const res = await strapiFetch<StrapiListResponse<BlogPost>>('/blog-posts', {
+    'populate[coverImage]': 'true',
+    'populate[contentBlocks][populate]': '*',
+    'filters[slug][$eq]': slug,
+  });
+  return res.data[0] ?? null;
+}
+
 export function mediaUrl(media: StrapiMedia | null | undefined): string {
   if (!media?.url) return '';
+  if (media.url.startsWith('/documents/') || media.url.startsWith('/images/')) return media.url;
   return media.url.startsWith('http') ? media.url : `${STRAPI_URL}${media.url}`;
+}
+
+export function pdfUrl(media: StrapiMedia | null | undefined): string {
+  return mediaUrl(media);
 }

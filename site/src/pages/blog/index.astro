@@ -1,0 +1,375 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import StickerBadge from '../../components/StickerBadge.astro';
+import EmptyState from '../../components/EmptyState.astro';
+import { Image } from 'astro:assets';
+import { getBlogPosts, mediaUrl, type BlogCategory, type BlogPost } from '../../lib/strapi';
+
+let posts: BlogPost[] = [];
+let hadError = false;
+
+const currentCategory = Astro.url.searchParams.get('category') as BlogCategory | null;
+
+try {
+  posts = await getBlogPosts(currentCategory ? { category: currentCategory } : {});
+} catch {
+  hadError = true;
+}
+
+const categories: { label: string; value: BlogCategory | 'all' }[] = [
+  { label: 'All', value: 'all' },
+  { label: 'Engineering', value: 'engineering' },
+  { label: 'Design', value: 'design' },
+  { label: 'Data Science', value: 'data-science' },
+  { label: 'Notes', value: 'notes' },
+  { label: 'Cats', value: 'cats' },
+];
+
+const fallbackPosts: BlogPost[] = [
+  {
+    id: 1,
+    documentId: 'sample-post-1',
+    title: 'Building Distributed ML Pipelines on Proxmox',
+    slug: 'building-distributed-ml-pipelines-on-proxmox',
+    summary: 'A deep dive into setting up high-throughput inference nodes with zero-downtime container updates and local SQLite replication.',
+    category: 'engineering',
+    featured: true,
+    readTime: '6 min read',
+    publishedDate: '2026-08-20',
+  },
+  {
+    id: 2,
+    documentId: 'sample-post-2',
+    title: 'The Unreasonable Effectiveness of Space Mono and Tangerine Accents',
+    slug: 'the-unreasonable-effectiveness-of-space-mono',
+    summary: 'Notes on typography, brutalist brutalism vs playful neo-brutalism, and designing developer portfolios that do not look like resume templates.',
+    category: 'design',
+    featured: false,
+    readTime: '4 min read',
+    publishedDate: '2026-08-15',
+  },
+];
+
+const displayPosts = posts.length > 0 ? posts : (hadError ? fallbackPosts : []);
+const featuredPost = displayPosts.find((p) => p.featured) ?? displayPosts[0];
+const regularPosts = displayPosts.filter((p) => p !== featuredPost);
+---
+
+<Layout
+  title="Blog"
+  description="Technical essays, architectural breakdowns, UI experiments, and notes on software engineering."
+>
+  <div class="section-inner blog-page">
+    <header class="blog-head">
+      <StickerBadge label="Writing & Notes" rotate={-2} />
+      <h1 data-reveal>The Lab Journal</h1>
+      <p class="blog-sub">
+        Technical essays, architectural breakdowns, system design retrospectives, and occasional feline observations.
+      </p>
+
+      <nav class="category-filters" aria-label="Filter blog posts by category">
+        {
+          categories.map((cat) => {
+            const isActive = (!currentCategory && cat.value === 'all') || currentCategory === cat.value;
+            const href = cat.value === 'all' ? '/blog' : `/blog?category=${cat.value}`;
+            return (
+              <a
+                href={href}
+                class:list={['cat-filter-btn', { active: isActive }]}
+                data-astro-prefetch
+              >
+                {cat.label}
+              </a>
+            );
+          })
+        }
+      </nav>
+    </header>
+
+    {
+      displayPosts.length === 0 ? (
+        <EmptyState message="No articles found in this category. Check back soon for new publications." />
+      ) : (
+        <div class="blog-content">
+          {featuredPost && (
+            <article class="featured-post press-shadow" data-reveal>
+              <div class="featured-body">
+                <div class="featured-meta">
+                  <span class="category-pill">{featuredPost.category}</span>
+                  {featuredPost.readTime && <span class="read-time">{featuredPost.readTime}</span>}
+                  {featuredPost.publishedDate && (
+                    <time datetime={featuredPost.publishedDate}>
+                      {new Date(featuredPost.publishedDate).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </time>
+                  )}
+                </div>
+                <h2>
+                  <a href={`/blog/${featuredPost.slug}`}>{featuredPost.title}</a>
+                </h2>
+                <p>{featuredPost.summary}</p>
+                <a href={`/blog/${featuredPost.slug}`} class="btn btn-primary">
+                  Read article →
+                </a>
+              </div>
+              {featuredPost.coverImage && (
+                <div class="featured-image">
+                  <Image
+                    src={mediaUrl(featuredPost.coverImage)}
+                    width={featuredPost.coverImage.width ?? 800}
+                    height={featuredPost.coverImage.height ?? 450}
+                    alt={featuredPost.coverImage.alternativeText ?? featuredPost.title}
+                  />
+                </div>
+              )}
+            </article>
+          )}
+
+          {regularPosts.length > 0 && (
+            <div class="post-grid">
+              {regularPosts.map((post) => (
+                <article class="post-card press-shadow" data-reveal>
+                  <div class="post-meta">
+                    <span class="category-pill">{post.category}</span>
+                    {post.readTime && <span class="read-time">{post.readTime}</span>}
+                  </div>
+                  <h3>
+                    <a href={`/blog/${post.slug}`}>{post.title}</a>
+                  </h3>
+                  <p>{post.summary}</p>
+                  <div class="post-footer">
+                    {post.publishedDate && (
+                      <time datetime={post.publishedDate}>
+                        {new Date(post.publishedDate).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })}
+                      </time>
+                    )}
+                    <a href={`/blog/${post.slug}`} class="post-link">
+                      Read →
+                    </a>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </div>
+      )
+    }
+  </div>
+</Layout>
+
+<style>
+  .section-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--space-5);
+  }
+
+  .blog-page {
+    padding-top: var(--space-7);
+    padding-bottom: var(--section-gap);
+  }
+
+  .blog-head {
+    max-width: 54ch;
+    margin: 0 auto var(--space-7);
+    text-align: center;
+  }
+
+  .blog-head h1 {
+    font-size: var(--text-section);
+    margin-top: var(--space-3);
+    margin-bottom: var(--space-3);
+  }
+
+  .blog-sub {
+    font-size: var(--text-body);
+    margin: 0 0 var(--space-5);
+  }
+
+  .category-filters {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2);
+  }
+
+  .cat-filter-btn {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: var(--text-tiny);
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--ink);
+    padding: var(--space-1) var(--space-3);
+    border: var(--border-thick);
+    border-radius: var(--radius-pill);
+    background: var(--paper);
+    transition: background 0.15s ease;
+  }
+
+  .cat-filter-btn:hover,
+  .cat-filter-btn:focus-visible {
+    background: var(--blush);
+    text-decoration: none;
+  }
+
+  .cat-filter-btn.active {
+    background: var(--butter);
+    border-color: var(--ink);
+  }
+
+  .blog-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-7);
+  }
+
+  .featured-post {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+    background: var(--paper);
+    border: var(--border-thick);
+    border-radius: var(--radius-card);
+    padding: var(--space-6);
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: var(--grid-size) var(--grid-size);
+  }
+
+  @media (min-width: 840px) {
+    .featured-post {
+      grid-template-columns: 1.2fr 0.8fr;
+      align-items: center;
+    }
+  }
+
+  .featured-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .featured-meta,
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-family: var(--font-mono);
+    font-size: var(--text-tiny);
+  }
+
+  .category-pill {
+    background: var(--tangerine);
+    color: var(--ink);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 8px;
+    border: 1px solid var(--ink);
+    border-radius: var(--radius-pill);
+  }
+
+  .read-time,
+  time {
+    color: var(--ink);
+    opacity: 0.8;
+  }
+
+  .featured-body h2 {
+    font-size: 2rem;
+  }
+
+  .featured-body h2 a,
+  .post-card h3 a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .featured-body h2 a:hover,
+  .post-card h3 a:hover {
+    color: var(--teal);
+    text-decoration: underline wavy var(--tangerine);
+  }
+
+  .featured-body p {
+    font-size: 1.1rem;
+    margin: 0;
+  }
+
+  .featured-image {
+    border: var(--border-thick);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+  }
+
+  .featured-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .post-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--space-5);
+  }
+
+  .post-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--space-3);
+    background: var(--paper);
+    border: var(--border-thick);
+    border-radius: var(--radius-card);
+    padding: var(--space-5);
+  }
+
+  .post-card h3 {
+    font-size: 1.4rem;
+    line-height: 1.2;
+  }
+
+  .post-card p {
+    font-size: var(--text-body);
+    margin: 0;
+    flex-grow: 1;
+  }
+
+  .post-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--space-3);
+    padding-top: var(--space-3);
+    border-top: 1px dashed var(--grid-line);
+    font-family: var(--font-mono);
+    font-size: var(--text-tiny);
+  }
+
+  .post-link {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--teal);
+    text-decoration: none;
+  }
+
+  .post-link:hover {
+    text-decoration: underline;
+  }
+</style>
