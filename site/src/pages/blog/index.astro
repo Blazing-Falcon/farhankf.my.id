@@ -3,27 +3,34 @@ import Layout from '../../layouts/Layout.astro';
 import StickerBadge from '../../components/StickerBadge.astro';
 import EmptyState from '../../components/EmptyState.astro';
 import { Image } from 'astro:assets';
-import { getBlogPosts, mediaUrl, type BlogCategory, type BlogPost } from '../../lib/strapi';
+import { getBlogPosts, getBlogCategories, mediaUrl, type BlogCategory, type BlogPost } from '../../lib/strapi';
 
 let posts: BlogPost[] = [];
+let categories: BlogCategory[] = [];
 let hadError = false;
 
-const currentCategory = Astro.url.searchParams.get('category') as BlogCategory | null;
+const currentCategory = Astro.url.searchParams.get('category');
 
 try {
-  posts = await getBlogPosts(currentCategory ? { category: currentCategory } : {});
+  const [fetchedCategories, fetchedPosts] = await Promise.all([
+    getBlogCategories(),
+    getBlogPosts(currentCategory ? { category: currentCategory } : {}),
+  ]);
+  categories = fetchedCategories;
+  posts = fetchedPosts;
 } catch {
   hadError = true;
 }
 
-const categories: { label: string; value: BlogCategory | 'all' }[] = [
-  { label: 'All', value: 'all' },
-  { label: 'Engineering', value: 'engineering' },
-  { label: 'Design', value: 'design' },
-  { label: 'Data Science', value: 'data-science' },
-  { label: 'Notes', value: 'notes' },
-  { label: 'Cats', value: 'cats' },
+const fallbackCategories: BlogCategory[] = [
+  { id: 1, documentId: 'cat-1', name: 'Engineering', slug: 'engineering', order: 1 },
+  { id: 2, documentId: 'cat-2', name: 'Design', slug: 'design', order: 2 },
+  { id: 3, documentId: 'cat-3', name: 'Data Science', slug: 'data-science', order: 3 },
+  { id: 4, documentId: 'cat-4', name: 'Notes', slug: 'notes', order: 4 },
+  { id: 5, documentId: 'cat-5', name: 'Cats', slug: 'cats', order: 5 },
 ];
+
+const displayCategories = categories.length > 0 ? categories : fallbackCategories;
 
 const fallbackPosts: BlogPost[] = [
   {
@@ -32,7 +39,7 @@ const fallbackPosts: BlogPost[] = [
     title: 'Building Distributed ML Pipelines on Proxmox',
     slug: 'building-distributed-ml-pipelines-on-proxmox',
     summary: 'A deep dive into setting up high-throughput inference nodes with zero-downtime container updates and local SQLite replication.',
-    category: 'engineering',
+    category: { id: 1, documentId: 'cat-1', name: 'Engineering', slug: 'engineering' },
     featured: true,
     readTime: '6 min read',
     publishedDate: '2026-08-20',
@@ -43,12 +50,18 @@ const fallbackPosts: BlogPost[] = [
     title: 'The Unreasonable Effectiveness of Space Mono and Tangerine Accents',
     slug: 'the-unreasonable-effectiveness-of-space-mono',
     summary: 'Notes on typography, brutalist brutalism vs playful neo-brutalism, and designing developer portfolios that do not look like resume templates.',
-    category: 'design',
+    category: { id: 2, documentId: 'cat-2', name: 'Design', slug: 'design' },
     featured: false,
     readTime: '4 min read',
     publishedDate: '2026-08-15',
   },
 ];
+
+const categoryLabel = (cat?: BlogCategory | string | null) => {
+  if (!cat) return '';
+  if (typeof cat === 'string') return cat;
+  return cat.name;
+};
 
 const displayPosts = posts.length > 0 ? posts : (hadError ? fallbackPosts : []);
 const featuredPost = displayPosts.find((p) => p.featured) ?? displayPosts[0];
@@ -68,17 +81,23 @@ const regularPosts = displayPosts.filter((p) => p !== featuredPost);
       </p>
 
       <nav class="category-filters" aria-label="Filter blog posts by category">
+        <a
+          href="/blog"
+          class:list={['cat-filter-btn', { active: !currentCategory }]}
+          data-astro-prefetch
+        >
+          All
+        </a>
         {
-          categories.map((cat) => {
-            const isActive = (!currentCategory && cat.value === 'all') || currentCategory === cat.value;
-            const href = cat.value === 'all' ? '/blog' : `/blog?category=${cat.value}`;
+          displayCategories.map((cat) => {
+            const isActive = currentCategory === cat.slug;
             return (
               <a
-                href={href}
+                href={`/blog?category=${cat.slug}`}
                 class:list={['cat-filter-btn', { active: isActive }]}
                 data-astro-prefetch
               >
-                {cat.label}
+                {cat.name}
               </a>
             );
           })
@@ -95,7 +114,7 @@ const regularPosts = displayPosts.filter((p) => p !== featuredPost);
             <article class="featured-post press-shadow" data-reveal>
               <div class="featured-body">
                 <div class="featured-meta">
-                  <span class="category-pill">{featuredPost.category}</span>
+                  <span class="category-pill">{categoryLabel(featuredPost.category)}</span>
                   {featuredPost.readTime && <span class="read-time">{featuredPost.readTime}</span>}
                   {featuredPost.publishedDate && (
                     <time datetime={featuredPost.publishedDate}>
@@ -133,7 +152,7 @@ const regularPosts = displayPosts.filter((p) => p !== featuredPost);
               {regularPosts.map((post) => (
                 <article class="post-card press-shadow" data-reveal>
                   <div class="post-meta">
-                    <span class="category-pill">{post.category}</span>
+                    <span class="category-pill">{categoryLabel(post.category)}</span>
                     {post.readTime && <span class="read-time">{post.readTime}</span>}
                   </div>
                   <h3>

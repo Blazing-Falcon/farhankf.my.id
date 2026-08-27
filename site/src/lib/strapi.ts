@@ -80,12 +80,13 @@ export type ArticleContentBlock =
   | PdfDocumentBlock
   | YouTubeVideoBlock;
 
-export type BlogCategory =
-  | 'engineering'
-  | 'design'
-  | 'data-science'
-  | 'notes'
-  | 'cats';
+export interface BlogCategory {
+  id: number;
+  documentId: string;
+  name: string;
+  slug: string;
+  order?: number;
+}
 
 export interface BlogPost {
   id: number;
@@ -93,7 +94,7 @@ export interface BlogPost {
   title: string;
   slug: string;
   summary: string;
-  category: BlogCategory;
+  category?: BlogCategory | string | null;
   coverImage?: StrapiMedia | null;
   featured: boolean;
   readTime?: string | null;
@@ -342,18 +343,28 @@ export async function getSocialLinks(): Promise<SocialLink[]> {
   return res.data;
 }
 
+export async function getBlogCategories(): Promise<BlogCategory[]> {
+  const res = await strapiFetch<StrapiListResponse<BlogCategory>>('/blog-categories', {
+    sort: 'order:asc',
+    'pagination[pageSize]': '100',
+  });
+  return res.data;
+}
+
 export async function getBlogPosts({
   category,
   featuredOnly = false,
-}: { category?: BlogCategory; featuredOnly?: boolean } = {}): Promise<BlogPost[]> {
+}: { category?: string; featuredOnly?: boolean } = {}): Promise<BlogPost[]> {
   const params: Record<string, string> = {
     'populate[coverImage]': 'true',
+    'populate[category]': 'true',
     'populate[contentBlocks][populate]': '*',
     sort: 'publishedDate:desc',
     'pagination[pageSize]': '100',
   };
   if (category) {
-    params['filters[category][$eq]'] = category;
+    params['filters[$or][0][category][slug][$eq]'] = category;
+    params['filters[$or][1][category][$eq]'] = category;
   }
   if (featuredOnly) {
     params['filters[featured][$eq]'] = 'true';
@@ -365,6 +376,7 @@ export async function getBlogPosts({
 export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
   const res = await strapiFetch<StrapiListResponse<BlogPost>>('/blog-posts', {
     'populate[coverImage]': 'true',
+    'populate[category]': 'true',
     'populate[contentBlocks][populate]': '*',
     'filters[slug][$eq]': slug,
   });

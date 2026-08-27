@@ -67,6 +67,9 @@ if (hadError && !displayPost) {
 } else if (!displayPost) {
   Astro.response.status = 404;
 }
+const categoryName = typeof displayPost?.category === 'object' && displayPost.category !== null
+  ? displayPost.category.name
+  : (displayPost?.category ?? 'Article');
 ---
 
 <Layout
@@ -94,7 +97,7 @@ if (hadError && !displayPost) {
             <a href="/blog" class="back-link">
               ← All Articles
             </a>
-            <StickerBadge label={displayPost.category.toUpperCase()} rotate={-2} />
+            <StickerBadge label={categoryName.toUpperCase()} rotate={-2} />
           </div>
           <h1 data-reveal>{displayPost.title}</h1>
           <p class="summary">{displayPost.summary}</p>
