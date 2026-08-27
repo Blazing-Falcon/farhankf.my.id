@@ -70,11 +70,48 @@ if (hadError && !displayPost) {
 const categoryName = typeof displayPost?.category === 'object' && displayPost.category !== null
   ? displayPost.category.name
   : (displayPost?.category ?? 'Article');
+
+const base = Astro.site ?? Astro.url;
+const canonicalUrl = new URL(Astro.url.pathname, base).href;
+const siteUrl = new URL('/', base).href;
+
+const blogPostJsonLd = displayPost
+  ? {
+      '@type': 'BlogPosting',
+      '@id': `${canonicalUrl}#article`,
+      mainEntityOfPage: canonicalUrl,
+      headline: displayPost.title,
+      description: displayPost.summary,
+      ...(displayPost.publishedDate && {
+        datePublished: new Date(displayPost.publishedDate).toISOString(),
+        dateModified: new Date(displayPost.publishedDate).toISOString(),
+      }),
+      articleSection: categoryName,
+      author: {
+        '@id': `${siteUrl}#person`,
+      },
+      publisher: {
+        '@id': `${siteUrl}#person`,
+      },
+    }
+  : undefined;
 ---
 
 <Layout
   title={displayPost?.title ?? 'Post not found'}
   description={displayPost?.summary}
+  ogType={displayPost ? 'article' : 'website'}
+  articleMeta={
+    displayPost
+      ? {
+          publishedTime: displayPost.publishedDate
+            ? new Date(displayPost.publishedDate).toISOString()
+            : undefined,
+          section: categoryName,
+        }
+      : undefined
+  }
+  customJsonLd={blogPostJsonLd}
 >
   {
     hadError && !displayPost ? (

@@ -15,6 +15,19 @@ interface Props {
   description?: string;
   /** Absolute or root-relative image for the link preview. Defaults to /og.png. */
   image?: string;
+  /** Custom alt description for the Open Graph image. */
+  imageAlt?: string;
+  /** Open Graph type: website (default) or article. */
+  ogType?: 'website' | 'article';
+  /** Article metadata when ogType is 'article'. */
+  articleMeta?: {
+    publishedTime?: string;
+    modifiedTime?: string;
+    section?: string;
+    tags?: string[];
+  };
+  /** Additional Schema.org JSON-LD entities to merge into the graph. */
+  customJsonLd?: Record<string, unknown> | Array<Record<string, unknown>>;
 }
 
 const OWNER = 'Farhan Kurnia Febriansyah';
@@ -24,6 +37,10 @@ const {
   fullTitle: fullTitleProp,
   description = `${OWNER} — ComSci, statistics, machine learning, photography, and a home lab.`,
   image,
+  imageAlt = `${OWNER} — machine learning, photography, and a home lab`,
+  ogType = 'website',
+  articleMeta,
+  customJsonLd,
 } = Astro.props;
 
 const fullTitle = fullTitleProp ?? `${title} · ${OWNER}`;
@@ -89,6 +106,11 @@ const jsonLd = {
       name: OWNER,
       publisher: { '@id': `${siteUrl}#person` },
     },
+    ...(customJsonLd
+      ? Array.isArray(customJsonLd)
+        ? customJsonLd
+        : [customJsonLd]
+      : []),
   ],
 };
 ---
@@ -109,7 +131,7 @@ const jsonLd = {
 
 
     {/* Link previews: WhatsApp, Discord, Slack, Telegram all read these. */}
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content={OWNER} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
@@ -125,7 +147,26 @@ const jsonLd = {
         </Fragment>
       )
     }
-    <meta property="og:image:alt" content="farhankf.cat — machine learning, photography, and a home lab" />
+    <meta property="og:image:alt" content={imageAlt} />
+    {
+      ogType === 'article' && articleMeta && (
+        <Fragment>
+          {articleMeta.publishedTime && (
+            <meta property="article:published_time" content={articleMeta.publishedTime} />
+          )}
+          {articleMeta.modifiedTime && (
+            <meta property="article:modified_time" content={articleMeta.modifiedTime} />
+          )}
+          {articleMeta.section && (
+            <meta property="article:section" content={articleMeta.section} />
+          )}
+          {articleMeta.tags?.map((tag) => (
+            <meta property="article:tag" content={tag} />
+          ))}
+          <meta property="article:author" content={OWNER} />
+        </Fragment>
+      )
+    }
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />

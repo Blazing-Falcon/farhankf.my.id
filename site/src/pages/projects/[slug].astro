@@ -38,9 +38,38 @@ const difficultyLabels: Record<string, string> = {
 };
 const difficulty = project?.difficulty ? difficultyLabels[project.difficulty] : null;
 const stats = project?.stats ?? [];
+
+const base = Astro.site ?? Astro.url;
+const canonicalUrl = new URL(Astro.url.pathname, base).href;
+const siteUrl = new URL('/', base).href;
+
+const projectJsonLd = project
+  ? {
+      '@type': 'SoftwareSourceCode',
+      '@id': `${canonicalUrl}#project`,
+      name: project.title,
+      description: project.summary,
+      ...(project.finishedAt && {
+        dateCreated: new Date(project.finishedAt).toISOString(),
+      }),
+      ...(project.repoUrl && {
+        codeRepository: project.repoUrl,
+      }),
+      ...(project.projectUrl && {
+        url: project.projectUrl,
+      }),
+      author: {
+        '@id': `${siteUrl}#person`,
+      },
+    }
+  : undefined;
 ---
 
-<Layout title={project?.title ?? 'Project not found'} description={project?.summary}>
+<Layout
+  title={project?.title ?? 'Project not found'}
+  description={project?.summary}
+  customJsonLd={projectJsonLd}
+>
   {
     hadError ? (
       <div class="section-inner">
