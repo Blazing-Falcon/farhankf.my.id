@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_article_captioned_images",
+  "info": {
+    "displayName": "Captioned Image",
+    "description": "Article image with alternative text, caption, and optional source."
+  },
+  "attributes": {
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": ["images"]
+    },
+    "altText": {
+      "type": "string",
+      "required": true
+    },
+    "caption": {
+      "type": "text"
+    },
+    "source": {
+      "type": "string"
+    }
+  }
+}

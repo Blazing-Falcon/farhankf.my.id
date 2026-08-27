@@ -473,6 +473,57 @@ export interface ApiAboutAbout extends Struct.SingleTypeSchema {
   };
 }
 
+export interface ApiBlogPostBlogPost extends Struct.CollectionTypeSchema {
+  collectionName: 'blog_posts';
+  info: {
+    description: 'Long-form editorial articles and blog entries with rich media components.';
+    displayName: 'Blog Post';
+    pluralName: 'blog-posts';
+    singularName: 'blog-post';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    category: Schema.Attribute.Enumeration<
+      ['engineering', 'design', 'data-science', 'notes', 'cats']
+    > &
+      Schema.Attribute.DefaultTo<'engineering'>;
+    contentBlocks: Schema.Attribute.DynamicZone<
+      [
+        'article.markdown-text',
+        'article.captioned-image',
+        'article.pdf-document',
+        'article.youtube-video',
+      ]
+    >;
+    coverImage: Schema.Attribute.Media<'images'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    featured: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::blog-post.blog-post'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    publishedDate: Schema.Attribute.Date;
+    readTime: Schema.Attribute.String;
+    slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required;
+    summary: Schema.Attribute.Text &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetMinMaxLength<{
+        maxLength: 320;
+      }>;
+    title: Schema.Attribute.String & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiCatCat extends Struct.CollectionTypeSchema {
   collectionName: 'cats';
   info: {
@@ -590,6 +641,14 @@ export interface ApiProjectProject extends Struct.CollectionTypeSchema {
   };
   attributes: {
     body: Schema.Attribute.RichText;
+    contentBlocks: Schema.Attribute.DynamicZone<
+      [
+        'article.markdown-text',
+        'article.captioned-image',
+        'article.pdf-document',
+        'article.youtube-video',
+      ]
+    >;
     coverImage: Schema.Attribute.Media<'images'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -1200,6 +1259,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::about.about': ApiAboutAbout;
+      'api::blog-post.blog-post': ApiBlogPostBlogPost;
       'api::cat.cat': ApiCatCat;
       'api::lab-note.lab-note': ApiLabNoteLabNote;
       'api::photo.photo': ApiPhotoPhoto;

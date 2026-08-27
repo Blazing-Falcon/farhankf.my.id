@@ -1,0 +1,22 @@
+{
+  "collectionName": "components_article_pdf_documents",
+  "info": {
+    "displayName": "PDF Document",
+    "description": "Embedded interactive PDF viewer with open and download options."
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "pdfFile": {
+      "type": "media",
+      "multiple": false,
+      "required": true,
+      "allowedTypes": ["files"]
+    },
+    "description": {
+      "type": "text"
+    }
+  }
+}

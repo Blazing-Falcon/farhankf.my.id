@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_article_markdown_texts",
+  "info": {
+    "displayName": "Markdown Text",
+    "description": "Rich text section supporting headings, paragraphs, lists, quotes, links, and code blocks."
+  },
+  "attributes": {
+    "body": {
+      "type": "richtext",
+      "required": true
+    }
+  }
+}

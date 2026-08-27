@@ -8,6 +8,15 @@
     "slug": { "type": "uid", "targetField": "title", "required": true },
     "summary": { "type": "text", "required": true, "maxLength": 280 },
     "body": { "type": "richtext" },
+    "contentBlocks": {
+      "type": "dynamiczone",
+      "components": [
+        "article.markdown-text",
+        "article.captioned-image",
+        "article.pdf-document",
+        "article.youtube-video"
+      ]
+    },
     "coverImage": { "type": "media", "multiple": false, "allowedTypes": ["images"] },
     "gallery": { "type": "media", "multiple": true, "allowedTypes": ["images"] },
     "techStack": { "type": "json" },
