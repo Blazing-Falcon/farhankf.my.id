@@ -132,4 +132,24 @@ export async function seedExampleContent(strapi: Core.Strapi) {
       });
     }
   }
+
+  const defaultBlogCategories = [
+    { name: 'Engineering', slug: 'engineering', order: 1 },
+    { name: 'Design', slug: 'design', order: 2 },
+    { name: 'Data Science', slug: 'data-science', order: 3 },
+    { name: 'Notes', slug: 'notes', order: 4 },
+    { name: 'Cats', slug: 'cats', order: 5 },
+  ];
+
+  for (const cat of defaultBlogCategories) {
+    const existing = await strapi.db.query('api::blog-category.blog-category').findOne({
+      where: { slug: cat.slug },
+    });
+    if (!existing) {
+      await strapi.documents('api::blog-category.blog-category').create({
+        data: cat,
+        status: 'published',
+      });
+    }
+  }
 }

@@ -26,15 +26,10 @@
       "maxLength": 320
     },
     "category": {
-      "type": "enumeration",
-      "enum": [
-        "engineering",
-        "design",
-        "data-science",
-        "notes",
-        "cats"
-      ],
-      "default": "engineering"
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::blog-category.blog-category",
+      "inversedBy": "blogPosts"
     },
     "coverImage": {
       "type": "media",

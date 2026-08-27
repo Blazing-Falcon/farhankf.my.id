@@ -13,6 +13,8 @@ async function setPublicApiPermissions(strapi: Core.Strapi) {
       'api::photo.photo.findOne',
       'api::photo-category.photo-category.find',
       'api::photo-category.photo-category.findOne',
+      'api::blog-category.blog-category.find',
+      'api::blog-category.blog-category.findOne',
       'api::blog-post.blog-post.find',
       'api::blog-post.blog-post.findOne',
       'api::project.project.find',
