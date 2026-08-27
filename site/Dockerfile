@@ -7,7 +7,9 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
-RUN npm run build && npm prune --omit=dev
+RUN npm run build \
+    && npm prune --omit=dev \
+    && node -e "import('sharp')"
 
 # Runtime stage: the standalone node adapter still resolves deps (sharp, react,
 # marked, ...) from node_modules, so production node_modules come along.
