@@ -157,14 +157,13 @@ export interface Cat {
   order: number;
 }
 
-export type PhotoCategory =
-  | 'street'
-  | 'landscape'
-  | 'portrait'
-  | 'macro'
-  | 'astrophotography'
-  | 'cat'
-  | 'other';
+export interface PhotoCategory {
+  id: number;
+  documentId: string;
+  name: string;
+  slug: string;
+  order: number;
+}
 
 export interface Photo {
   id: number;
@@ -172,7 +171,7 @@ export interface Photo {
   title: string;
   image: StrapiMedia;
   caption?: string | null;
-  category: PhotoCategory;
+  category?: PhotoCategory | string | null;
   shotAt?: string | null;
   gear?: string | null;
   featured: boolean;
@@ -285,17 +284,26 @@ export async function getProjectBySlug(slug: string): Promise<Project | null> {
   return res.data[0] ?? null;
 }
 
+export async function getPhotoCategories(): Promise<PhotoCategory[]> {
+  const res = await strapiFetch<StrapiListResponse<PhotoCategory>>('/photo-categories', {
+    sort: 'order:asc',
+    'pagination[pageSize]': '100',
+  });
+  return res.data;
+}
+
 export async function getPhotos({
   category,
   featuredOnly = false,
-}: { category?: PhotoCategory; featuredOnly?: boolean } = {}): Promise<Photo[]> {
+}: { category?: string; featuredOnly?: boolean } = {}): Promise<Photo[]> {
   const params: Record<string, string> = {
     populate: '*',
     sort: 'shotAt:desc',
     'pagination[pageSize]': '100',
   };
   if (category) {
-    params['filters[category][$eq]'] = category;
+    params['filters[$or][0][category][slug][$eq]'] = category;
+    params['filters[$or][1][category][$eq]'] = category;
   }
   if (featuredOnly) {
     params['filters[featured][$eq]'] = 'true';
