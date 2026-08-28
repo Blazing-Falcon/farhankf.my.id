@@ -13,7 +13,7 @@ const { source, title } = Astro.props;
       <button class="btn btn-secondary pdf-prev" type="button" aria-label="Previous page" disabled>
         ← Previous
       </button>
-      <span class="pdf-page-indicator">
+      <span class="pdf-page-indicator" aria-live="polite">
         Page <span class="pdf-current-page">1</span> of <span class="pdf-total-pages">-</span>
       </span>
       <button class="btn btn-secondary pdf-next" type="button" aria-label="Next page" disabled>
@@ -35,11 +35,12 @@ const { source, title } = Astro.props;
 
 <script>
   import * as pdfjsLib from 'pdfjs-dist';
+  // ?url makes Vite emit the worker as its own asset and hand back the hashed
+  // URL. new URL(<bare specifier>, import.meta.url) is left untouched by the
+  // bundler and resolves against the chunk path, which 404s.
+  import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
-  pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-    'pdfjs-dist/build/pdf.worker.mjs',
-    import.meta.url
-  ).toString();
+  pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
 
   function initPdfViewers() {
     const shells = document.querySelectorAll<HTMLElement>('[data-pdf-viewer]');
@@ -64,36 +65,57 @@ const { source, title } = Astro.props;
       let pageRendering = false;
       let pageNumPending: number | null = null;
 
+      function finishRender() {
+        pageRendering = false;
+        if (pageNumPending !== null) {
+          const next = pageNumPending;
+          pageNumPending = null;
+          renderPage(next);
+        }
+      }
+
       function renderPage(num: number) {
         pageRendering = true;
-        pdfDoc.getPage(num).then((page: any) => {
-          const wrapper = canvas!.parentElement;
-          const containerWidth = wrapper ? wrapper.clientWidth - 32 : 800;
-          const viewport = page.getViewport({ scale: 1 });
-          const scale = Math.min(1.5, Math.max(0.6, containerWidth / viewport.width));
-          const scaledViewport = page.getViewport({ scale });
 
-          const context = canvas!.getContext('2d');
-          if (!context) return;
+        pdfDoc
+          .getPage(num)
+          .then((page: any) => {
+            const wrapper = canvas!.parentElement;
+            const containerWidth = wrapper ? wrapper.clientWidth - 32 : 800;
+            const viewport = page.getViewport({ scale: 1 });
+            const scale = Math.min(1.5, Math.max(0.6, containerWidth / viewport.width));
+            const scaledViewport = page.getViewport({ scale });
 
-          canvas!.height = scaledViewport.height;
-          canvas!.width = scaledViewport.width;
+            const context = canvas!.getContext('2d');
+            if (!context) return;
 
-          const renderContext = {
-            canvasContext: context,
-            viewport: scaledViewport,
-          };
+            // The backing store is sized in device pixels and scaled back down
+            // with CSS, so the page stays sharp on high-density screens.
+            const ratio = window.devicePixelRatio || 1;
+            canvas!.width = Math.floor(scaledViewport.width * ratio);
+            canvas!.height = Math.floor(scaledViewport.height * ratio);
+            canvas!.style.width = `${scaledViewport.width}px`;
+            canvas!.style.height = `${scaledViewport.height}px`;
+            canvas!.setAttribute('aria-label', `${shell.dataset.title ?? 'Document'}, page ${num}`);
 
-          const renderTask = page.render(renderContext);
-          renderTask.promise.then(() => {
-            pageRendering = false;
-            if (loader) loader.style.display = 'none';
-            if (pageNumPending !== null) {
-              renderPage(pageNumPending);
-              pageNumPending = null;
+            return page
+              .render({
+                canvasContext: context,
+                viewport: scaledViewport,
+                transform: ratio === 1 ? undefined : [ratio, 0, 0, ratio, 0, 0],
+              })
+              .promise.then(() => {
+                if (loader) loader.style.display = 'none';
+              });
+          })
+          .catch((err: unknown) => {
+            console.error('Failed to render PDF page:', err);
+            if (loader) {
+              loader.style.display = '';
+              loader.textContent = 'This page could not be rendered.';
             }
-          });
-        });
+          })
+          .finally(finishRender);
 
         curPageSpan!.textContent = String(num);
         prevBtn!.disabled = num <= 1;
