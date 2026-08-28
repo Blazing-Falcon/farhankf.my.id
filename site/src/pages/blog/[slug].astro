@@ -60,7 +60,10 @@ const fallbackPost: BlogPost = {
   ],
 };
 
-const displayPost = post ?? (hadError && slug === fallbackPost.slug ? fallbackPost : null);
+// The fixture above is fabricated demo content. Serving it on a CMS outage
+// would present it as real, so it is only reachable where seed data is wanted.
+const displayPost =
+  post ?? (SHOW_EXAMPLE_CONTENT && hadError && slug === fallbackPost.slug ? fallbackPost : null);
 
 if (hadError && !displayPost) {
   Astro.response.status = 502;

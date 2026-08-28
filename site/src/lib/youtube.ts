@@ -22,11 +22,11 @@ export function youtubeEmbedUrl(value: string): string {
   const segments = url.pathname.split('/').filter(Boolean);
   let videoId = '';
 
-  if (host === 'youtu.be') {
+  if (host === 'youtu.be' || host === 'www.youtu.be') {
     videoId = segments[0] ?? '';
   } else if (YOUTUBE_HOSTS.has(host)) {
-    if (url.pathname === '/watch') videoId = url.searchParams.get('v') ?? '';
-    else if (['embed', 'shorts', 'live'].includes(segments[0])) videoId = segments[1] ?? '';
+    if (segments[0] === 'watch') videoId = url.searchParams.get('v') ?? '';
+    else if (['embed', 'shorts', 'live', 'v'].includes(segments[0])) videoId = segments[1] ?? '';
   }
 
   return VIDEO_ID.test(videoId)

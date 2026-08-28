@@ -3,7 +3,14 @@ import Layout from '../../layouts/Layout.astro';
 import StickerBadge from '../../components/StickerBadge.astro';
 import EmptyState from '../../components/EmptyState.astro';
 import { Image } from 'astro:assets';
-import { getBlogPosts, getBlogCategories, mediaUrl, type BlogCategory, type BlogPost } from '../../lib/strapi';
+import {
+  getBlogPosts,
+  getBlogCategories,
+  mediaUrl,
+  SHOW_EXAMPLE_CONTENT,
+  type BlogCategory,
+  type BlogPost,
+} from '../../lib/strapi';
 
 let posts: BlogPost[] = [];
 let categories: BlogCategory[] = [];
@@ -30,7 +37,8 @@ const fallbackCategories: BlogCategory[] = [
   { id: 5, documentId: 'cat-5', name: 'Cats', slug: 'cats', order: 5 },
 ];
 
-const displayCategories = categories.length > 0 ? categories : fallbackCategories;
+const displayCategories =
+  categories.length > 0 ? categories : SHOW_EXAMPLE_CONTENT ? fallbackCategories : [];
 
 const fallbackPosts: BlogPost[] = [
   {
@@ -57,13 +65,27 @@ const fallbackPosts: BlogPost[] = [
   },
 ];
 
+const categorySlug = (cat?: BlogCategory | string | null) => {
+  if (!cat) return '';
+  return typeof cat === 'string' ? cat : cat.slug;
+};
+
 const categoryLabel = (cat?: BlogCategory | string | null) => {
   if (!cat) return '';
   if (typeof cat === 'string') return cat;
   return cat.name;
 };
 
-const displayPosts = posts.length > 0 ? posts : (hadError ? fallbackPosts : []);
+// The samples are demo content, so they must answer the active filter the same
+// way real posts would rather than appearing under every category.
+const displayPosts =
+  posts.length > 0
+    ? posts
+    : hadError && SHOW_EXAMPLE_CONTENT
+      ? fallbackPosts.filter(
+          (p) => !currentCategory || categorySlug(p.category) === currentCategory
+        )
+      : [];
 const featuredPost = displayPosts.find((p) => p.featured) ?? displayPosts[0];
 const regularPosts = displayPosts.filter((p) => p !== featuredPost);
 ---
