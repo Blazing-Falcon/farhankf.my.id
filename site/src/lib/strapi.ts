@@ -4,6 +4,11 @@
 const STRAPI_URL = process.env.STRAPI_URL ?? import.meta.env.STRAPI_URL;
 const STRAPI_TOKEN = process.env.STRAPI_TOKEN ?? import.meta.env.STRAPI_TOKEN;
 
+// The example posts and PDFs exist to demo the article blocks on a fresh
+// install. Off by default so an outage never serves invented content as real.
+export const SHOW_EXAMPLE_CONTENT =
+  (process.env.SEED_EXAMPLES ?? import.meta.env.SEED_EXAMPLES) === 'true';
+
 export interface StrapiMedia {
   id: number;
   documentId: string;
@@ -99,6 +104,7 @@ export interface BlogPost {
   featured: boolean;
   readTime?: string | null;
   publishedDate?: string | null;
+  updatedAt?: string | null;
   contentBlocks?: ArticleContentBlock[] | null;
 }
 

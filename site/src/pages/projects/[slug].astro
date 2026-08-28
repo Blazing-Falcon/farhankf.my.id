@@ -28,7 +28,12 @@ if (hadError) {
 
 const bodyHtml = project?.body ? renderMarkdown(project.body) : '';
 const hasBlocks = project?.contentBlocks && project.contentBlocks.length > 0;
-const year = project?.finishedAt ? new Date(project.finishedAt).getFullYear() : null;
+// null for anything Date cannot parse, so a malformed CMS date drops the badge
+// and the dateCreated field instead of throwing the whole page away.
+const finishedAt = project?.finishedAt ? new Date(project.finishedAt) : null;
+const finishedIso =
+  finishedAt && !Number.isNaN(finishedAt.getTime()) ? finishedAt.toISOString() : null;
+const year = finishedIso ? new Date(finishedIso).getFullYear() : null;
 
 const difficultyLabels: Record<string, string> = {
   'weekend-hack': 'Weekend hack',
@@ -49,14 +54,13 @@ const projectJsonLd = project
       '@id': `${canonicalUrl}#project`,
       name: project.title,
       description: project.summary,
-      ...(project.finishedAt && {
-        dateCreated: new Date(project.finishedAt).toISOString(),
-      }),
+      url: canonicalUrl,
+      ...(finishedIso && { dateCreated: finishedIso }),
       ...(project.repoUrl && {
         codeRepository: project.repoUrl,
       }),
       ...(project.projectUrl && {
-        url: project.projectUrl,
+        sameAs: project.projectUrl,
       }),
       author: {
         '@id': `${siteUrl}#person`,
@@ -68,6 +72,8 @@ const projectJsonLd = project
 <Layout
   title={project?.title ?? 'Project not found'}
   description={project?.summary}
+  ogType={project ? 'article' : 'website'}
+  articleMeta={project ? { publishedTime: finishedIso ?? undefined } : undefined}
   customJsonLd={projectJsonLd}
 >
   {

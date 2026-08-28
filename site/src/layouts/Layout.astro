@@ -113,6 +113,13 @@ const jsonLd = {
       : []),
   ],
 };
+// JSON.stringify leaves `</script` intact, so a CMS-authored title could close
+// the tag and start markup. Escaping the three characters HTML gives meaning to
+// keeps the payload valid JSON while making tag-breakout impossible.
+const jsonLdHtml = JSON.stringify(jsonLd)
+  .replace(/&/g, '\\u0026')
+  .replace(/</g, '\\u003c')
+  .replace(/>/g, '\\u003e');
 ---
 
 <!doctype html>
@@ -127,7 +134,7 @@ const jsonLd = {
     <title>{fullTitle}</title>
 
     {/* Identity for search engines: which person this domain belongs to. */}
-    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
+    <script type="application/ld+json" set:html={jsonLdHtml} is:inline />
 
 
     {/* Link previews: WhatsApp, Discord, Slack, Telegram all read these. */}

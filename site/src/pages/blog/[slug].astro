@@ -4,8 +4,8 @@ import StickerBadge from '../../components/StickerBadge.astro';
 import EmptyState from '../../components/EmptyState.astro';
 import CatMiso from '../../components/cats/CatMiso.astro';
 import ArticleContent from '../../components/ArticleContent.astro';
-import { Image } from 'astro:assets';
-import { getBlogPostBySlug, mediaUrl, type BlogPost } from '../../lib/strapi';
+import { Image, getImage } from 'astro:assets';
+import { getBlogPostBySlug, mediaUrl, SHOW_EXAMPLE_CONTENT, type BlogPost } from '../../lib/strapi';
 
 const { slug } = Astro.params;
 
@@ -75,17 +75,42 @@ const base = Astro.site ?? Astro.url;
 const canonicalUrl = new URL(Astro.url.pathname, base).href;
 const siteUrl = new URL('/', base).href;
 
+// Returns an ISO timestamp, or undefined for anything Date cannot parse, so a
+// malformed CMS date drops one field instead of throwing the page away.
+function isoDate(value: string | null | undefined): string | undefined {
+  if (!value) return undefined;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
+}
+
+const publishedIso = isoDate(displayPost?.publishedDate);
+const modifiedIso = isoDate(displayPost?.updatedAt);
+
+// mediaUrl() yields the internal Strapi origin (http://cms:1337) in production,
+// which no crawler can reach. /_image serves the same bytes from this origin.
+let coverUrl = '';
+const coverSrc = mediaUrl(displayPost?.coverImage);
+if (coverSrc && displayPost?.coverImage?.width && displayPost.coverImage.height) {
+  try {
+    const width = Math.min(displayPost.coverImage.width, 1200);
+    const height = Math.round(displayPost.coverImage.height * (width / displayPost.coverImage.width));
+    const optimized = await getImage({ src: coverSrc, width, height, format: 'webp' });
+    coverUrl = new URL(optimized.src, base).href;
+  } catch {
+    // no-op: image is simply omitted from the BlogPosting node
+  }
+}
+
 const blogPostJsonLd = displayPost
   ? {
       '@type': 'BlogPosting',
       '@id': `${canonicalUrl}#article`,
-      mainEntityOfPage: canonicalUrl,
+      mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl },
       headline: displayPost.title,
       description: displayPost.summary,
-      ...(displayPost.publishedDate && {
-        datePublished: new Date(displayPost.publishedDate).toISOString(),
-        dateModified: new Date(displayPost.publishedDate).toISOString(),
-      }),
+      ...(coverUrl && { image: coverUrl }),
+      ...(publishedIso && { datePublished: publishedIso }),
+      ...((modifiedIso ?? publishedIso) && { dateModified: modifiedIso ?? publishedIso }),
       articleSection: categoryName,
       author: {
         '@id': `${siteUrl}#person`,
@@ -104,9 +129,8 @@ const blogPostJsonLd = displayPost
   articleMeta={
     displayPost
       ? {
-          publishedTime: displayPost.publishedDate
-            ? new Date(displayPost.publishedDate).toISOString()
-            : undefined,
+          publishedTime: publishedIso,
+          modifiedTime: modifiedIso,
           section: categoryName,
         }
       : undefined
@@ -139,10 +163,10 @@ const blogPostJsonLd = displayPost
           <h1 data-reveal>{displayPost.title}</h1>
           <p class="summary">{displayPost.summary}</p>
           <div class="post-meta-bar">
-            {displayPost.publishedDate && (
-              <time datetime={displayPost.publishedDate}>
+            {publishedIso && (
+              <time datetime={publishedIso}>
                 Published on{' '}
-                {new Date(displayPost.publishedDate).toLocaleDateString('en-US', {
+                {new Date(publishedIso).toLocaleDateString('en-US', {
                   month: 'long',
                   day: 'numeric',
                   year: 'numeric',
