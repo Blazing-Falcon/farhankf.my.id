@@ -1,0 +1,18 @@
+{
+  "photoCategories": [
+    { "name": "Street", "slug": "street", "order": 1 },
+    { "name": "Landscape", "slug": "landscape", "order": 2 },
+    { "name": "Astrophotography", "slug": "astrophotography", "order": 3 },
+    { "name": "Cat", "slug": "cat", "order": 4 },
+    { "name": "Portrait", "slug": "portrait", "order": 5 },
+    { "name": "Macro", "slug": "macro", "order": 6 },
+    { "name": "Other", "slug": "other", "order": 7 }
+  ],
+  "blogCategories": [
+    { "name": "Engineering", "slug": "engineering", "order": 1 },
+    { "name": "Design", "slug": "design", "order": 2 },
+    { "name": "Data Science", "slug": "data-science", "order": 3 },
+    { "name": "Notes", "slug": "notes", "order": 4 },
+    { "name": "Cats", "slug": "cats", "order": 5 }
+  ]
+}

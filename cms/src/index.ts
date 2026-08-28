@@ -44,7 +44,8 @@ async function setPublicApiPermissions(strapi: Core.Strapi) {
       }
     }
   } catch (err) {
-    console.warn('Could not ensure public API permissions:', err);
+    strapi.log.error('Could not ensure public API permissions; the public API would answer 403.');
+    throw err;
   }
 }
 
@@ -53,6 +54,8 @@ export default {
 
   async bootstrap({ strapi }: { strapi: Core.Strapi }) {
     await setPublicApiPermissions(strapi);
-    await seedExampleContent(strapi);
+    if (process.env.SEED_EXAMPLES) {
+      await seedExampleContent(strapi);
+    }
   },
 };

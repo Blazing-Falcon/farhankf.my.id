@@ -2,23 +2,16 @@
 
 /**
  * Migration: Migrate photos category enumeration to photo_categories relation
- * 
- * Guarantees zero downtime and non-breaking migration for deployed databases:
- * 1. Creates photo_categories table if it does not exist yet.
- * 2. Seeds standard photo categories (street, landscape, astrophotography, cat, portrait, macro, other) if missing.
- * 3. Migrates legacy photo records that have string `category` values to relational `photos_category_lnk` links.
- * 4. Ensures public permissions for photo-category and photo endpoints are active.
+ *
+ * 1. Creates photo_categories and photos_category_lnk if they do not exist yet.
+ * 2. Seeds the standard photo categories as draft/published document pairs.
+ * 3. Back-fills links for legacy photo rows that still carry a string `category`
+ *    column. Once Strapi's schema sync has dropped that column the back-fill can
+ *    no longer run, so a database that reaches this migration late keeps its
+ *    photos uncategorised.
  */
 
-const categories = [
-  { name: 'Street', slug: 'street', order: 1 },
-  { name: 'Landscape', slug: 'landscape', order: 2 },
-  { name: 'Astrophotography', slug: 'astrophotography', order: 3 },
-  { name: 'Cat', slug: 'cat', order: 4 },
-  { name: 'Portrait', slug: 'portrait', order: 5 },
-  { name: 'Macro', slug: 'macro', order: 6 },
-  { name: 'Other', slug: 'other', order: 7 },
-];
+const { photoCategories } = require('../../src/categories.json');
 
 function generateDocumentId() {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -52,63 +45,73 @@ module.exports = {
     if (!hasPhotosLnk) {
       await knex.schema.createTable('photos_category_lnk', (table) => {
         table.increments('id').primary();
-        table.integer('photo_id');
-        table.integer('photo_category_id');
+        table.integer('photo_id').references('id').inTable('photos').onDelete('CASCADE');
+        table.integer('photo_category_id').references('id').inTable('photo_categories').onDelete('CASCADE');
         table.float('photo_ord');
       });
     }
 
     const now = Date.now();
-    for (const cat of categories) {
+    for (const cat of photoCategories) {
       const existing = await knex('photo_categories').where({ slug: cat.slug }).first();
       if (!existing) {
-        await knex('photo_categories').insert({
-          document_id: generateDocumentId(),
+        // Draft-and-publish needs two rows per document: a draft and a published one.
+        const documentId = generateDocumentId();
+        const base = {
+          document_id: documentId,
           name: cat.name,
           slug: cat.slug,
           order: cat.order,
           created_at: now,
           updated_at: now,
-          published_at: now,
-        });
+        };
+        await knex('photo_categories').insert({ ...base, published_at: null });
+        await knex('photo_categories').insert({ ...base, published_at: now });
       }
     }
 
     const hasPhotos = await knex.schema.hasTable('photos');
-    if (hasPhotos) {
-      const hasCategoryCol = await knex.schema.hasColumn('photos', 'category');
-      if (hasCategoryCol) {
-        const photosWithCategory = await knex('photos')
-          .whereNotNull('category')
-          .whereNot('category', '');
+    const hasCategoryCol = hasPhotos && (await knex.schema.hasColumn('photos', 'category'));
+    if (!hasCategoryCol) {
+      console.info(
+        '[migrate-photo-categories] Legacy `photos.category` column is absent; skipping back-fill of photos_category_lnk.'
+      );
+      return;
+    }
 
-        const allCategories = await knex('photo_categories').select('id', 'slug', 'name');
-        const categoryMap = new Map();
-        for (const cat of allCategories) {
-          if (cat.slug) categoryMap.set(cat.slug.toLowerCase(), cat.id);
-          if (cat.name) categoryMap.set(cat.name.toLowerCase(), cat.id);
-        }
+    const photosWithCategory = await knex('photos').whereNotNull('category').whereNot('category', '');
 
-        for (const photo of photosWithCategory) {
-          const rawCat = String(photo.category).trim().toLowerCase();
-          const targetCategoryId = categoryMap.get(rawCat) || categoryMap.get('other');
+    const allCategories = await knex('photo_categories').select('id', 'slug', 'name', 'published_at');
+    const categoryMap = new Map();
+    for (const cat of allCategories) {
+      const target = categoryMap.get(cat.slug && cat.slug.toLowerCase()) || {};
+      const entry = { ...target, [cat.published_at ? 'published' : 'draft']: cat.id };
+      if (cat.slug) categoryMap.set(cat.slug.toLowerCase(), entry);
+      if (cat.name) categoryMap.set(cat.name.toLowerCase(), entry);
+    }
 
-          if (targetCategoryId) {
-            const existingLink = await knex('photos_category_lnk')
-              .where({ photo_id: photo.id })
-              .first();
+    let linked = 0;
+    for (const photo of photosWithCategory) {
+      const rawCat = String(photo.category).trim().toLowerCase();
+      const target = categoryMap.get(rawCat) || categoryMap.get('other');
+      // Strapi pairs a draft entry with a draft relation and a published one with a published relation.
+      const targetCategoryId = target && (photo.published_at ? target.published : target.draft);
+      if (!targetCategoryId) continue;
 
-            if (!existingLink) {
-              await knex('photos_category_lnk').insert({
-                photo_id: photo.id,
-                photo_category_id: targetCategoryId,
-                photo_ord: 1,
-              });
-            }
-          }
-        }
+      const existingLink = await knex('photos_category_lnk').where({ photo_id: photo.id }).first();
+      if (!existingLink) {
+        await knex('photos_category_lnk').insert({
+          photo_id: photo.id,
+          photo_category_id: targetCategoryId,
+          photo_ord: 1,
+        });
+        linked += 1;
       }
     }
+
+    console.info(
+      `[migrate-photo-categories] Back-filled ${linked} of ${photosWithCategory.length} legacy photo category values.`
+    );
   },
 
   async down(knex) {
