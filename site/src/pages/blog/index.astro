@@ -14,7 +14,7 @@ const currentCategory = Astro.url.searchParams.get('category');
 try {
   const [fetchedCategories, fetchedPosts] = await Promise.all([
     getBlogCategories(),
-    getBlogPosts(currentCategory ? { category: currentCategory } : {}),
+    getBlogPosts({ withContent: false, ...(currentCategory ? { category: currentCategory } : {}) }),
   ]);
   categories = fetchedCategories;
   posts = fetchedPosts;

@@ -41,7 +41,7 @@ try {
     getProjects({ featuredOnly: true }),
     getPhotos({ featuredOnly: true }),
     getLabNotes(),
-    getBlogPosts(),
+    getBlogPosts({ withContent: false }),
   ]);
 } catch {
   hadError = true;

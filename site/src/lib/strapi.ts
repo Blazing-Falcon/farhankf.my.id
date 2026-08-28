@@ -239,6 +239,33 @@ export async function strapiFetch<T>(
   return promise;
 }
 
+// Strapi caps pageSize at 100, so any list that can outgrow that must walk the
+// pages itself. Page 1 carries the pageCount, so the extra pages are only
+// fetched when they exist.
+async function strapiFetchAll<T>(
+  path: string,
+  params: Record<string, string> = {}
+): Promise<T[]> {
+  const first = await strapiFetch<StrapiListResponse<T>>(path, {
+    ...params,
+    'pagination[pageSize]': '100',
+    'pagination[page]': '1',
+  });
+  const pageCount = first.meta.pagination?.pageCount ?? 1;
+  if (pageCount <= 1) return first.data;
+
+  const rest = await Promise.all(
+    Array.from({ length: pageCount - 1 }, (_, i) =>
+      strapiFetch<StrapiListResponse<T>>(path, {
+        ...params,
+        'pagination[pageSize]': '100',
+        'pagination[page]': String(i + 2),
+      })
+    )
+  );
+  return first.data.concat(...rest.map((res) => res.data));
+}
+
 export async function getAbout(): Promise<About | null> {
   const res = await strapiFetch<StrapiSingleResponse<About>>('/about', { populate: '*' });
   return res.data;
@@ -265,7 +292,6 @@ export async function getProjects({
   const params: Record<string, string> = {
     'populate[coverImage]': 'true',
     sort: 'finishedAt:desc',
-    'pagination[pageSize]': '100',
   };
   PROJECT_CARD_FIELDS.forEach((field, i) => {
     params[`fields[${i}]`] = field;
@@ -273,24 +299,23 @@ export async function getProjects({
   if (featuredOnly) {
     params['filters[featured][$eq]'] = 'true';
   }
-  const res = await strapiFetch<StrapiListResponse<Project>>('/projects', params);
-  return res.data;
+  return strapiFetchAll<Project>('/projects', params);
 }
 
 export async function getProjectBySlug(slug: string): Promise<Project | null> {
   const res = await strapiFetch<StrapiListResponse<Project>>('/projects', {
-    populate: '*',
+    'populate[coverImage]': 'true',
+    'populate[gallery]': 'true',
+    // populate=* stops one level deep, which leaves the media inside each
+    // contentBlocks component unpopulated and renders those blocks as nothing.
+    'populate[contentBlocks][populate]': '*',
     'filters[slug][$eq]': slug,
   });
   return res.data[0] ?? null;
 }
 
 export async function getPhotoCategories(): Promise<PhotoCategory[]> {
-  const res = await strapiFetch<StrapiListResponse<PhotoCategory>>('/photo-categories', {
-    sort: 'order:asc',
-    'pagination[pageSize]': '100',
-  });
-  return res.data;
+  return strapiFetchAll<PhotoCategory>('/photo-categories', { sort: 'order:asc' });
 }
 
 export async function getPhotos({
@@ -300,17 +325,14 @@ export async function getPhotos({
   const params: Record<string, string> = {
     populate: '*',
     sort: 'shotAt:desc',
-    'pagination[pageSize]': '100',
   };
   if (category) {
-    params['filters[$or][0][category][slug][$eq]'] = category;
-    params['filters[$or][1][category][$eq]'] = category;
+    params['filters[category][slug][$eq]'] = category;
   }
   if (featuredOnly) {
     params['filters[featured][$eq]'] = 'true';
   }
-  const res = await strapiFetch<StrapiListResponse<Photo>>('/photos', params);
-  return res.data;
+  return strapiFetchAll<Photo>('/photos', params);
 }
 
 export async function getCats(): Promise<Cat[]> {
@@ -344,33 +366,33 @@ export async function getSocialLinks(): Promise<SocialLink[]> {
 }
 
 export async function getBlogCategories(): Promise<BlogCategory[]> {
-  const res = await strapiFetch<StrapiListResponse<BlogCategory>>('/blog-categories', {
-    sort: 'order:asc',
-    'pagination[pageSize]': '100',
-  });
-  return res.data;
+  return strapiFetchAll<BlogCategory>('/blog-categories', { sort: 'order:asc' });
 }
 
 export async function getBlogPosts({
   category,
   featuredOnly = false,
-}: { category?: string; featuredOnly?: boolean } = {}): Promise<BlogPost[]> {
+  withContent = true,
+}: { category?: string; featuredOnly?: boolean; withContent?: boolean } = {}): Promise<
+  BlogPost[]
+> {
   const params: Record<string, string> = {
     'populate[coverImage]': 'true',
     'populate[category]': 'true',
-    'populate[contentBlocks][populate]': '*',
     sort: 'publishedDate:desc',
-    'pagination[pageSize]': '100',
   };
+  // Article bodies, their images and their PDF metadata are megabytes that only
+  // the detail page reads; callers that render cards or URLs opt out.
+  if (withContent) {
+    params['populate[contentBlocks][populate]'] = '*';
+  }
   if (category) {
-    params['filters[$or][0][category][slug][$eq]'] = category;
-    params['filters[$or][1][category][$eq]'] = category;
+    params['filters[category][slug][$eq]'] = category;
   }
   if (featuredOnly) {
     params['filters[featured][$eq]'] = 'true';
   }
-  const res = await strapiFetch<StrapiListResponse<BlogPost>>('/blog-posts', params);
-  return res.data;
+  return strapiFetchAll<BlogPost>('/blog-posts', params);
 }
 
 export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
