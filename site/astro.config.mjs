@@ -41,8 +41,8 @@ export default defineConfig({
       styleDirective: { resources: ["'self'", "'unsafe-inline'"] },
       directives: [
         "default-src 'self'",
-        "img-src 'self' data: http://localhost:1337 http://cms:1337",
-        "connect-src 'self' http://localhost:1337 http://cms:1337 data: blob:",
+        "img-src 'self' data:",
+        "connect-src 'self' data: blob:",
         "frame-src 'self' https://www.youtube-nocookie.com",
         "worker-src 'self' blob:",
         "object-src 'none'",
@@ -55,8 +55,9 @@ export default defineConfig({
 
   image: {
     remotePatterns: [
-      // localhost for local dev; `cms` is the Strapi service name on the
-      // docker-compose network.
+      // Server-side only: Astro fetches these through /_image, so the
+      // browser never sees the Strapi origin. localhost for local dev; `cms`
+      // is the Strapi service name on the docker-compose network.
       { protocol: 'http', hostname: 'localhost', port: '1337' },
       { protocol: 'http', hostname: 'cms', port: '1337' }
     ]

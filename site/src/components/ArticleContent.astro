@@ -4,6 +4,7 @@ import { renderMarkdown } from '../lib/markdown';
 import {
   mediaUrl,
   pdfUrl,
+  publicMediaUrl,
   type ArticleContentBlock,
   type ArticleImageBlock,
   type MarkdownTextBlock,
@@ -44,7 +45,7 @@ const contentBlocks = blocks ?? [];
                 alt={imageBlock.altText}
               />
             ) : image?.url ? (
-              <img src={mediaUrl(image)} alt={imageBlock.altText} loading="lazy" />
+              <img src={publicMediaUrl(image)} alt={imageBlock.altText} loading="lazy" />
             ) : null}
             {(imageBlock.caption || imageBlock.source) && (
               <figcaption>

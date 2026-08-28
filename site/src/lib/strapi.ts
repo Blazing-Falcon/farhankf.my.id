@@ -405,12 +405,23 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
   return res.data[0] ?? null;
 }
 
+// Server-side URL. In production STRAPI_URL is the compose service name, which
+// only resolves inside the network — so this is safe for <Image>/getImage (Astro
+// fetches it on the server) and wrong for anything the browser requests itself.
 export function mediaUrl(media: StrapiMedia | null | undefined): string {
   if (!media?.url) return '';
   if (media.url.startsWith('/documents/') || media.url.startsWith('/images/')) return media.url;
   return media.url.startsWith('http') ? media.url : `${STRAPI_URL}${media.url}`;
 }
 
+// Browser-side URL: same-origin, proxied by src/pages/media/[...path].ts.
+export function publicMediaUrl(media: StrapiMedia | null | undefined): string {
+  if (!media?.url) return '';
+  if (media.url.startsWith('/documents/') || media.url.startsWith('/images/')) return media.url;
+  if (media.url.startsWith('http')) return media.url;
+  return `/media${media.url}`;
+}
+
 export function pdfUrl(media: StrapiMedia | null | undefined): string {
-  return mediaUrl(media);
+  return publicMediaUrl(media);
 }
