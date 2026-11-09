@@ -3,7 +3,6 @@ dist
 .tmp
 data
 .cache
-database
 public/uploads
 .env
 .env.*

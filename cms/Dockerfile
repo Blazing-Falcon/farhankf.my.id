@@ -25,7 +25,12 @@ COPY --from=build /app/favicon.png ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/public ./public
+# Strapi runs these before its schema sync. Without them the sync drops the
+# legacy category columns before their values are copied into the relations.
+COPY --from=build /app/database/migrations ./database/migrations
+# The category migrations read their seed list from this file.
+COPY --from=build /app/src/categories.json ./src/categories.json
 # Mount points for persistent state (sqlite db + media). docker-compose binds these.
-RUN mkdir -p data public/uploads database/migrations
+RUN mkdir -p data public/uploads
 EXPOSE 1337
 CMD ["npx", "strapi", "start"]
