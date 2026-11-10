@@ -1,12 +1,12 @@
 ---
-import CatEars from './cats/CatEars.astro';
+import { SITE_NAME } from '../lib/site';
 
 const navItems = [
+  { href: '/', label: 'Home' },
   { href: '/about', label: 'About' },
   { href: '/projects', label: 'Projects' },
   { href: '/blog', label: 'Blog' },
   { href: '/photography', label: 'Photography' },
-  { href: '/links', label: 'Links' },
 ];
 
 const currentPath = Astro.url.pathname;
@@ -14,278 +14,33 @@ const isActive = (href: string) =>
   href === currentPath || (href !== '/' && currentPath.startsWith(href));
 ---
 
-<header class="site-header" id="site-header">
-  <div class="site-header-inner">
-    <a href="/" class="wordmark">
-      <span class="wordmark-letter">f</span>arhankf<span class="wordmark-dot">.</span>cat
-    </a>
-
-    <!-- resident cat, peeking over the bottom edge of the navbar -->
-    <div class="header-cat" aria-hidden="true">
-      <CatEars />
-    </div>
-
-    <nav class="nav-desktop" aria-label="Primary">
-      {
-        navItems.map((item) => (
-          <a
-            href={item.href}
-            class:list={['nav-link', { active: isActive(item.href) }]}
-            data-astro-prefetch
-          >
-            {item.label}
-          </a>
-        ))
-      }
-    </nav>
-
-    <button
-      class="nav-toggle"
-      type="button"
-      aria-expanded="false"
-      aria-controls="mobile-menu"
-      id="nav-toggle"
-    >
-      <span class="sr-only">Toggle menu</span>
-      <span class="nav-toggle-bar"></span>
-      <span class="nav-toggle-bar"></span>
-    </button>
-  </div>
-
-  <div class="mobile-menu" id="mobile-menu" hidden>
-    <nav aria-label="Primary mobile">
-      {
-        navItems.map((item) => (
-          <a
-            href={item.href}
-            class:list={['mobile-nav-link', { active: isActive(item.href) }]}
-            data-astro-prefetch
-          >
-            {item.label}
-          </a>
-        ))
-      }
-    </nav>
-  </div>
+<header class="rh">
+  <a class="wm" href="/">{SITE_NAME}</a>
+  <nav aria-label="Main">
+    {
+      navItems.map((item) => (
+        <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined} data-astro-prefetch>
+          {item.label}
+        </a>
+      ))
+    }
+  </nav>
+  <button type="button" id="theme-toggle" title="Switch colour theme">
+    <span class="to-light">Light</span><span class="to-dark">Dark</span>
+  </button>
 </header>
 
 <script>
-  const toggle = document.getElementById('nav-toggle');
-  const menu = document.getElementById('mobile-menu');
+  const root = document.documentElement;
 
-  toggle?.addEventListener('click', () => {
-    const isOpen = toggle.getAttribute('aria-expanded') === 'true';
-    toggle.setAttribute('aria-expanded', String(!isOpen));
-    if (isOpen) {
-      menu?.setAttribute('hidden', '');
-    } else {
-      menu?.removeAttribute('hidden');
-    }
-    document.body.style.overflow = isOpen ? '' : 'hidden';
+  document.getElementById('theme-toggle')?.addEventListener('click', () => {
+    const isDark = root.dataset.theme
+      ? root.dataset.theme === 'dark'
+      : !matchMedia('(prefers-color-scheme: light)').matches;
+    const next = isDark ? 'light' : 'dark';
+    root.dataset.theme = next;
+    // The server reads this on the next request and renders the page in the
+    // chosen theme, so there is no flash of the other one.
+    document.cookie = `theme=${next}; Path=/; Max-Age=31536000; SameSite=Lax`;
   });
-
-  // Tiny hard shadow once the page starts scrolling under the bar.
-  const header = document.getElementById('site-header');
-  const onScroll = () => {
-    if (window.scrollY > 8) {
-      header?.setAttribute('data-scrolled', '');
-    } else {
-      header?.removeAttribute('data-scrolled');
-    }
-  };
-  onScroll();
-  window.addEventListener('scroll', onScroll, { passive: true });
 </script>
-
-<style>
-  .site-header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: var(--paper);
-    border-bottom: var(--border-thick);
-    transition: box-shadow 0.25s ease-out;
-  }
-
-  .site-header[data-scrolled] {
-    box-shadow: 0 4px 0 rgba(26, 27, 35, 0.12);
-  }
-
-  .site-header-inner {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: var(--space-4) var(--space-5);
-  }
-
-  .wordmark {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 1.6rem;
-    letter-spacing: -0.02em;
-    color: var(--ink);
-    text-decoration: none;
-    position: relative;
-  }
-
-  .wordmark-letter {
-    position: relative;
-  }
-
-  .wordmark-letter::before {
-    content: '';
-    position: absolute;
-    top: -0.5em;
-    left: 0.05em;
-    width: 0;
-    height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-bottom: 9px solid var(--ink);
-    transform: rotate(-8deg);
-  }
-
-  .wordmark-dot {
-    color: var(--tangerine);
-  }
-
-  /* The peeker: anchored to the header's bottom border, only ears + eyes
-     showing. Rises a touch when someone notices it. */
-  .header-cat {
-    position: absolute;
-    bottom: -2px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 58px;
-    line-height: 0;
-    pointer-events: none;
-    overflow: hidden;
-  }
-
-  .header-cat :global(svg) {
-    display: block;
-    transform: translateY(14px);
-    transition: transform 0.3s ease-out;
-  }
-
-  .site-header:hover .header-cat :global(svg) {
-    transform: translateY(3px);
-  }
-
-  .nav-desktop {
-    display: none;
-    gap: var(--space-3);
-  }
-
-  .nav-link {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    font-family: var(--font-mono);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: var(--ink);
-    text-decoration: none;
-    padding: var(--space-2) var(--space-4);
-    border-radius: var(--radius-pill);
-    transition: background-color 0.2s ease-out;
-  }
-
-  .nav-link:hover,
-  .nav-link:focus-visible {
-    background: var(--blush);
-    text-decoration: none;
-  }
-
-  .nav-link.active {
-    background: var(--butter);
-  }
-
-  .nav-toggle {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    justify-content: center;
-    align-items: center;
-    width: 44px;
-    height: 44px;
-    background: none;
-    border: var(--border-thick);
-    border-radius: var(--radius-card);
-    cursor: pointer;
-  }
-
-  .nav-toggle-bar {
-    width: 18px;
-    height: 2px;
-    background: var(--ink);
-  }
-
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-
-  .mobile-menu {
-    position: fixed;
-    inset: 0;
-    top: 78px;
-    background: var(--paper);
-    z-index: 99;
-    padding: var(--space-6) var(--space-5);
-  }
-
-  .mobile-menu nav {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-5);
-  }
-
-  .mobile-nav-link {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 2.5rem;
-    letter-spacing: -0.02em;
-    color: var(--ink);
-    text-decoration: none;
-  }
-
-  .mobile-nav-link.active {
-    color: var(--tangerine);
-  }
-
-  @media (min-width: 768px) {
-    .nav-desktop {
-      display: flex;
-    }
-
-    .nav-toggle {
-      display: none;
-    }
-
-    .mobile-menu {
-      display: none;
-    }
-  }
-
-  @media (max-width: 519px) {
-    .header-cat {
-      display: none;
-    }
-  }
-</style>

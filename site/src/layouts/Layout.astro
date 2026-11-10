@@ -2,11 +2,10 @@
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import CatPeek from '../components/cats/CatPeek.astro';
-import CatWalk from '../components/cats/CatWalk.astro';
-import PawPrint from '../components/cats/PawPrint.astro';
 import { getImage } from 'astro:assets';
 import { getSocialLinks, mediaUrl, type About } from '../lib/strapi';
+import { OWNER } from '../lib/site';
+import { parseDate, shortDate } from '../lib/dates';
 
 interface Props {
   title: string;
@@ -28,9 +27,11 @@ interface Props {
   };
   /** Additional Schema.org JSON-LD entities to merge into the graph. */
   customJsonLd?: Record<string, unknown> | Array<Record<string, unknown>>;
+  /** The bracketed category and the date of the identifier line. */
+  identifier?: { bracket?: string | null; date?: string | null };
+  /** When the page's content last changed. Omitted from the page when unknown. */
+  revised?: string | Date | null;
 }
-
-const OWNER = 'Farhan Kurnia Febriansyah';
 
 const {
   title,
@@ -41,7 +42,18 @@ const {
   ogType = 'website',
   articleMeta,
   customJsonLd,
+  identifier,
+  revised,
 } = Astro.props;
+
+// An explicit choice from the header toggle. Without it the stylesheet follows
+// the visitor's system setting, so the attribute is left off entirely.
+const themeCookie = Astro.cookies.get('theme')?.value;
+const theme = themeCookie === 'light' || themeCookie === 'dark' ? themeCookie : undefined;
+
+const revisedDate = parseDate(revised);
+const identifierPath = `${(Astro.site ?? Astro.url).host}${Astro.url.pathname}`;
+const identifierDate = identifier?.date ?? (revisedDate ? `revised ${shortDate(revisedDate)}` : '');
 
 const fullTitle = fullTitleProp ?? `${title} · ${OWNER}`;
 // Crawlers reject relative og:image/og:url — resolve against the configured site.
@@ -123,7 +135,7 @@ const jsonLdHtml = JSON.stringify(jsonLd)
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme={theme}>
   <head>
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -178,23 +190,33 @@ const jsonLdHtml = JSON.stringify(jsonLd)
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
-    {/* Colors the accent stripe on Discord embeds. */}
-    <meta name="theme-color" content="#ff5c00" />
+    {/* Browser chrome matches the page background of the active theme. */}
+    {
+      theme ? (
+        <meta name="theme-color" content={theme === 'light' ? '#fbf1c7' : '#282828'} />
+      ) : (
+        <Fragment>
+          <meta name="theme-color" content="#282828" />
+          <meta name="theme-color" content="#fbf1c7" media="(prefers-color-scheme: light)" />
+        </Fragment>
+      )
+    }
   </head>
   <body>
     <a href="#main" class="skip-link">Skip to content</a>
-    <Header />
-    <main id="main">
-      <slot />
-    </main>
-    <Footer />
-
-    <!-- Inert cat stock for the easter-egg script to clone from. -->
-    <template id="egg-tpl-peek"><CatPeek /></template>
-    <template id="egg-tpl-walk"><CatWalk /></template>
-    <template id="egg-tpl-paw"><PawPrint /></template>
-
-    <script src="../scripts/motion.ts"></script>
-    <script src="../scripts/easter-eggs.ts"></script>
+    <div class="pp">
+      <div class="sheet">
+        <Header />
+        <p class="stamp">
+          <span>{identifierPath}</span>
+          {identifier?.bracket && <span>[{identifier.bracket}]</span>}
+          {identifierDate && <span>{identifierDate}</span>}
+        </p>
+        <main id="main">
+          <slot />
+        </main>
+        <Footer revised={revisedDate} />
+      </div>
+    </div>
   </body>
 </html>
