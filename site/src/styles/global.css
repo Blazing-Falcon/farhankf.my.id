@@ -1,9 +1,13 @@
-@import '@fontsource-variable/bricolage-grotesque';
-@import '@fontsource/instrument-sans';
-@import '@fontsource/instrument-sans/600.css';
-@import '@fontsource/space-mono';
-@import '@fontsource/space-mono/700.css';
+@import '@fontsource/libertinus-serif/400.css';
+@import '@fontsource/libertinus-serif/400-italic.css';
+@import '@fontsource/libertinus-serif/700.css';
+@import '@fontsource/libertinus-serif/700-italic.css';
+@import '@fontsource/libertinus-mono/400.css';
+@import 'katex/dist/katex.min.css';
 @import './tokens.css';
+
+/* The site is typeset like a paper: a centered title block, an abstract,
+   numbered sections, three-rule tables and numbered figures. */
 
 *,
 *::before,
@@ -18,59 +22,42 @@ body {
 }
 
 body {
-  background-color: var(--paper);
-  /* Graph-paper grid — reads as a stats student's lab notebook. Sits behind
-     everything; dark sections paint their own background over it. */
-  background-image:
-    linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-  background-size: var(--grid-size) var(--grid-size);
-  color: var(--ink);
-  font-family: var(--font-body);
-  font-size: var(--text-body);
-  line-height: 1.6;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.45;
+  overflow-wrap: break-word;
 }
 
 ::selection {
-  background: var(--butter);
-  color: var(--ink);
+  background: var(--orange);
+  color: var(--bg);
 }
 
-::-moz-selection {
-  background: var(--butter);
-  color: var(--ink);
-}
-
-h1,
-h2,
-h3,
-h4 {
-  font-family: var(--font-display);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.05;
-  margin: 0;
-}
-
-p {
-  margin: 0 0 var(--space-4);
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
 }
 
 a {
-  color: var(--teal);
-  text-decoration-color: var(--butter);
-  text-underline-offset: 3px;
+  color: var(--orange);
+  text-decoration: none;
 }
 
-/* Hand-drawn feel: links get a wavy tangerine underline on hover/focus */
-a:hover,
-a:focus-visible {
-  text-decoration: underline wavy var(--tangerine);
-  text-underline-offset: 3px;
+a:hover {
+  text-decoration: underline;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 3px;
 }
 
 button {
-  font-family: inherit;
+  font: inherit;
 }
 
 .skip-link {
@@ -78,199 +65,678 @@ button {
   left: -9999px;
   top: 0;
   z-index: 1000;
-  background: var(--butter);
-  color: var(--ink);
-  padding: var(--space-2) var(--space-4);
-  border: var(--border-thick);
-  border-radius: var(--radius-card);
+  padding: 8px 14px;
+  background: var(--bg1);
+  color: var(--fg0);
 }
 
 .skip-link:focus {
-  left: var(--space-4);
-  top: var(--space-4);
+  left: 8px;
+  top: 8px;
 }
 
-:focus-visible {
-  outline: 2px solid var(--tangerine);
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.tty {
+  font-family: var(--mono);
+  font-size: 0.84em;
+}
+
+.sc {
+  font-variant-caps: small-caps;
+  letter-spacing: 0.05em;
+}
+
+/* Page root. Sections, figures, tables and reference entries are numbered
+   per page, across components, so their counters live here. */
+.pp {
+  container-type: inline-size;
+  position: relative;
+  min-height: 100vh;
+  hyphens: auto;
+  counter-reset: sec fig tbl ref;
+}
+
+.sheet {
+  max-width: var(--sheet);
+  margin: 0 auto;
+  padding: 0 var(--gutter) 72px;
+}
+
+/* Running head, which is also the navigation. */
+.rh {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0 28px;
+  border-bottom: 1px solid var(--bg3);
+  padding-top: 12px;
+  font-variant-caps: small-caps;
+  letter-spacing: 0.05em;
+}
+
+.rh a,
+.rh button {
+  display: inline-block;
+  padding: 10px 0;
+  min-height: 44px;
+  color: var(--fg);
+}
+
+.rh .wm {
+  font-weight: 700;
+  color: var(--fg0);
+}
+
+.rh nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 26px;
+}
+
+.rh a:hover {
+  color: var(--orange);
+  text-decoration: none;
+}
+
+.rh a[aria-current] {
+  color: var(--fg0);
+  text-decoration: underline 1px var(--orange);
+  text-underline-offset: 6px;
+}
+
+.rh button {
+  font-variant-caps: small-caps;
+  letter-spacing: 0.05em;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.rh button:hover {
+  color: var(--orange);
+}
+
+/* The toggle names the theme it switches to. */
+.to-dark {
+  display: none;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) .to-dark {
+    display: inline;
+  }
+
+  :root:not([data-theme]) .to-light {
+    display: none;
+  }
+}
+
+:root[data-theme='light'] .to-dark {
+  display: inline;
+}
+
+:root[data-theme='light'] .to-light {
+  display: none;
+}
+
+/* The identifier that runs up the left edge of a preprint. */
+.stamp {
+  position: absolute;
+  left: 28px;
+  top: 240px;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  white-space: nowrap;
+  font-size: 21px;
+  letter-spacing: 0.02em;
+  color: var(--mute);
+  margin: 0;
+  hyphens: none;
+}
+
+.stamp span + span {
+  margin-top: 0.8em;
+}
+
+/* Title block */
+.tb {
+  text-align: center;
+  padding: 52px 0 0;
+}
+
+.tt {
+  font-size: clamp(33px, 4.2cqi, 50px);
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--fg0);
+  margin: 0 0 22px;
+  text-wrap: balance;
+}
+
+.au {
+  font-size: 23px;
+  margin: 0 0 4px;
+}
+
+.af {
+  font-size: 17.5px;
+  font-style: italic;
+  margin: 0;
+}
+
+.dt {
+  font-size: 17.5px;
+  margin: 12px 0 0;
+}
+
+.abs {
+  max-width: 660px;
+  margin: 32px auto 0;
+  text-align: justify;
+}
+
+.abs h2 {
+  font-size: 19px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--fg0);
+  margin: 0 0 8px;
+}
+
+.abs p {
+  margin: 0 0 0.6em;
+}
+
+.abs .center {
+  text-align: center;
+}
+
+.kw-on {
+  font-weight: 700;
+  color: var(--fg0);
+}
+
+/* Body text: justified, paragraphs marked by an indent instead of a gap. */
+.bd p {
+  margin: 0;
+  text-align: justify;
+}
+
+.bd p + p {
+  text-indent: 1.5em;
+}
+
+.bd ul,
+.bd ol {
+  margin: 0.6em 0;
+  padding-left: 1.6em;
+}
+
+.bd li {
+  margin: 0.15em 0;
+}
+
+.bd blockquote {
+  margin: 0.8em 0;
+  padding: 0 0 0 1.2em;
+  border-left: 1px solid var(--bg3);
+  font-style: italic;
+}
+
+.bd hr {
+  border: 0;
+  border-top: 1px solid var(--bg3);
+  width: 200px;
+  margin: 1.4em auto;
+}
+
+.bd h3,
+.bd h4 {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--fg0);
+  margin: 1.2em 0 0.3em;
+}
+
+.bd h4 {
+  font-style: italic;
+  font-weight: 400;
+}
+
+.bd code {
+  font-family: var(--mono);
+  font-size: 0.84em;
+  hyphens: none;
+}
+
+/* Wide content scrolls inside its own box, never the page. */
+.bd pre,
+.lst {
+  margin: 0.9em 0;
+  background: var(--bg1);
+  border-top: 1px solid var(--bg3);
+  border-bottom: 1px solid var(--bg3);
+  padding: 12px 14px;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 15.5px;
+  line-height: 1.5;
+  hyphens: none;
+  overflow-wrap: normal;
+}
+
+.bd pre code {
+  font-size: inherit;
+}
+
+.bd table {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  overflow-x: auto;
+  margin: 0.9em auto;
+  border-collapse: collapse;
+  font-size: 17.5px;
+  line-height: 1.35;
+  border-top: 2px solid var(--fg);
+  border-bottom: 2px solid var(--fg);
+}
+
+.bd table th {
+  font-weight: 400;
+  text-align: left;
+  border-bottom: 1px solid var(--fg);
+  padding: 5px 14px 5px 0;
+}
+
+.bd table td {
+  padding: 4px 14px 4px 0;
+  vertical-align: top;
+}
+
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2px 0;
+}
+
+/* Numbered section headings. */
+h2.s,
+.md h2 {
+  font-size: 23px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--fg0);
+  margin: 1.5em 0 0.5em;
+  text-align: left;
+}
+
+h2.s:not(.nonum)::before,
+.md h2::before {
+  counter-increment: sec;
+  content: counter(sec);
+  margin-right: 0.8em;
+}
+
+.one {
+  max-width: var(--column);
+  margin: 36px auto 0;
+}
+
+.one > :first-child {
+  margin-top: 0;
+}
+
+.wide {
+  margin-left: -160px;
+  margin-right: -160px;
+}
+
+/* Two-column homepage body */
+.cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  column-gap: 56px;
+  align-items: start;
+  margin-top: 44px;
+}
+
+.cl {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+}
+
+.ca {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.cr {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.cl > h2.s:first-child {
+  margin-top: 0;
+}
+
+/* Figure 1 beside Table 1: the portrait spans from the table's top rule to
+   its bottom rule, and both captions share one line below. */
+.am {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 8px 22px;
+  align-items: stretch;
+}
+
+.am .imgw {
+  position: relative;
+  min-height: 150px;
+}
+
+.am .imgw img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.am .cap {
+  margin: 0;
+}
+
+/* Bibliography-style lists */
+.refs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.refs li {
+  display: grid;
+  grid-template-columns: 2.7em minmax(0, 1fr);
+  line-height: 1.4;
+  margin: 0 0 0.75em;
+}
+
+.refs .cite::before {
+  counter-increment: ref;
+  content: '[' counter(ref) ']';
+}
+
+.refs span.cite {
+  color: var(--mute);
+}
+
+.refs a.cite:hover {
+  text-decoration: none;
+}
+
+.refs b {
+  color: var(--fg0);
+}
+
+.refs a b {
+  color: var(--orange);
+}
+
+.more {
+  margin: 0;
+}
+
+/* Three-rule tables */
+.bt {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 17.5px;
+  line-height: 1.35;
+  border-top: 2px solid var(--fg);
+  border-bottom: 2px solid var(--fg);
+}
+
+.bt th {
+  font-weight: 400;
+  text-align: left;
+  border-bottom: 1px solid var(--fg);
+  padding: 5px 14px 5px 0;
+}
+
+.bt td {
+  padding: 4px 14px 4px 0;
+  vertical-align: top;
+}
+
+.bt.rev td:first-child,
+.bt.rev td:nth-child(2) {
+  white-space: nowrap;
+}
+
+.scroll {
+  overflow-x: auto;
+}
+
+.narrow {
+  max-width: 470px;
+  margin: 36px auto 0;
+}
+
+/* Captions. The numbers come from the page counters. */
+.cap,
+.capn,
+.fig figcaption {
+  font-size: 17px;
+  line-height: 1.35;
+  text-align: center;
+  margin: 8px 0 0;
+  text-indent: 0;
+}
+
+.capn {
+  margin: 0 0 8px;
+}
+
+.capf::before {
+  counter-increment: fig;
+  content: 'Figure ' counter(fig) ': ';
+}
+
+.capt::before {
+  counter-increment: tbl;
+  content: 'Table ' counter(tbl) ': ';
+}
+
+/* Figures and subfigures */
+.fig {
+  margin: 1.1em 0;
+}
+
+.fig img {
+  width: 100%;
+}
+
+.fig.crop img {
+  aspect-ratio: 2 / 1;
+  object-fit: cover;
+}
+
+.jr {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.jr > div,
+.jr > a {
+  min-width: 0;
+}
+
+.jr a {
+  display: block;
+  color: inherit;
+}
+
+.jr a:hover {
+  text-decoration: none;
+}
+
+.jr a:hover img,
+.jr a:focus-visible img {
+  outline: 1px solid var(--orange);
   outline-offset: 2px;
 }
 
-.press-shadow {
-  box-shadow: var(--shadow-hard);
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
+.jr img {
+  width: 100%;
+  height: auto;
 }
 
-.press-shadow:hover,
-.press-shadow:focus-visible {
-  transform: translate(3px, 3px);
-  box-shadow: var(--shadow-hard-pressed);
+.sub {
+  font-size: 16.5px;
+  line-height: 1.3;
+  text-align: center;
+  margin: 4px 0 6px;
 }
 
-/* ——— Buttons (shared across pages; keep after .press-shadow so
-   .btn-dark's paper shadow wins the same-specificity cascade) ——— */
+/* Notes set like theorem environments */
+.note {
+  margin: 0 0 0.7em;
+  text-align: justify;
+}
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  font-family: var(--font-mono);
-  text-transform: uppercase;
+.note b {
+  color: var(--fg0);
+}
+
+.preprint {
+  font-size: 17.5px;
+  margin: 12px 0 0;
+  font-variant-caps: small-caps;
   letter-spacing: 0.05em;
-  font-weight: 700;
-  font-size: var(--text-tiny);
-  text-decoration: none;
-  padding: var(--space-3) var(--space-5);
-  border: var(--border-thick);
-  border-radius: var(--radius-card);
 }
 
-.btn-primary {
-  background: var(--tangerine);
-  color: var(--ink);
+/* Footer set as footnotes */
+.fn {
+  margin-top: 56px;
+  font-size: 16.5px;
+  line-height: 1.4;
 }
 
-.btn-secondary {
-  background: var(--paper);
-  color: var(--ink);
+.fn::before {
+  content: '';
+  display: block;
+  width: 200px;
+  border-top: 1px solid var(--fg);
+  margin-bottom: 10px;
 }
 
-.btn-dark {
-  background: var(--ink);
-  color: var(--paper);
-  border-color: var(--paper);
-  box-shadow: 6px 6px 0 var(--paper);
+.fn p {
+  margin: 0 0 3px;
 }
 
-.btn-dark:hover,
-.btn-dark:focus-visible {
-  box-shadow: 3px 3px 0 var(--paper);
+.fn nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 22px;
+  margin-top: 12px;
 }
 
-/* ——— Scroll-reveal hidden state ———
-   Lives here rather than being applied from motion.ts, so it takes effect
-   before the first paint. motion.ts is a deferred script: hiding elements
-   from there happens *after* the server-rendered content has painted, which
-   on a slow connection reads as a flash of content that then blanks.
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 24px;
+  margin-top: 36px;
+}
 
-   `scripting: enabled` keeps the JS-off contract that motion.ts's old eager
-   inline-style hide gave us for free — with JS disabled the rule never applies
-   and all content stays visible. (An inline <head> script would be the usual
-   way to do this, but Astro does not hash `is:inline` scripts, so CSP blocks
-   it — verified against a prod build. CSS has no such problem.)
-
-   motion.ts reveals an element by removing its data-reveal attribute, at which
-   point none of this matches it any more. */
-@media (scripting: enabled) {
-  [data-reveal] {
-    opacity: 0;
-    translate: 0 24px;
-    /* Dead-man's switch. The hidden state above is now CSS, so a motion.ts
-       that never runs (JS error before it starts) would strand the page blank
-       forever — a far worse failure than a skipped animation. If nothing has
-       claimed the reveal within 3s, CSS shows the content itself. */
-    animation: reveal-failsafe 400ms ease-out 3s forwards;
+@container (max-width: 1239px) {
+  .stamp {
+    position: static;
+    writing-mode: horizontal-tb;
+    transform: none;
+    white-space: normal;
+    font-size: 15.5px;
+    padding-top: 8px;
   }
 
-  /* motion.ts sets .motion-ready on <html> as its first act: it is alive and
-     owns every reveal from here, so stand the switch down. */
-  .motion-ready [data-reveal] {
-    animation: none;
+  .stamp span + span {
+    margin-top: 0;
+    margin-left: 0.8em;
+  }
+
+  .wide {
+    margin-left: 0;
+    margin-right: 0;
   }
 }
 
-@keyframes reveal-failsafe {
-  to {
-    opacity: 1;
-    translate: 0 0;
+@container (max-width: 760px) {
+  .sheet {
+    padding: 0 16px 56px;
+    font-size: 18px;
   }
-}
 
-/* ——— Easter-egg elements (spawned by scripts/easter-eggs.ts) ——— */
-
-/* "meow" summons a cat from the bottom edge */
-.egg-meow {
-  position: fixed;
-  bottom: 0;
-  width: 140px;
-  z-index: 300;
-  transform: translateY(105%);
-  transition: transform 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.15);
-  pointer-events: none;
-  line-height: 0;
-}
-
-.egg-meow.egg-meow-up {
-  transform: translateY(10%);
-}
-
-/* the rare walk-across */
-.egg-walk {
-  position: fixed;
-  bottom: -4px;
-  left: 0;
-  width: 130px;
-  z-index: 300;
-  pointer-events: none;
-  line-height: 0;
-  transform: translateX(-160px);
-  animation: egg-walk-across 18s linear forwards;
-}
-
-@keyframes egg-walk-across {
-  from {
-    transform: translateX(-160px);
+  .rh {
+    letter-spacing: 0.03em;
   }
-  to {
-    transform: translateX(calc(100vw + 40px));
+
+  .rh nav {
+    order: 3;
+    width: 100%;
+    gap: 0 13px;
   }
-}
 
-/* cat mode paw sprinkles + toast */
-.egg-paw {
-  position: fixed;
-  width: 42px;
-  z-index: 1;
-  opacity: 0;
-  pointer-events: none;
-  line-height: 0;
-  animation: egg-paw-in 0.5s ease-out forwards;
-}
-
-@keyframes egg-paw-in {
-  from {
-    opacity: 0;
+  .tb {
+    padding-top: 28px;
   }
-  to {
-    opacity: 0.3;
+
+  .cols {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    margin-top: 32px;
   }
-}
 
-.egg-toast {
-  position: fixed;
-  bottom: var(--space-6);
-  left: 50%;
-  transform: translate(-50%, 16px);
-  opacity: 0;
-  z-index: 400;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  font-size: var(--text-tiny);
-  background: var(--butter);
-  color: var(--ink);
-  border: var(--border-thick);
-  border-radius: var(--radius-pill);
-  box-shadow: 4px 4px 0 var(--ink);
-  padding: var(--space-3) var(--space-5);
-  transition:
-    transform 0.3s ease-out,
-    opacity 0.3s ease-out;
-  pointer-events: none;
-}
+  .cl,
+  .ca,
+  .cr {
+    grid-column: 1;
+    grid-row: auto;
+  }
 
-.egg-toast.egg-toast-in {
-  transform: translate(-50%, 0);
-  opacity: 1;
+  .cl > h2.s:first-child {
+    margin-top: 1.5em;
+  }
+
+  .am {
+    grid-template-columns: 104px minmax(0, 1fr);
+    gap: 8px 16px;
+  }
+
+  .abs,
+  .bd p,
+  .note {
+    text-align: left;
+  }
+
+  .jr.stack {
+    flex-direction: column;
+  }
+
+  .jr.stack > * {
+    flex: none !important;
+  }
+
+  .jr .fill {
+    display: none;
+  }
 }

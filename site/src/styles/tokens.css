@@ -1,64 +1,47 @@
+/* Gruvbox, medium contrast. Dark is the default; a visitor's system setting
+   picks light until the header toggle stores an explicit choice on <html>. */
 :root {
-  /* Color: Ink & Tangerine */
-  --paper: #fbf7ef;
-  --ink: #1a1b23;
-  --tangerine: #ff5c00;
-  --teal: #0e7c7b;
-  --butter: #ffd23f;
-  --blush: #ffc4b0;
+  --bg: #282828;
+  --bg1: #3c3836;
+  --bg3: #665c54;
+  --fg: #ebdbb2;
+  --fg0: #fbf1c7;
+  --mute: #a89984;
+  --ln: #bdae93;
+  --orange: #fe8019;
 
-  /* Notebook surface — faint graph-paper grid the cat walks across */
-  --grid-line: rgba(14, 124, 123, 0.07);
-  --grid-size: 26px;
+  --serif: 'Libertinus Serif', 'STIX Two Text', 'Latin Modern Roman', Georgia, serif;
+  --mono: 'Libertinus Mono', 'IBM Plex Mono', ui-monospace, monospace;
 
-  /* Cat coats — the colony's fur palette. Bodies keep the ink outline. */
-  --coat-marmalade: #f2a04b; /* orange tabby */
-  --coat-marmalade-dark: #d97a2b; /* its stripes */
-  --coat-ash: #9aa6b0; /* grey */
-  --coat-ash-dark: #6c7883; /* its stripes */
-  --coat-cream: #f4e6c8; /* siamese body, chests, socks */
-  --coat-cocoa: #6d4a38; /* siamese points, calico patch */
-  --coat-charcoal: #33333f; /* "black" cat — lighter than ink so the outline reads */
-  --coat-tongue: #ff8fa3; /* bleps + tongues */
-  --coat-eye-green: #7ac74f; /* green cat eyes */
-  --coat-eye-blue: #56b4d3; /* siamese blue eyes */
-  --coat-box: #d9a86a; /* cardboard */
-  --coat-box-dark: #b9863f; /* cardboard shadow/flaps */
+  --sheet: 1100px;
+  --column: 700px;
+  --gutter: 40px;
 
-  /* Typography */
-  --font-display: 'Bricolage Grotesque Variable', system-ui, sans-serif;
-  --font-body: 'Instrument Sans', system-ui, sans-serif;
-  --font-mono: 'Space Mono', monospace;
+  color-scheme: dark;
+}
 
-  /* Type scale — five stops, nothing in between. Hero 64–88, section 40–48,
-     sub 24, body 18, small 14–16 (per redesign spec). */
-  --text-hero: clamp(3.25rem, 7.5vw, 5.5rem);
-  --text-section: clamp(2.5rem, 4vw, 3rem);
-  --text-sub: 1.5rem;
-  --text-body: 1.125rem;
-  --text-small: 0.9375rem;
-  --text-tiny: 0.875rem;
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --bg: #fbf1c7;
+    --bg1: #ebdbb2;
+    --bg3: #bdae93;
+    --fg: #3c3836;
+    --fg0: #282828;
+    --mute: #665c54;
+    --ln: #665c54;
+    --orange: #af3a03;
+    color-scheme: light;
+  }
+}
 
-  /* Vertical rhythm between major groups: 48–80px */
-  --section-gap: clamp(48px, 7vw, 80px);
-
-  /* Shape language */
-  --radius-card: 12px;
-  --radius-pill: 999px;
-  --radius-image: 0;
-  --border-thick: 2px solid var(--ink);
-  --shadow-hard: 6px 6px 0 var(--ink);
-  --shadow-hard-pressed: 3px 3px 0 var(--ink);
-
-  /* Spacing scale (4px base) */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 24px;
-  --space-6: 32px;
-  --space-7: 48px;
-  --space-8: 64px;
-  --space-9: 96px;
-  --space-10: 128px;
+:root[data-theme='light'] {
+  --bg: #fbf1c7;
+  --bg1: #ebdbb2;
+  --bg3: #bdae93;
+  --fg: #3c3836;
+  --fg0: #282828;
+  --mute: #665c54;
+  --ln: #665c54;
+  --orange: #af3a03;
+  color-scheme: light;
 }
