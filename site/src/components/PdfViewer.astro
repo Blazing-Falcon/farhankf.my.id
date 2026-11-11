@@ -8,28 +8,16 @@ const { source, title } = Astro.props;
 ---
 
 <div class="pdf-viewer-shell" data-pdf-viewer data-source={source} data-title={title}>
-  <div class="pdf-viewer-toolbar">
-    <div class="pdf-page-controls">
-      <button class="btn btn-secondary pdf-prev" type="button" aria-label="Previous page" disabled>
-        ← Previous
-      </button>
-      <span class="pdf-page-indicator" aria-live="polite">
-        Page <span class="pdf-current-page">1</span> of <span class="pdf-total-pages">-</span>
-      </span>
-      <button class="btn btn-secondary pdf-next" type="button" aria-label="Next page" disabled>
-        Next →
-      </button>
-    </div>
-    <div class="pdf-actions">
-      <a href={source} class="btn btn-primary" target="_blank" rel="noreferrer">
-        Open / Download PDF <span aria-hidden="true">↗</span>
-      </a>
-    </div>
-  </div>
-
   <div class="pdf-canvas-wrapper">
     <canvas class="pdf-canvas"></canvas>
     <div class="pdf-loading-indicator">Loading document preview...</div>
+  </div>
+  <div class="pdf-viewer-toolbar">
+    <button class="pdf-prev" type="button" aria-label="Previous page" disabled>← Previous</button>
+    <span class="pdf-page-indicator" aria-live="polite">
+      Page <span class="pdf-current-page">1</span> of <span class="pdf-total-pages">-</span>
+    </span>
+    <button class="pdf-next" type="button" aria-label="Next page" disabled>Next →</button>
   </div>
 </div>
 
@@ -163,76 +151,58 @@ const { source, title } = Astro.props;
 </script>
 
 <style>
-  .pdf-viewer-shell {
-    margin: var(--space-6) 0;
-    border: var(--border-thick);
-    border-radius: var(--radius-card);
-    background: var(--paper);
-    overflow: hidden;
-    box-shadow: var(--shadow-hard);
+  .pdf-canvas-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    min-height: 200px;
+    padding: 16px;
+    background: var(--bg1);
+    border-top: 1px solid var(--bg3);
+    border-bottom: 1px solid var(--bg3);
+    overflow-x: auto;
+  }
+
+  .pdf-canvas {
+    display: block;
+    max-width: 100%;
+  }
+
+  .pdf-loading-indicator {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    text-align: center;
+    font-size: 17px;
   }
 
   .pdf-viewer-toolbar {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    gap: var(--space-3);
-    padding: var(--space-3) var(--space-4);
-    border-bottom: var(--border-thick);
-    background: var(--paper);
-  }
-
-  .pdf-page-controls {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-  }
-
-  .pdf-page-controls .btn {
-    min-height: 36px;
-    padding: var(--space-1) var(--space-3);
-    font-size: var(--text-tiny);
-  }
-
-  .pdf-page-indicator {
-    font-family: var(--font-mono);
-    font-size: var(--text-tiny);
-    font-weight: 700;
-  }
-
-  .pdf-actions .btn {
-    min-height: 36px;
-    padding: var(--space-1) var(--space-3);
-    font-size: var(--text-tiny);
-  }
-
-  .pdf-canvas-wrapper {
-    position: relative;
-    display: flex;
+    align-items: baseline;
     justify-content: center;
-    align-items: center;
-    min-height: 480px;
-    padding: var(--space-4);
-    background: #4a4d55;
-    overflow-x: auto;
+    gap: 4px 22px;
+    margin-top: 8px;
+    font-size: 17px;
   }
 
-  .pdf-canvas {
-    max-width: 100%;
-    height: auto !important;
-    background: #ffffff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  .pdf-viewer-toolbar button {
+    background: none;
+    border: 0;
+    padding: 4px 0;
+    color: var(--orange);
+    cursor: pointer;
   }
 
-  .pdf-loading-indicator {
-    position: absolute;
-    font-family: var(--font-mono);
-    font-size: var(--text-tiny);
-    font-weight: 700;
-    color: var(--paper);
-    padding: var(--space-3) var(--space-4);
-    background: rgba(26, 27, 35, 0.85);
-    border-radius: var(--radius-pill);
+  .pdf-viewer-toolbar button:hover:not(:disabled) {
+    text-decoration: underline;
+  }
+
+  .pdf-viewer-toolbar button:disabled {
+    color: var(--mute);
+    cursor: default;
   }
 </style>
