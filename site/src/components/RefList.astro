@@ -53,12 +53,21 @@ const sentence = (text: string) => (/[.!?…]$/.test(text.trim()) ? text.trim() 
                 {item.link.text}
               </a>
             )}
-            {item.summary && <Fragment>{sentence(item.summary)} </Fragment>}
+            {item.summary && (
+              <Fragment>
+                {sentence(item.summary)}{' '}
+              </Fragment>
+            )}
             {item.meta && <i>{item.meta}</i>}
             {source.length === 2 && ', '}
             {item.date}
-            {source.length > 0 && '. '}
-            {item.tail && sentence(item.tail)}
+            {source.length > 0 && '.'}
+            {item.tail && (
+              <Fragment>
+                {' '}
+                {sentence(item.tail)}
+              </Fragment>
+            )}
           </span>
         </li>
       );

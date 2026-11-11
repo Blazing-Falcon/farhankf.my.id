@@ -94,20 +94,22 @@ button {
   letter-spacing: 0.05em;
 }
 
-/* Page root. Sections, figures, tables and reference entries are numbered
-   per page, across components, so their counters live here. */
+/* Page root: the container the two layout breakpoints query. */
 .pp {
   container-type: inline-size;
   position: relative;
   min-height: 100vh;
   hyphens: auto;
-  counter-reset: sec fig tbl ref;
 }
 
+/* Sections, figures, tables and reference entries are numbered per page,
+   across components. The counters start here and not on .pp, because a
+   container's style containment hides its own counters from its content. */
 .sheet {
   max-width: var(--sheet);
   margin: 0 auto;
   padding: 0 var(--gutter) 72px;
+  counter-reset: sec fig tbl ref;
 }
 
 /* Running head, which is also the navigation. */
@@ -275,51 +277,51 @@ button {
   text-indent: 1.5em;
 }
 
-.bd ul,
-.bd ol {
+.md ul,
+.md ol {
   margin: 0.6em 0;
   padding-left: 1.6em;
 }
 
-.bd li {
+.md li {
   margin: 0.15em 0;
 }
 
-.bd blockquote {
+.md blockquote {
   margin: 0.8em 0;
   padding: 0 0 0 1.2em;
   border-left: 1px solid var(--bg3);
   font-style: italic;
 }
 
-.bd hr {
+.md hr {
   border: 0;
   border-top: 1px solid var(--bg3);
   width: 200px;
   margin: 1.4em auto;
 }
 
-.bd h3,
-.bd h4 {
+.md h3,
+.md h4 {
   font-size: 19px;
   font-weight: 700;
   color: var(--fg0);
   margin: 1.2em 0 0.3em;
 }
 
-.bd h4 {
+.md h4 {
   font-style: italic;
   font-weight: 400;
 }
 
-.bd code {
+.md code {
   font-family: var(--mono);
   font-size: 0.84em;
   hyphens: none;
 }
 
 /* Wide content scrolls inside its own box, never the page. */
-.bd pre,
+.md pre,
 .lst {
   margin: 0.9em 0;
   background: var(--bg1);
@@ -334,11 +336,11 @@ button {
   overflow-wrap: normal;
 }
 
-.bd pre code {
+.md pre code {
   font-size: inherit;
 }
 
-.bd table {
+.md table {
   display: block;
   width: max-content;
   max-width: 100%;
@@ -351,19 +353,20 @@ button {
   border-bottom: 2px solid var(--fg);
 }
 
-.bd table th {
+.md table th {
   font-weight: 400;
   text-align: left;
   border-bottom: 1px solid var(--fg);
   padding: 5px 14px 5px 0;
 }
 
-.bd table td {
+.md table td {
   padding: 4px 14px 4px 0;
   vertical-align: top;
 }
 
 .katex-display {
+  text-indent: 0;
   overflow-x: auto;
   overflow-y: hidden;
   padding: 2px 0;
@@ -394,6 +397,11 @@ h2.s:not(.nonum)::before,
 
 .one > :first-child {
   margin-top: 0;
+}
+
+.one > * + .md,
+.one > * + .article-content {
+  margin-top: 1.4em;
 }
 
 .wide {
@@ -517,6 +525,13 @@ h2.s:not(.nonum)::before,
   vertical-align: top;
 }
 
+/* Parameter names stay on one line where the table has room. */
+@container (min-width: 761px) {
+  .bt td:first-child {
+    white-space: nowrap;
+  }
+}
+
 .bt.rev td:first-child,
 .bt.rev td:nth-child(2) {
   white-space: nowrap;
@@ -558,7 +573,8 @@ h2.s:not(.nonum)::before,
 
 /* Figures and subfigures */
 .fig {
-  margin: 1.1em 0;
+  margin: 0;
+  margin-block: 1.1em;
 }
 
 .fig img {

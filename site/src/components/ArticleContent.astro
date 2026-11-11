@@ -54,7 +54,12 @@ const sentence = (text: string) => (/[.!?…]$/.test(text.trim()) ? text.trim() 
             ) : null}
             <figcaption class="capf">
               {sentence(imageBlock.caption || imageBlock.altText)}
-              {imageBlock.source && <Fragment> Source: {sentence(imageBlock.source)}</Fragment>}
+              {imageBlock.source && (
+                <Fragment>
+                  {' '}
+                  Source: {sentence(imageBlock.source)}
+                </Fragment>
+              )}
             </figcaption>
           </figure>
         );
@@ -69,7 +74,12 @@ const sentence = (text: string) => (/[.!?…]$/.test(text.trim()) ? text.trim() 
             <PdfViewer source={source} title={pdfBlock.title} />
             <figcaption class="capf">
               {sentence(pdfBlock.title)}
-              {pdfBlock.description && <Fragment> {sentence(pdfBlock.description)}</Fragment>}{' '}
+              {pdfBlock.description && (
+                <Fragment>
+                  {' '}
+                  {sentence(pdfBlock.description)}
+                </Fragment>
+              )}{' '}
               <a href={source} target="_blank" rel="noreferrer">
                 Open or download the PDF
               </a>
@@ -97,7 +107,12 @@ const sentence = (text: string) => (/[.!?…]$/.test(text.trim()) ? text.trim() 
             </div>
             <figcaption class="capf">
               {sentence(videoBlock.title)}
-              {videoBlock.caption && <Fragment> {sentence(videoBlock.caption)}</Fragment>}{' '}
+              {videoBlock.caption && (
+                <Fragment>
+                  {' '}
+                  {sentence(videoBlock.caption)}
+                </Fragment>
+              )}{' '}
               <a href={videoBlock.youtubeUrl} target="_blank" rel="noreferrer">
                 Watch on YouTube
               </a>
