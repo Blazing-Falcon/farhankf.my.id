@@ -6,13 +6,12 @@ export interface ProfileFact {
 }
 
 // Playful profile facts; CMS fills in the boring true ones. Shared by the
-// About page (all rows) and the homepage teaser (a subset).
+// About page and the homepage.
 export function profileFacts(about: About | null): ProfileFact[] {
   return [
     { label: 'Field', value: 'CompSci, Statistics, ML, Proxmox' },
     { label: 'Based in', value: about?.location ?? 'a home lab somewhere' },
     { label: 'Coffee intake', value: 'i lost track' },
-    { label: 'Supervisors', value: 'cats' },
     { label: 'Uptime', value: 'better than your ISP’s' },
   ];
 }

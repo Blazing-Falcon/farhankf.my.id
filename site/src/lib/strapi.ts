@@ -14,6 +14,7 @@ export interface StrapiMedia {
   documentId: string;
   url: string;
   alternativeText?: string | null;
+  caption?: string | null;
   width?: number | null;
   height?: number | null;
 }
@@ -34,6 +35,7 @@ export interface About {
   email?: string | null;
   githubUrl?: string | null;
   location?: string | null;
+  updatedAt?: string | null;
 }
 
 export type ProjectDifficulty =
@@ -125,6 +127,7 @@ export interface Project {
   finishedAt?: string | null;
   difficulty?: ProjectDifficulty | null;
   stats?: ProjectStat[] | null;
+  updatedAt?: string | null;
 }
 
 export interface LabNote {
@@ -133,6 +136,7 @@ export interface LabNote {
   title: string;
   body: string;
   order: number;
+  updatedAt?: string | null;
 }
 
 export type SocialIcon = 'github' | 'instagram' | 'spotify' | 'email';
@@ -145,6 +149,7 @@ export interface SocialLink {
   icon: SocialIcon;
   handle?: string | null;
   order: number;
+  updatedAt?: string | null;
 }
 
 export interface Ticker {
@@ -182,6 +187,7 @@ export interface Photo {
   shotAt?: string | null;
   gear?: string | null;
   featured: boolean;
+  updatedAt?: string | null;
 }
 
 interface StrapiListResponse<T> {
@@ -277,8 +283,8 @@ export async function getAbout(): Promise<About | null> {
   return res.data;
 }
 
-// Everything ProjectCard renders — list pages skip the markdown `body` and
-// `gallery`, which only getProjectBySlug needs.
+// Everything a project list entry renders — list pages skip the markdown
+// `body` and `gallery`, which only getProjectBySlug needs.
 const PROJECT_CARD_FIELDS = [
   'title',
   'slug',
@@ -290,6 +296,7 @@ const PROJECT_CARD_FIELDS = [
   'finishedAt',
   'difficulty',
   'stats',
+  'updatedAt',
 ];
 
 export async function getProjects({
