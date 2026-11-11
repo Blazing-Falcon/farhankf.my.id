@@ -1,0 +1,19 @@
+---
+interface Props {
+  caption: string;
+  head?: [string, string];
+  rows: { label: string; value: string }[];
+}
+
+const { caption, head = ['Parameter', 'Value'], rows } = Astro.props;
+---
+
+<p class="capn capt">{caption}</p>
+<table class="bt">
+  <thead>
+    <tr><th>{head[0]}</th><th>{head[1]}</th></tr>
+  </thead>
+  <tbody>
+    {rows.map((row) => <tr><td>{row.label}</td><td>{row.value}</td></tr>)}
+  </tbody>
+</table>

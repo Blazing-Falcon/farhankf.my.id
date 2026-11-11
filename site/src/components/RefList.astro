@@ -1,0 +1,67 @@
+---
+export interface RefItem {
+  title: string;
+  /** Where the entry leads. Without it the entry is plain text. */
+  href?: string;
+  summary?: string | null;
+  /** Category or status, set in italic. */
+  meta?: string | null;
+  date?: string | null;
+  /** Closing sentence, e.g. the reading time. */
+  tail?: string | null;
+  /** A link shown after the title instead of on it, for entries that point off-site. */
+  link?: { href: string; text: string; mono?: boolean };
+}
+
+interface Props {
+  items: RefItem[];
+}
+
+const { items } = Astro.props;
+
+// Entries read as sentences, so each part ends with exactly one full stop.
+const sentence = (text: string) => (/[.!?…]$/.test(text.trim()) ? text.trim() : `${text.trim()}.`);
+---
+
+<ol class="refs">
+  {
+    items.map((item) => {
+      const source = [item.meta, item.date].filter(Boolean);
+      const external = item.link && !item.link.href.startsWith('mailto:');
+      return (
+        <li>
+          {item.href ? (
+            <a class="cite" href={item.href} aria-hidden="true" tabindex="-1" />
+          ) : (
+            <span class="cite" aria-hidden="true" />
+          )}
+          <span>
+            {item.href ? (
+              <a href={item.href}>
+                <b>{sentence(item.title)}</b>
+              </a>
+            ) : (
+              <b>{sentence(item.title)}</b>
+            )}{' '}
+            {item.link && (
+              <a
+                href={item.link.href}
+                class:list={{ tty: item.link.mono }}
+                target={external ? '_blank' : undefined}
+                rel={external ? 'me noreferrer' : undefined}
+              >
+                {item.link.text}
+              </a>
+            )}
+            {item.summary && <Fragment>{sentence(item.summary)} </Fragment>}
+            {item.meta && <i>{item.meta}</i>}
+            {source.length === 2 && ', '}
+            {item.date}
+            {source.length > 0 && '. '}
+            {item.tail && sentence(item.tail)}
+          </span>
+        </li>
+      );
+    })
+  }
+</ol>

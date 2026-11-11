@@ -1,0 +1,20 @@
+---
+import { OWNER } from '../lib/site';
+
+interface Props {
+  title: string;
+  /** The author line under the title. Off for the About page, whose title is the name. */
+  author?: boolean;
+  /** Up to two italic lines under the author. */
+  affiliations?: (string | null | undefined)[];
+}
+
+const { title, author = true, affiliations = [] } = Astro.props;
+---
+
+<div class="tb">
+  <h1 class="tt">{title}</h1>
+  {author && <p class="au">{OWNER}</p>}
+  {affiliations.filter(Boolean).map((line) => <p class="af">{line}</p>)}
+  <slot />
+</div>

@@ -1,0 +1,43 @@
+---
+import { Image } from 'astro:assets';
+import { mediaUrl, type StrapiMedia } from '../lib/strapi';
+import type { ProfileFact } from '../lib/profileFacts';
+import PaperTable from './PaperTable.astro';
+
+interface Props {
+  portrait?: StrapiMedia | null;
+  facts: ProfileFact[];
+}
+
+const { portrait, facts } = Astro.props;
+const hasPortrait = portrait?.url && portrait.width && portrait.height;
+---
+
+{
+  hasPortrait ? (
+    <div class="am">
+      <div class="imgw">
+        <Image
+          src={mediaUrl(portrait)}
+          width={portrait!.width!}
+          height={portrait!.height!}
+          widths={[150, 300, 450]}
+          sizes="150px"
+          alt={portrait!.alternativeText ?? 'Portrait of the author'}
+        />
+      </div>
+      <table class="bt">
+        <thead>
+          <tr><th>Parameter</th><th>Value</th></tr>
+        </thead>
+        <tbody>
+          {facts.map((fact) => <tr><td>{fact.label}</td><td>{fact.value}</td></tr>)}
+        </tbody>
+      </table>
+      <p class="cap capf">The author.</p>
+      <p class="cap capt">Author parameters.</p>
+    </div>
+  ) : (
+    <PaperTable caption="Author parameters." rows={facts} />
+  )
+}

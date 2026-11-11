@@ -1,0 +1,23 @@
+---
+interface Props {
+  /** The list page the links filter, e.g. /blog. */
+  base: string;
+  categories: { name: string; slug: string }[];
+  active?: string | null;
+}
+
+const { base, categories, active } = Astro.props;
+---
+
+{active ? <a href={base}>all</a> : <span class="kw-on">all</span>}{
+  categories.map((category) => (
+    <Fragment>
+      ,{' '}
+      {active === category.slug ? (
+        <span class="kw-on">{category.name.toLowerCase()}</span>
+      ) : (
+        <a href={`${base}?category=${category.slug}`}>{category.name.toLowerCase()}</a>
+      )}
+    </Fragment>
+  ))
+}

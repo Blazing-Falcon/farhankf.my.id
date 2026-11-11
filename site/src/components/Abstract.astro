@@ -1,0 +1,21 @@
+---
+interface Props {
+  /** Center a one-line abstract instead of justifying it. */
+  center?: boolean;
+  lang?: string;
+}
+
+const { center = false, lang } = Astro.props;
+---
+
+<section class="abs" aria-labelledby="abstract-heading">
+  <h2 id="abstract-heading">Abstract</h2>
+  {Astro.slots.has('default') && <p class:list={{ center }} lang={lang}><slot /></p>}
+  {
+    Astro.slots.has('keywords') && (
+      <p class:list={{ center }}>
+        <b>Keywords:</b> <slot name="keywords" />
+      </p>
+    )
+  }
+</section>
