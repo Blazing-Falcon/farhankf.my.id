@@ -1,9 +1,11 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import StickerBadge from '../../components/StickerBadge.astro';
-import ProjectCard from '../../components/ProjectCard.astro';
+import TitleBlock from '../../components/TitleBlock.astro';
+import Abstract from '../../components/Abstract.astro';
+import RefList from '../../components/RefList.astro';
 import EmptyState from '../../components/EmptyState.astro';
-import CatBat from '../../components/cats/CatBat.astro';
+import { latest } from '../../lib/dates';
+import { projectRef } from '../../lib/refs';
 import { getProjects, type Project } from '../../lib/strapi';
 
 let projects: Project[] = [];
@@ -16,98 +18,23 @@ try {
 }
 ---
 
-<Layout title="Projects" description="Machine learning and infrastructure projects.">
-  <section class="section-inner projects-page">
-    <div class="page-head">
-      <div>
-        <StickerBadge label="Fresh from the lab" rotate={-3} />
-        <h1 data-reveal>Projects</h1>
-        <p class="page-sub">
-          Everything on the lab bench, newest first: ML pipelines, from-scratch math, and the
-          infrastructure that keeps it all humming at 2am.
-        </p>
+<Layout
+  title="Projects"
+  description="Machine learning and infrastructure projects."
+  revised={latest(projects.map((project) => project.updatedAt))}
+>
+  <TitleBlock title="Projects" />
+  <Abstract>
+    Everything on the lab bench, newest first: ML pipelines, from-scratch math, and the
+    infrastructure that keeps it all humming at 2am.
+  </Abstract>
+  {
+    hadError || projects.length === 0 ? (
+      <EmptyState message="No projects to show right now. Check back once the content server is up." />
+    ) : (
+      <div class="one">
+        <RefList items={projects.map(projectRef)} />
       </div>
-      <div class="page-head-cat" aria-hidden="true">
-        <CatBat />
-      </div>
-    </div>
-    {
-      hadError || projects.length === 0 ? (
-        <EmptyState message="Projects are napping. Check back once Strapi wakes up." />
-      ) : (
-        <div class="projects-grid">
-          {projects.map((project, i) => (
-            <ProjectCard
-              project={project}
-              variant="grid"
-              headingLevel="h2"
-              rotate={[-0.6, 0.6, 0][i % 3]}
-            />
-          ))}
-        </div>
-      )
-    }
-  </section>
+    )
+  }
 </Layout>
-
-<style>
-  .section-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 var(--space-5);
-  }
-
-  .projects-page {
-    padding-top: var(--space-7);
-    padding-bottom: var(--section-gap);
-  }
-
-  .page-head {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: var(--space-5);
-    margin-bottom: var(--space-7);
-  }
-
-  .page-head h1 {
-    font-size: var(--text-section);
-    margin-top: var(--space-3);
-    margin-bottom: var(--space-3);
-  }
-
-  .page-sub {
-    font-size: var(--text-body);
-    max-width: 52ch;
-    margin: 0;
-  }
-
-  .page-head-cat {
-    width: 140px;
-    flex-shrink: 0;
-  }
-
-  .projects-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-6);
-  }
-
-  @media (min-width: 640px) {
-    .projects-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .projects-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-
-  @media (max-width: 767px) {
-    .page-head-cat {
-      display: none;
-    }
-  }
-</style>
