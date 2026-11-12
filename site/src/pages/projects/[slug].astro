@@ -2,11 +2,14 @@
 import { renderMarkdown } from '../../lib/markdown';
 import { Image } from 'astro:assets';
 import Layout from '../../layouts/Layout.astro';
-import StickerBadge from '../../components/StickerBadge.astro';
-import TechPill from '../../components/TechPill.astro';
+import TitleBlock from '../../components/TitleBlock.astro';
+import Abstract from '../../components/Abstract.astro';
+import PaperTable from '../../components/PaperTable.astro';
+import RefList, { type RefItem } from '../../components/RefList.astro';
 import EmptyState from '../../components/EmptyState.astro';
-import CatMiso from '../../components/cats/CatMiso.astro';
 import ArticleContent from '../../components/ArticleContent.astro';
+import { createSlugger } from '../../lib/markdown';
+import { difficultyLabel } from '../../lib/refs';
 import { getProjectBySlug, mediaUrl, type Project } from '../../lib/strapi';
 
 const { slug } = Astro.params;
@@ -26,7 +29,8 @@ if (hadError) {
   Astro.response.status = 404;
 }
 
-const bodyHtml = project?.body ? renderMarkdown(project.body) : '';
+const headingSlug = createSlugger();
+const bodyHtml = project?.body ? renderMarkdown(project.body, headingSlug) : '';
 const hasBlocks = project?.contentBlocks && project.contentBlocks.length > 0;
 // null for anything Date cannot parse, so a malformed CMS date drops the badge
 // and the dateCreated field instead of throwing the whole page away.
@@ -35,14 +39,33 @@ const finishedIso =
   finishedAt && !Number.isNaN(finishedAt.getTime()) ? finishedAt.toISOString() : null;
 const year = finishedIso ? new Date(finishedIso).getFullYear() : null;
 
-const difficultyLabels: Record<string, string> = {
-  'weekend-hack': 'Weekend hack',
-  'semester-project': 'Semester project',
-  'thesis-grade': 'Thesis grade',
-  'ongoing-saga': 'Ongoing saga',
-};
-const difficulty = project?.difficulty ? difficultyLabels[project.difficulty] : null;
-const stats = project?.stats ?? [];
+const difficulty = difficultyLabel(project?.difficulty);
+
+const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+const specification = [
+  ...(year ? [{ label: 'Year', value: String(year) }] : []),
+  ...(difficulty ? [{ label: 'Status', value: difficulty }] : []),
+  ...(project?.stats ?? []).map((stat) => ({ label: capitalize(stat.label), value: stat.value })),
+  ...(project?.techStack?.length ? [{ label: 'Stack', value: project.techStack.join(', ') }] : []),
+];
+
+const display = (url: string) => url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+const references: RefItem[] = [
+  ...(project?.projectUrl
+    ? [{ title: 'Live site', link: { href: project.projectUrl, text: display(project.projectUrl), mono: true } }]
+    : []),
+  ...(project?.repoUrl
+    ? [{ title: 'Repository', link: { href: project.repoUrl, text: display(project.repoUrl), mono: true } }]
+    : []),
+];
+
+const cover = project?.coverImage;
+const gallery = (project?.gallery ?? []).filter((image) => image.width && image.height);
+// Subfigures sit three to a row, lettered (a), (b), (c) across rows.
+const galleryRows = Array.from({ length: Math.ceil(gallery.length / 3) }, (_, row) =>
+  gallery.slice(row * 3, row * 3 + 3)
+);
+const letter = (index: number) => String.fromCharCode(97 + (index % 26));
 
 const base = Astro.site ?? Astro.url;
 const canonicalUrl = new URL(Astro.url.pathname, base).href;
@@ -75,264 +98,100 @@ const projectJsonLd = project
   ogType={project ? 'article' : 'website'}
   articleMeta={project ? { publishedTime: finishedIso ?? undefined } : undefined}
   customJsonLd={projectJsonLd}
+  identifier={project ? { bracket: difficulty, date: year ? String(year) : null } : undefined}
+  revised={project?.updatedAt}
 >
   {
     hadError ? (
-      <div class="section-inner">
-        <EmptyState message="This project is napping. Check back once Strapi wakes up." />
-      </div>
+      <Fragment>
+        <TitleBlock title="Project" />
+        <EmptyState message="This project is not available right now. Check back once the content server is up." />
+      </Fragment>
     ) : !project ? (
-      <div class="section-inner not-found">
-        <div class="not-found-cat">
-          <CatMiso />
-        </div>
-        <h1>404: no such project</h1>
-        <p>The cat has never heard of this one, and frankly resents being asked. It might have been renamed or removed.</p>
-        <a href="/projects" class="btn btn-secondary press-shadow">Back to projects</a>
-      </div>
+      <Fragment>
+        <TitleBlock title="404: no such project" author={false} />
+        <section class="abs">
+          <p class="center">
+            No project has this address. It might have been renamed or removed. Return to the{' '}
+            <a href="/projects">list of projects</a>.
+          </p>
+        </section>
+      </Fragment>
     ) : (
-      <article class="project-detail">
-        <header class="section-inner project-header">
-          <div class="header-badges">
-            <StickerBadge label={year ? String(year) : 'Project'} rotate={-3} />
-            {difficulty && <StickerBadge label={difficulty} rotate={2} />}
-          </div>
-          <h1 data-reveal>{project.title}</h1>
-          <p class="summary">{project.summary}</p>
-          {stats.length > 0 && (
-            <dl class="project-stats">
-              {stats.map((stat) => (
-                <div class="stat">
-                  <dd>{stat.value}</dd>
-                  <dt>{stat.label}</dt>
-                </div>
-              ))}
-            </dl>
+      <article>
+        <TitleBlock title={project.title}>
+          {project.difficulty === 'ongoing-saga' && (
+            <p class="preprint">
+              Preprint. An ongoing saga: details may change while the server keeps running without a
+              case.
+            </p>
           )}
-          <div class="project-links">
-            {project.projectUrl && (
-              <a href={project.projectUrl} target="_blank" rel="noreferrer" class="btn btn-primary press-shadow">
-                Live site
-              </a>
-            )}
-            {project.repoUrl && (
-              <a href={project.repoUrl} target="_blank" rel="noreferrer" class="btn btn-secondary press-shadow">
-                Repository
-              </a>
-            )}
-          </div>
-        </header>
+        </TitleBlock>
+        <Abstract>{project.summary}</Abstract>
 
-        {project.coverImage && (
-          <div class="cover-wrap section-inner">
-            <div class="cover-frame">
+        <div class="one bd">
+          {cover?.width && cover.height && (
+            <figure class="fig wide crop">
               <Image
-                src={mediaUrl(project.coverImage)}
-                width={project.coverImage.width ?? 1200}
-                height={project.coverImage.height ?? 675}
-                widths={[768, 1200]}
-                sizes="(max-width: 720px) 100vw, 720px"
-                alt={project.coverImage.alternativeText ?? project.title}
+                src={mediaUrl(cover)}
+                width={cover.width}
+                height={cover.height}
+                widths={[768, 1100, 2040]}
+                sizes="(max-width: 1100px) 100vw, 1020px"
+                alt={cover.alternativeText ?? project.title}
               />
-            </div>
-          </div>
-        )}
+              <figcaption class="capf">{cover.caption || project.title}.</figcaption>
+            </figure>
+          )}
 
-        <div class="section-inner project-body-grid">
-          <div class="project-body" data-reveal>
-            {hasBlocks ? (
-              <ArticleContent blocks={project.contentBlocks} />
-            ) : bodyHtml ? (
-              <div set:html={bodyHtml} />
-            ) : null}
-          </div>
-          {project.techStack && project.techStack.length > 0 && (
-            <aside class="tech-sidebar">
-              <h2>Tech stack</h2>
-              <div class="tech-pills">
-                {project.techStack.map((tech) => (
-                  <TechPill label={tech} />
+          {specification.length > 0 && (
+            <div class="narrow">
+              <PaperTable caption="Specification." rows={specification} />
+            </div>
+          )}
+
+          {hasBlocks ? (
+            <ArticleContent blocks={project.contentBlocks} slug={headingSlug} />
+          ) : bodyHtml ? (
+            <div class="md" set:html={bodyHtml} />
+          ) : null}
+
+          {galleryRows.length > 0 && (
+            <Fragment>
+              <h2 class="s">Gallery</h2>
+              <figure class="fig wide">
+                {galleryRows.map((row, rowIndex) => (
+                  <div class="jr stack">
+                    {row.map((image, i) => (
+                      <div style={`flex: ${(image.width! / image.height!).toFixed(3)} 1 0`}>
+                        <Image
+                          src={mediaUrl(image)}
+                          width={image.width!}
+                          height={image.height!}
+                          widths={[400, 800]}
+                          sizes="(max-width: 760px) 92vw, 340px"
+                          alt={image.alternativeText ?? project.title}
+                        />
+                        <p class="sub">
+                          ({letter(rowIndex * 3 + i)}){image.caption && ` ${image.caption}`}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 ))}
-              </div>
-            </aside>
+                <figcaption class="capf">{project.title}, gallery.</figcaption>
+              </figure>
+            </Fragment>
+          )}
+
+          {references.length > 0 && (
+            <Fragment>
+              <h2 class="s nonum">References</h2>
+              <RefList items={references} />
+            </Fragment>
           )}
         </div>
-
-        {project.gallery && project.gallery.length > 0 && (
-          <div class="section-inner gallery-grid">
-            {project.gallery.map((image) => (
-              <div class="gallery-item">
-                <Image
-                  src={mediaUrl(image)}
-                  width={image.width ?? 800}
-                  height={image.height ?? 600}
-                  widths={[400, 800]}
-                  sizes="(min-width: 768px) 50vw, 92vw"
-                  alt={image.alternativeText ?? project.title}
-                />
-              </div>
-            ))}
-          </div>
-        )}
       </article>
     )
   }
 </Layout>
-
-<style>
-  .section-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 var(--space-5);
-  }
-
-  .not-found {
-    padding: var(--space-9) var(--space-5);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: var(--space-4);
-  }
-
-  .not-found-cat {
-    width: 160px;
-  }
-
-  .project-header {
-    padding-top: var(--space-8);
-    padding-bottom: var(--space-6);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  .project-header h1 {
-    font-size: var(--text-section);
-  }
-
-  .header-badges {
-    display: flex;
-    gap: var(--space-3);
-    flex-wrap: wrap;
-  }
-
-  .summary {
-    max-width: 60ch;
-    font-size: var(--text-body);
-  }
-
-  .project-stats {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2) var(--space-6);
-    margin: 0;
-    width: fit-content;
-    padding: var(--space-3) var(--space-4);
-    border: 2px dashed var(--teal);
-    border-radius: var(--radius-card);
-  }
-
-  .stat {
-    display: flex;
-    align-items: baseline;
-    gap: var(--space-2);
-  }
-
-  .stat dd {
-    margin: 0;
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: 1.15rem;
-    color: var(--teal);
-  }
-
-  .stat dt {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .project-links {
-    display: flex;
-    gap: var(--space-4);
-    margin-top: var(--space-3);
-  }
-
-  .cover-wrap {
-    margin-bottom: var(--space-7);
-  }
-
-  .cover-frame {
-    max-width: 720px;
-    margin: 0 auto;
-    border: var(--border-thick);
-    border-radius: var(--radius-card);
-    overflow: hidden;
-    box-shadow: var(--shadow-hard);
-    aspect-ratio: 3 / 2;
-  }
-
-  .cover-frame :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  .project-body-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-6);
-    padding-bottom: var(--space-7);
-  }
-
-  .project-body {
-    max-width: 65ch;
-  }
-
-  .project-body :global(p) {
-    margin-bottom: var(--space-4);
-  }
-
-  .tech-sidebar h2 {
-    font-family: var(--font-mono);
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    letter-spacing: 0.05em;
-    margin-bottom: var(--space-3);
-  }
-
-  .tech-pills {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-  }
-
-  .gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: var(--space-4);
-    padding-bottom: var(--space-9);
-  }
-
-  .gallery-item {
-    border: var(--border-thick);
-    border-radius: var(--radius-card);
-    overflow: hidden;
-  }
-
-  .gallery-item :global(img) {
-    width: 100%;
-    height: 220px;
-    object-fit: cover;
-    display: block;
-  }
-
-  @media (min-width: 900px) {
-    .project-body-grid {
-      grid-template-columns: 2fr 1fr;
-    }
-  }
-</style>
