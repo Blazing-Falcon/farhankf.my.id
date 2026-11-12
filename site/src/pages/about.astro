@@ -1,13 +1,15 @@
 ---
 import { renderMarkdown } from '../lib/markdown';
-import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
-import StickerBadge from '../components/StickerBadge.astro';
+import TitleBlock from '../components/TitleBlock.astro';
+import Abstract from '../components/Abstract.astro';
+import AuthorFigure from '../components/AuthorFigure.astro';
+import PaperTable from '../components/PaperTable.astro';
+import RefList, { type RefItem } from '../components/RefList.astro';
 import EmptyState from '../components/EmptyState.astro';
-import CatTail from '../components/cats/CatTail.astro';
-import ResearcherProfile from '../components/ResearcherProfile.astro';
 import { profileFacts } from '../lib/profileFacts';
-import { getCats, mediaUrl, type About, type Cat } from '../lib/strapi';
+import { AFFILIATION } from '../lib/site';
+import { getSocialLinks, type About, type SocialLink } from '../lib/strapi';
 
 let about: About | null = null;
 let hadError = false;
@@ -18,593 +20,72 @@ try {
   hadError = true;
 }
 
-// Committee has its own failure mode so a cats hiccup can't blank the bio.
-let cats: Cat[] = [];
+// The contact list has its own failure mode so a hiccup there can't blank the bio.
+let links: SocialLink[] = [];
 try {
-  cats = await getCats();
+  links = await getSocialLinks();
 } catch {
-  // section renders its empty state
+  // the section is left out
 }
 
-const catTilts = [-4, 3, -2, 4, -3, 2];
-
 const bioHtml = about?.bio ? renderMarkdown(about.bio) : '';
-
 const facts = profileFacts(about);
+const skills = (about?.skills ?? []).map((group) => ({
+  label: group.group,
+  value: group.items.join(', '),
+}));
+const correspondence: RefItem[] = links.map((link) => ({
+  title: link.label,
+  link: {
+    href: link.url,
+    text: link.handle ?? link.url.replace(/^mailto:|^https?:\/\//, ''),
+    mono: true,
+  },
+}));
 ---
 
 <Layout
   title="About"
   description="Farhan Kurnia Febriansyah, mahasiswa Informatika di Universitas Muhammadiyah Malang. Machine learning, statistika, homelab Proxmox, fotografi, dan beberapa kucing."
+  revised={about?.updatedAt}
 >
   {
     hadError || !about ? (
-      <div class="section-inner">
-        <EmptyState message="The about page is napping. Check back once Strapi wakes up." />
-      </div>
+      <Fragment>
+        <TitleBlock title="About" />
+        <EmptyState message="The about page is not available right now. Check back once the content server is up." />
+      </Fragment>
     ) : (
-      <div class="about-page">
-        <section class="about-hero section-inner">
-          <div class="about-hero-copy">
-            <StickerBadge label="Who is this cat" rotate={-3} />
-            <h1 data-reveal>{about.headline}</h1>
-            {about.tagline && <p class="tagline">{about.tagline}</p>}
-          </div>
-          {about.portrait && (
-            <div class="portrait-frame">
-              <span class="portrait-tape" aria-hidden="true" />
-              <Image
-                src={mediaUrl(about.portrait)}
-                width={about.portrait.width ?? 400}
-                height={about.portrait.height ?? 400}
-                widths={[240, 480]}
-                sizes="240px"
-                alt={about.portrait.alternativeText ?? about.headline}
-              />
-            </div>
+      <article>
+        <TitleBlock title={about.headline} author={false} affiliations={[AFFILIATION, about.location]} />
+        {/* The owner writes the tagline and the bio in Indonesian; the language tag lets the browser hyphenate them. */}
+        {about.tagline && <Abstract lang="id">{about.tagline}</Abstract>}
+
+        <div class="one bd">
+          <AuthorFigure portrait={about.portrait} facts={facts} />
+
+          {bioHtml && (
+            <Fragment>
+              <h2 class="s">Biography</h2>
+              <div class="md" lang="id" set:html={bioHtml} />
+            </Fragment>
           )}
-        </section>
 
-        <section class="profile-section section-inner">
-          <ResearcherProfile facts={facts} />
-          <div class="bio-prose" data-reveal set:html={bioHtml} />
-        </section>
+          {skills.length > 0 && (
+            <Fragment>
+              <h2 class="s">Favorite tools</h2>
+              <PaperTable caption="Favorite tools." head={['Area', 'Tools']} rows={skills} />
+            </Fragment>
+          )}
 
-        <div class="divider" aria-hidden="true">
-          <div class="divider-line" />
-          <div class="divider-tail">
-            <CatTail />
-          </div>
+          {correspondence.length > 0 && (
+            <Fragment>
+              <h2 class="s nonum">Correspondence</h2>
+              <RefList items={correspondence} />
+            </Fragment>
+          )}
         </div>
-
-        <section class="skills-section section-inner">
-          <StickerBadge label="Favorite tools" rotate={2} />
-          {about.skills && about.skills.length > 0 && (
-            <div class="skills-groups" data-reveal>
-              {about.skills.map((group) => (
-                <div class="skills-group">
-                  <h2>{group.group}</h2>
-                  <div class="skills-pills">
-                    {group.items.map((item) => (
-                      <span class="skill-pill">{item}</span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-
-        <section class="colony-section">
-          <div class="section-inner">
-            <StickerBadge label="Fully staffed" rotate={-3} />
-            <h2 class="colony-title" data-reveal>The supervision committee</h2>
-            <p class="colony-sub">
-              Every experiment in this lab is reviewed by {cats.length || 'the'} supervisors.
-              Click a supervisor to open their staff file.
-            </p>
-            {cats.length === 0 ? (
-              <EmptyState message="The committee is out. Add cats in Strapi to staff the lab." />
-            ) : (
-              <div class="colony">
-                {cats.map((cat, i) => (
-                  <button
-                    type="button"
-                    class="colony-card"
-                    style={`--r: ${catTilts[i % catTilts.length]}deg`}
-                    data-cat-dialog={`cat-file-${cat.id}`}
-                    data-reveal
-                  >
-                    <span class="colony-portrait">
-                      {cat.photo?.width && cat.photo?.height ? (
-                        <Image
-                          src={mediaUrl(cat.photo)}
-                          width={cat.photo.width}
-                          height={cat.photo.height}
-                          widths={[170, 340]}
-                          sizes="170px"
-                          alt={cat.photo.alternativeText ?? `${cat.name}, ${cat.role}`}
-                        />
-                      ) : null}
-                    </span>
-                    <span class="colony-tag">
-                      <span class="colony-name">{cat.name}</span>
-                      <span class="colony-role">{cat.role}</span>
-                    </span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-
-        {cats.map((cat, i) => (
-          <dialog class="cat-dialog" id={`cat-file-${cat.id}`} aria-label={`Staff file: ${cat.name}`}>
-            <div class="cat-dialog-inner">
-              <p class="cat-dialog-stamp">Staff file № {i + 1}</p>
-              <button type="button" class="cat-dialog-close" data-close aria-label="Close">
-                ×
-              </button>
-              {cat.photo?.width && cat.photo?.height && (
-                <div class="cat-dialog-photo">
-                  <Image
-                    src={mediaUrl(cat.photo)}
-                    width={cat.photo.width}
-                    height={cat.photo.height}
-                    widths={[400, 640]}
-                    sizes="(max-width: 500px) 85vw, 392px"
-                    alt={cat.photo.alternativeText ?? cat.name}
-                  />
-                </div>
-              )}
-              <h3 class="cat-dialog-name">{cat.name}</h3>
-              <p class="cat-dialog-role">{cat.role}</p>
-              {cat.bio && <p class="cat-dialog-bio">{cat.bio}</p>}
-            </div>
-          </dialog>
-        ))}
-
-        <section class="contact-section section-inner">
-          <div class="contact-block">
-            {about.location && <p class="contact-location">{about.location}</p>}
-            <p class="contact-invite">
-              The lab accepts collaboration proposals. The cats accept treats.
-            </p>
-            <div class="contact-links">
-              {about.email && (
-                <a href={`mailto:${about.email}`} class="btn btn-primary press-shadow">
-                  Email the lab
-                </a>
-              )}
-              {about.githubUrl && (
-                <a href={about.githubUrl} target="_blank" rel="noreferrer" class="btn btn-secondary press-shadow">
-                  GitHub
-                </a>
-              )}
-            </div>
-            {about.email && <p class="contact-copy">email: {about.email}</p>}
-          </div>
-        </section>
-      </div>
+      </article>
     )
   }
 </Layout>
-
-<script>
-  document.querySelectorAll('[data-cat-dialog]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const id = btn.getAttribute('data-cat-dialog');
-      const dialog = id ? document.getElementById(id) : null;
-      if (dialog instanceof HTMLDialogElement) dialog.showModal();
-    });
-  });
-
-  document.querySelectorAll('dialog.cat-dialog').forEach((el) => {
-    const dialog = el as HTMLDialogElement;
-    // click on the backdrop (the dialog element itself) closes it
-    dialog.addEventListener('click', (event) => {
-      if (event.target === dialog) dialog.close();
-    });
-    dialog.querySelector('[data-close]')?.addEventListener('click', () => dialog.close());
-  });
-</script>
-
-<style>
-  .section-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 var(--space-5);
-  }
-
-  .about-hero {
-    padding-top: var(--space-7);
-    padding-bottom: var(--space-7);
-    display: flex;
-    align-items: center;
-    gap: var(--space-7);
-    flex-wrap: wrap;
-  }
-
-  .about-hero-copy {
-    flex: 1;
-    min-width: 280px;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .about-hero h1 {
-    font-size: var(--text-section);
-  }
-
-  .tagline {
-    font-size: var(--text-sub);
-    line-height: 1.4;
-    max-width: 40ch;
-    margin: 0;
-  }
-
-  .portrait-frame {
-    position: relative;
-    width: 240px;
-    border: var(--border-thick);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-hard);
-    background: var(--paper);
-    transform: rotate(-2deg);
-    flex-shrink: 0;
-  }
-
-  .portrait-tape {
-    position: absolute;
-    top: -12px;
-    left: 50%;
-    transform: translateX(-50%) rotate(2deg);
-    width: 90px;
-    height: 22px;
-    background: var(--butter);
-    border: 2px solid var(--ink);
-    opacity: 0.9;
-    z-index: 1;
-  }
-
-  .portrait-frame :global(img) {
-    width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 10px;
-  }
-
-  .profile-section {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-7);
-    padding-bottom: var(--space-7);
-    align-items: start;
-  }
-
-  .bio-prose {
-    max-width: 65ch;
-    font-size: var(--text-body);
-  }
-
-  .bio-prose :global(p) {
-    margin-bottom: var(--space-4);
-  }
-
-  .bio-prose :global(strong) {
-    color: var(--teal);
-  }
-
-  /* A rule across the page with a tail sticking out from behind it, as if
-     someone is hiding under the divider. */
-  .divider {
-    position: relative;
-    max-width: 1200px;
-    margin: 0 auto var(--space-7);
-    padding: 0 var(--space-5);
-  }
-
-  .divider-line {
-    border-top: 2px dashed var(--ink);
-    opacity: 0.5;
-  }
-
-  .divider-tail {
-    position: absolute;
-    top: -46px;
-    right: 15%;
-    width: 40px;
-  }
-
-  .skills-section {
-    padding-bottom: var(--section-gap);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-5);
-  }
-
-  .skills-groups {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: var(--space-6);
-  }
-
-  .skills-group h2 {
-    font-family: var(--font-mono);
-    text-transform: uppercase;
-    font-size: var(--text-tiny);
-    letter-spacing: 0.05em;
-    margin-bottom: var(--space-3);
-  }
-
-  .skills-pills {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-  }
-
-  .skill-pill {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    font-weight: 700;
-    background: var(--blush);
-    color: var(--ink);
-    border: var(--border-thick);
-    border-radius: var(--radius-pill);
-    padding: var(--space-1) var(--space-3);
-  }
-
-  /* Colony band — blush, bordered, the committee in session */
-  .colony-section {
-    background: var(--blush);
-    border-top: var(--border-thick);
-    border-bottom: var(--border-thick);
-    padding: var(--section-gap) 0;
-    margin-bottom: var(--section-gap);
-  }
-
-  .colony-title {
-    font-size: var(--text-section);
-    margin-top: var(--space-3);
-    margin-bottom: var(--space-3);
-  }
-
-  .colony-sub {
-    font-size: var(--text-body);
-    max-width: 52ch;
-    margin: 0 0 var(--space-7);
-  }
-
-  .colony {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: var(--space-6) var(--space-5);
-    align-items: end;
-  }
-
-  .colony-card {
-    margin: 0;
-    padding: 0;
-    background: none;
-    border: none;
-    font: inherit;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--space-3);
-    transform: rotate(var(--r));
-    transition: transform 0.2s ease-out;
-  }
-
-  /* the whole card lifts and straightens when you poke a cat */
-  .colony-card:hover,
-  .colony-card:focus-visible {
-    transform: rotate(0deg) translateY(-6px) scale(1.04);
-    z-index: 2;
-  }
-
-  .colony-portrait {
-    width: 100%;
-    background: var(--paper);
-    border: var(--border-thick);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-hard);
-    overflow: hidden;
-    display: block;
-  }
-
-  .colony-portrait :global(img) {
-    width: 100%;
-    height: auto; /* beat the height attribute so aspect-ratio can apply */
-    aspect-ratio: 1;
-    object-fit: cover;
-    display: block;
-  }
-
-  .colony-tag {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    background: var(--butter);
-    color: var(--ink);
-    border: var(--border-thick);
-    border-radius: var(--radius-pill);
-    box-shadow: 2px 2px 0 var(--ink);
-    padding: var(--space-1) var(--space-4);
-  }
-
-  .colony-name {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 1rem;
-    line-height: 1;
-  }
-
-  .colony-role {
-    font-family: var(--font-mono);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-size: 0.6rem;
-    line-height: 1.2;
-  }
-
-  /* ——— The staff file dialog */
-  .cat-dialog {
-    padding: 0;
-    border: var(--border-thick);
-    border-radius: var(--radius-card);
-    box-shadow: 8px 8px 0 var(--ink);
-    background: var(--paper);
-    width: min(440px, calc(100vw - 2 * var(--space-5)));
-  }
-
-  .cat-dialog::backdrop {
-    background: rgba(26, 27, 35, 0.75);
-  }
-
-  .cat-dialog-inner {
-    position: relative;
-    padding: var(--space-6);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  .cat-dialog-stamp {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: var(--teal);
-    border: 2px solid var(--teal);
-    border-radius: 4px;
-    padding: 2px var(--space-2);
-    width: fit-content;
-    transform: rotate(-3deg);
-    margin: 0;
-  }
-
-  .cat-dialog-close {
-    position: absolute;
-    top: var(--space-3);
-    right: var(--space-3);
-    width: 44px;
-    height: 44px;
-    display: grid;
-    place-items: center;
-    font-size: 1.4rem;
-    line-height: 1;
-    background: var(--paper);
-    border: var(--border-thick);
-    border-radius: var(--radius-pill);
-    cursor: pointer;
-    box-shadow: 2px 2px 0 var(--ink);
-  }
-
-  .cat-dialog-close:hover {
-    background: var(--blush);
-  }
-
-  .cat-dialog-photo {
-    border: var(--border-thick);
-    border-radius: var(--radius-card);
-    overflow: hidden;
-    margin-top: var(--space-2);
-  }
-
-  .cat-dialog-photo :global(img) {
-    width: 100%;
-    height: auto; /* beat the height attribute so aspect-ratio can apply */
-    aspect-ratio: 4 / 3;
-    object-fit: cover;
-    display: block;
-  }
-
-  .cat-dialog-name {
-    font-size: var(--text-sub);
-    margin: 0;
-  }
-
-  .cat-dialog-role {
-    font-family: var(--font-mono);
-    font-size: var(--text-tiny);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    background: var(--butter);
-    border: 2px solid var(--ink);
-    border-radius: var(--radius-pill);
-    padding: 2px var(--space-3);
-    width: fit-content;
-    margin: 0;
-  }
-
-  .cat-dialog-bio {
-    font-size: var(--text-small);
-    line-height: 1.6;
-    margin: var(--space-2) 0 0;
-  }
-
-  .contact-section {
-    padding-bottom: var(--section-gap);
-  }
-
-  .contact-block {
-    background: var(--butter);
-    border: var(--border-thick);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-hard);
-    padding: var(--space-6);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  .contact-location {
-    font-family: var(--font-mono);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    font-size: var(--text-tiny);
-    margin: 0;
-  }
-
-  .contact-invite {
-    font-size: var(--text-body);
-    font-weight: 600;
-    max-width: 44ch;
-    margin: 0;
-  }
-
-  .contact-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-4) var(--space-5);
-    margin-top: var(--space-2);
-  }
-
-  .contact-copy {
-    font-family: var(--font-mono);
-    font-size: var(--text-tiny);
-    margin: 0;
-    overflow-wrap: anywhere;
-  }
-
-  @media (min-width: 900px) {
-    .profile-section {
-      grid-template-columns: 1fr 380px;
-    }
-
-    /* Card visually moves to the right (infobox-style), but stays first
-       in source order so it's read before the bio on mobile/screen readers. */
-    .profile-section :global(.profile-card) {
-      order: 2;
-      position: sticky;
-      /* clear the sticky site header (78px) before pinning */
-      top: calc(78px + var(--space-5));
-    }
-  }
-</style>
