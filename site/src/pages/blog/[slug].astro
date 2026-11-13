@@ -1,11 +1,19 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import StickerBadge from '../../components/StickerBadge.astro';
+import TitleBlock from '../../components/TitleBlock.astro';
+import Abstract from '../../components/Abstract.astro';
 import EmptyState from '../../components/EmptyState.astro';
-import CatMiso from '../../components/cats/CatMiso.astro';
 import ArticleContent from '../../components/ArticleContent.astro';
 import { Image, getImage } from 'astro:assets';
-import { getBlogPostBySlug, mediaUrl, SHOW_EXAMPLE_CONTENT, type BlogPost } from '../../lib/strapi';
+import { longDate, shortDate } from '../../lib/dates';
+import { categorySlug } from '../../lib/refs';
+import {
+  getBlogPostBySlug,
+  getBlogPosts,
+  mediaUrl,
+  SHOW_EXAMPLE_CONTENT,
+  type BlogPost,
+} from '../../lib/strapi';
 
 const { slug } = Astro.params;
 
@@ -123,6 +131,28 @@ const blogPostJsonLd = displayPost
       },
     }
   : undefined;
+
+// Neighbours in publication order. The list is the same cached request the
+// blog index makes; if it fails, the post simply has no pager.
+let older: BlogPost | null = null;
+let newer: BlogPost | null = null;
+if (post) {
+  try {
+    const all = await getBlogPosts({ withContent: false });
+    const index = all.findIndex((entry) => entry.documentId === post!.documentId);
+    if (index !== -1) {
+      newer = all[index - 1] ?? null;
+      older = all[index + 1] ?? null;
+    }
+  } catch {
+    // no pager
+  }
+}
+
+const cover = displayPost?.coverImage;
+const filterSlug = categorySlug(displayPost?.category);
+const hasCategoryPage = typeof displayPost?.category === 'object' && displayPost.category !== null;
+const byline = [longDate(publishedIso), displayPost?.readTime].filter(Boolean).join(' · ');
 ---
 
 <Layout
@@ -139,177 +169,80 @@ const blogPostJsonLd = displayPost
       : undefined
   }
   customJsonLd={blogPostJsonLd}
+  identifier={displayPost ? { bracket: categoryName, date: shortDate(publishedIso) || null } : undefined}
+  revised={displayPost?.updatedAt ?? displayPost?.publishedDate}
 >
   {
     hadError && !displayPost ? (
-      <div class="section-inner">
-        <EmptyState message="This blog post is temporarily unavailable. Check back once Strapi wakes up." />
-      </div>
+      <Fragment>
+        <TitleBlock title="Blog post" />
+        <EmptyState message="This blog post is not available right now. Check back once the content server is up." />
+      </Fragment>
     ) : !displayPost ? (
-      <div class="section-inner not-found">
-        <div class="not-found-cat">
-          <CatMiso />
-        </div>
-        <h1>404: Article not found</h1>
-        <p>The requested journal entry could not be located. It may have been archived or moved.</p>
-        <a href="/blog" class="btn btn-secondary press-shadow">Back to blog</a>
-      </div>
+      <Fragment>
+        <TitleBlock title="404: Article not found" author={false} />
+        <section class="abs">
+          <p class="center">
+            No article has this address. It may have been archived or moved. Return to the{' '}
+            <a href="/blog">blog</a>.
+          </p>
+        </section>
+      </Fragment>
     ) : (
-      <article class="blog-detail">
-        <header class="section-inner post-header">
-          <div class="header-badges">
-            <a href="/blog" class="back-link">
-              ← All Articles
-            </a>
-            <StickerBadge label={categoryName.toUpperCase()} rotate={-2} />
-          </div>
-          <h1 data-reveal>{displayPost.title}</h1>
-          <p class="summary">{displayPost.summary}</p>
-          <div class="post-meta-bar">
-            {publishedIso && (
-              <time datetime={publishedIso}>
-                Published on{' '}
-                {new Date(publishedIso).toLocaleDateString('en-US', {
-                  month: 'long',
-                  day: 'numeric',
-                  year: 'numeric',
-                })}
-              </time>
+      <article>
+        <TitleBlock title={displayPost.title}>{byline && <p class="dt">{byline}</p>}</TitleBlock>
+        <Abstract>
+          {displayPost.summary}
+          <Fragment slot="keywords">
+            {hasCategoryPage ? (
+              <a href={`/blog?category=${filterSlug}`}>{categoryName}</a>
+            ) : (
+              categoryName
             )}
-            {displayPost.readTime && <span class="read-estimate">• {displayPost.readTime}</span>}
-          </div>
-        </header>
+          </Fragment>
+        </Abstract>
 
-        {displayPost.coverImage && (
-          <div class="cover-wrap section-inner">
-            <div class="cover-frame">
+        <div class="one bd">
+          {cover?.width && cover.height && (
+            <figure class="fig">
               <Image
-                src={mediaUrl(displayPost.coverImage)}
-                width={displayPost.coverImage.width ?? 1200}
-                height={displayPost.coverImage.height ?? 675}
-                widths={[768, 1200]}
-                sizes="(max-width: 900px) 100vw, 900px"
-                alt={displayPost.coverImage.alternativeText ?? displayPost.title}
+                src={mediaUrl(cover)}
+                width={cover.width}
+                height={cover.height}
+                widths={[640, 960, 1400]}
+                sizes="(max-width: 760px) 92vw, 700px"
+                alt={cover.alternativeText ?? displayPost.title}
               />
-            </div>
-          </div>
-        )}
+              <figcaption class="capf">{cover.caption || displayPost.title}.</figcaption>
+            </figure>
+          )}
 
-        <div class="section-inner post-body-wrap">
           {displayPost.contentBlocks && displayPost.contentBlocks.length > 0 ? (
             <ArticleContent blocks={displayPost.contentBlocks} />
           ) : (
-            <div class="empty-content">
-              <p>No content blocks available for this post.</p>
-            </div>
+            <p>This post has no content yet.</p>
+          )}
+
+          {(older || newer) && (
+            <nav class="pager" aria-label="Posts">
+              <span>
+                {older && (
+                  <Fragment>
+                    ← Older: <a href={`/blog/${older.slug}`}>{older.title}</a>
+                  </Fragment>
+                )}
+              </span>
+              <span>
+                {newer && (
+                  <Fragment>
+                    Newer: <a href={`/blog/${newer.slug}`}>{newer.title}</a> →
+                  </Fragment>
+                )}
+              </span>
+            </nav>
           )}
         </div>
       </article>
     )
   }
 </Layout>
-
-<style>
-  .section-inner {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 0 var(--space-5);
-  }
-
-  .not-found {
-    padding: var(--space-9) var(--space-5);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: var(--space-4);
-  }
-
-  .not-found-cat {
-    width: 160px;
-  }
-
-  .post-header {
-    padding-top: var(--space-8);
-    padding-bottom: var(--space-6);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-  }
-
-  .post-header h1 {
-    font-size: var(--text-section);
-    line-height: 1.1;
-  }
-
-  .header-badges {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-    flex-wrap: wrap;
-    margin-bottom: var(--space-2);
-  }
-
-  .back-link {
-    font-family: var(--font-mono);
-    font-size: var(--text-tiny);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--teal);
-    text-decoration: none;
-  }
-
-  .back-link:hover {
-    text-decoration: underline;
-  }
-
-  .summary {
-    max-width: 65ch;
-    font-size: 1.2rem;
-    color: var(--ink);
-    opacity: 0.9;
-  }
-
-  .post-meta-bar {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-family: var(--font-mono);
-    font-size: var(--text-tiny);
-    color: var(--ink);
-    opacity: 0.75;
-    padding-top: var(--space-2);
-    border-top: 1px dashed var(--grid-line);
-  }
-
-  .cover-wrap {
-    margin-bottom: var(--space-7);
-  }
-
-  .cover-frame {
-    margin: 0 auto;
-    border: var(--border-thick);
-    border-radius: var(--radius-card);
-    overflow: hidden;
-    box-shadow: var(--shadow-hard);
-  }
-
-  .cover-frame :global(img) {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-
-  .post-body-wrap {
-    padding-bottom: var(--space-9);
-  }
-
-  .empty-content {
-    padding: var(--space-6);
-    border: 2px dashed var(--teal);
-    border-radius: var(--radius-card);
-    text-align: center;
-    font-family: var(--font-mono);
-  }
-</style>
