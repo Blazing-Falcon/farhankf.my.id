@@ -404,11 +404,6 @@ h2.s:not(.nonum)::before,
   margin-top: 1.4em;
 }
 
-.wide {
-  margin-left: -160px;
-  margin-right: -160px;
-}
-
 /* Two-column homepage body */
 .cols {
   display: grid;
@@ -573,8 +568,13 @@ h2.s:not(.nonum)::before,
 
 /* Figures and subfigures */
 .fig {
-  margin: 0;
-  margin-block: 1.1em;
+  margin: 1.1em 0;
+}
+
+/* Extends past the text column on both sides, up to the sheet width. */
+.wide {
+  margin-left: -160px;
+  margin-right: -160px;
 }
 
 .fig img {
