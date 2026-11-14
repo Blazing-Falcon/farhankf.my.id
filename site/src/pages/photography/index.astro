@@ -1,17 +1,19 @@
 ---
 import { Image } from 'astro:assets';
-import Layout from '../layouts/Layout.astro';
-import StickerBadge from '../components/StickerBadge.astro';
-import EmptyState from '../components/EmptyState.astro';
-import Lightbox from '../components/Lightbox.tsx';
-import { toLightboxPhotos } from '../lib/lightbox';
+import Layout from '../../layouts/Layout.astro';
+import TitleBlock from '../../components/TitleBlock.astro';
+import Abstract from '../../components/Abstract.astro';
+import CategoryKeywords from '../../components/CategoryKeywords.astro';
+import EmptyState from '../../components/EmptyState.astro';
+import { latest } from '../../lib/dates';
+import { aspect, dateRange, justifiedRows, photoPath, plateDetails } from '../../lib/photos';
 import {
   getPhotos,
   getPhotoCategories,
   mediaUrl,
   type Photo,
   type PhotoCategory,
-} from '../lib/strapi';
+} from '../../lib/strapi';
 
 const activeCategory = Astro.url.searchParams.get('category');
 
@@ -25,271 +27,67 @@ try {
     getPhotos(activeCategory ? { category: activeCategory } : {}),
   ]);
   categories = fetchedCategories;
-  photos = fetchedPhotos;
+  photos = fetchedPhotos.filter((photo) => photo.image?.width && photo.image.height);
 } catch {
   hadError = true;
 }
 
-const lightboxPhotos = await toLightboxPhotos(photos);
-
-const categoryLabel = (category?: PhotoCategory | string | null) => {
-  if (!category) return '';
-  if (typeof category === 'string') return category;
-  return category.name;
-};
-
-const shotDate = (photo: Photo) =>
-  photo.shotAt
-    ? new Date(photo.shotAt).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })
-    : null;
+const rows = justifiedRows(photos, aspect);
+const plateNumber = (photo: Photo) => photos.indexOf(photo) + 1;
+const sentence = (text: string) => (/[.!?…]$/.test(text.trim()) ? text.trim() : `${text.trim()}.`);
 ---
 
 <Layout
   title="Photography"
   description="Street, landscape, macro, and astrophotography shot by Farhan Kurnia Febriansyah — plus the occasional cat portrait."
+  identifier={photos.length > 0
+    ? { bracket: `${photos.length} ${photos.length === 1 ? 'plate' : 'plates'}`, date: dateRange(photos) || null }
+    : undefined}
+  revised={latest(photos.map((photo) => photo.updatedAt))}
 >
-  <section class="section-inner photography-page">
-    <div class="page-head">
-      <div>
-        <StickerBadge label="Through the lens" rotate={2} />
-        <h1 data-reveal>Photography</h1>
-        <p class="page-sub">
-          Sometimes you just need to take ur mind off things
-        </p>
+  <TitleBlock title="Photography" />
+  <Abstract center>
+    Sometimes you just need to take ur mind off things
+    <CategoryKeywords slot="keywords" base="/photography" categories={categories} active={activeCategory} />
+  </Abstract>
+
+  {
+    hadError ? (
+      <EmptyState message="The photos are not available right now. Check back once the content server is up." />
+    ) : photos.length === 0 ? (
+      <EmptyState message="No photos in this category yet." />
+    ) : (
+      <div class="plates">
+        {rows.map((row) => (
+          <div class:list={['jr', { stack: row.items.length >= 3 }]}>
+            {row.items.map((photo) => (
+              <div style={`flex: ${aspect(photo).toFixed(3)} 1 0`}>
+                <a href={photoPath(photo)}>
+                  <Image
+                    src={mediaUrl(photo.image)}
+                    width={photo.image.width!}
+                    height={photo.image.height!}
+                    widths={[480, 960, 1400]}
+                    sizes="(max-width: 760px) 92vw, 50vw"
+                    alt={photo.image.alternativeText ?? photo.title}
+                  />
+                </a>
+                <p class="sub">
+                  Plate {plateNumber(photo)}: {sentence(photo.title)}
+                  {plateDetails(photo) && ` ${plateDetails(photo)}.`}
+                </p>
+              </div>
+            ))}
+            {row.fill > 0 && <div class="fill" style={`flex: ${row.fill.toFixed(3)} 1 0`} />}
+          </div>
+        ))}
       </div>
-    </div>
-
-    <nav class="category-filters" aria-label="Filter by category">
-      <a href="/photography" class:list={['category-pill', { active: !activeCategory }]}>All</a>
-      {
-        categories.map((category) => (
-          <a
-            href={`/photography?category=${category.slug}`}
-            class:list={['category-pill', { active: activeCategory === category.slug }]}
-          >
-            {category.name}
-          </a>
-        ))
-      }
-    </nav>
-
-    {
-      hadError ? (
-        <EmptyState message="Photos are napping. Check back once Strapi wakes up." />
-      ) : photos.length === 0 ? (
-        <EmptyState message="No photos in this category yet." />
-      ) : (
-        <div class="masonry-grid">
-          {photos.map((photo, i) => (
-            <button
-              type="button"
-              class="polaroid"
-              style={`--tilt: ${[-1.5, 1, -0.5, 1.5][i % 4]}deg;`}
-              data-photo-index={i}
-              aria-label={`Open ${photo.title}`}
-            >
-              <span class="polaroid-tape" aria-hidden="true" />
-              {photo.image?.width && photo.image?.height && (
-                <Image
-                  src={mediaUrl(photo.image)}
-                  width={photo.image.width}
-                  height={photo.image.height}
-                  widths={[360, 720]}
-                  sizes="(min-width: 1024px) 350px, (min-width: 640px) 46vw, 92vw"
-                  alt={photo.image.alternativeText ?? photo.title}
-                />
-              )}
-              <span class="polaroid-meta">
-                <span class="polaroid-title">{photo.title}</span>
-                <span class="polaroid-exif">
-                  {photo.gear && <span>{photo.gear}</span>}
-                  {shotDate(photo) && <span>{shotDate(photo)}</span>}
-                </span>
-                {photo.category && (
-                  <span class="polaroid-stamp">{categoryLabel(photo.category)}</span>
-                )}
-              </span>
-            </button>
-          ))}
-        </div>
-      )
-    }
-  </section>
-
-  <Lightbox photos={lightboxPhotos} client:visible />
+    )
+  }
 </Layout>
 
 <style>
-  .section-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 var(--space-5);
+  .plates {
+    margin-top: 40px;
   }
-
-  .photography-page {
-    padding-top: var(--space-7);
-    padding-bottom: var(--section-gap);
-  }
-
-  .page-head {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: var(--space-5);
-  }
-
-  .page-head h1 {
-    font-size: var(--text-section);
-    margin-top: var(--space-3);
-    margin-bottom: var(--space-3);
-  }
-
-  .page-sub {
-    font-size: var(--text-body);
-    max-width: 52ch;
-    margin: 0 0 var(--space-5);
-  }
-
-  .category-filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3);
-    margin-bottom: var(--space-7);
-  }
-
-  .category-pill {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    font-family: var(--font-mono);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-size: var(--text-tiny);
-    font-weight: 700;
-    color: var(--ink);
-    text-decoration: none;
-    padding: var(--space-2) var(--space-4);
-    border: var(--border-thick);
-    border-radius: var(--radius-pill);
-    background: var(--paper);
-    transition:
-      transform 0.2s ease-out,
-      background-color 0.2s ease-out;
-  }
-
-  .category-pill:hover {
-    transform: translateY(-2px);
-  }
-
-  .category-pill.active {
-    background: var(--teal);
-    color: var(--paper);
-  }
-
-  .masonry-grid {
-    columns: 1;
-    column-gap: var(--space-6);
-  }
-
-  .polaroid {
-    position: relative;
-    display: block;
-    width: 100%;
-    margin-bottom: var(--space-6);
-    break-inside: avoid;
-    background: var(--paper);
-    border: var(--border-thick);
-    box-shadow: var(--shadow-hard);
-    padding: var(--space-3) var(--space-3) var(--space-4);
-    cursor: pointer;
-    text-align: left;
-    transform: rotate(var(--tilt, 0deg));
-    transition:
-      transform 0.25s ease-out,
-      box-shadow 0.25s ease-out;
-  }
-
-  .polaroid:hover,
-  .polaroid:focus-visible {
-    transform: rotate(0deg) translateY(-4px);
-    box-shadow: 8px 10px 0 var(--ink);
-    z-index: 1;
-  }
-
-  .polaroid-tape {
-    position: absolute;
-    top: -10px;
-    left: 50%;
-    transform: translateX(-50%) rotate(-3deg);
-    width: 76px;
-    height: 20px;
-    background: var(--butter);
-    border: 2px solid var(--ink);
-    opacity: 0.9;
-    z-index: 1;
-  }
-
-  .polaroid :global(img) {
-    width: 100%;
-    height: auto;
-    display: block;
-    border: 2px solid var(--ink);
-  }
-
-  .polaroid-meta {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-    padding-top: var(--space-3);
-  }
-
-  .polaroid-title {
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: var(--text-tiny);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--ink);
-  }
-
-  .polaroid-exif {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-1) var(--space-3);
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    color: var(--ink);
-    opacity: 0.75;
-  }
-
-  .polaroid-stamp {
-    position: absolute;
-    right: 0;
-    top: var(--space-2);
-    font-family: var(--font-mono);
-    font-size: 0.66rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    color: var(--teal);
-    border: 2px solid var(--teal);
-    border-radius: 4px;
-    padding: 1px var(--space-2);
-    transform: rotate(-6deg);
-    opacity: 0.85;
-  }
-
-  @media (min-width: 640px) {
-    .masonry-grid {
-      columns: 2;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .masonry-grid {
-      columns: 3;
-    }
-  }
-
 </style>
