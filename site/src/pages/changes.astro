@@ -1,0 +1,86 @@
+---
+import Layout from '../layouts/Layout.astro';
+import TitleBlock from '../components/TitleBlock.astro';
+import Abstract from '../components/Abstract.astro';
+import EmptyState from '../components/EmptyState.astro';
+import { parseDate, shortDate } from '../lib/dates';
+
+interface Commit {
+  hash: string;
+  date: string;
+  subject: string;
+}
+
+// The build writes this file. A glob import tolerates its absence, so a
+// checkout that has not been built yet still type-checks and runs.
+const files = import.meta.glob<{ default: { repository: string; commits: Commit[] } }>(
+  '../data/changes.json',
+  { eager: true }
+);
+const data = Object.values(files)[0]?.default;
+const commits = data?.commits ?? [];
+
+// "fix(site): load the worker" becomes type "fix" and entry "site: load the worker".
+const rows = commits.map((commit) => {
+  const match = /^(\w+)(?:\(([^)]+)\))?!?:\s*(.*)$/.exec(commit.subject);
+  return {
+    date: shortDate(commit.date),
+    type: match?.[1] ?? '',
+    entry: match ? `${match[2] ? `${match[2]}: ` : ''}${match[3]}` : commit.subject,
+    hash: commit.hash.slice(0, 7),
+    url: `https://github.com/${data!.repository}/commit/${commit.hash}`,
+  };
+});
+const newest = parseDate(commits[0]?.date);
+---
+
+<Layout
+  title="Revision history"
+  description="Code changes to farhankf.my.id, newest first."
+  identifier={rows.length > 0
+    ? { bracket: `${rows.length} revisions`, date: shortDate(newest) || null }
+    : undefined}
+  revised={newest}
+>
+  <TitleBlock title="Revision history" />
+  <Abstract>
+    Code changes to this site, newest first. The list is generated from the commit log each time
+    the site is built.
+  </Abstract>
+  {
+    rows.length === 0 ? (
+      <EmptyState message="The revision history is not available in this build." />
+    ) : (
+      <div class="one history">
+        <p class="capn capt">Revision history.</p>
+        <div class="scroll">
+          <table class="bt rev">
+            <thead>
+              <tr><th>Date</th><th>Type</th><th>Entry</th></tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr>
+                  <td>{row.date}</td>
+                  <td>{row.type}</td>
+                  <td>
+                    {row.entry}{' '}
+                    <a class="tty" href={row.url} target="_blank" rel="noreferrer">
+                      {row.hash}
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )
+  }
+</Layout>
+
+<style>
+  .history {
+    max-width: 860px;
+  }
+</style>

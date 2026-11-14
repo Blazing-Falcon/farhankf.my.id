@@ -22,3 +22,6 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# commit list written by scripts/generate-changes.mjs before each build
+src/data/changes.json
