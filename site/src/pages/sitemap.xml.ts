@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
-import { getBlogPosts, getProjects } from '../lib/strapi';
+import { photoPath } from '../lib/photos';
+import { getBlogPosts, getPhotos, getProjects, type Photo } from '../lib/strapi';
 
 function xmlEscape(value: string): string {
   return value
@@ -39,15 +40,18 @@ export const GET: APIRoute = async ({ site }) => {
     { path: '/blog', changefreq: 'daily', priority: '0.9' },
     { path: '/photography', changefreq: 'weekly', priority: '0.8' },
     { path: '/links', changefreq: 'monthly', priority: '0.6' },
+    { path: '/changes', changefreq: 'weekly', priority: '0.3' },
   ];
 
   let blogPosts: { slug: string; publishedDate?: string | null }[];
   let projects: { slug: string; finishedAt?: string | null }[];
+  let photos: Photo[];
 
   try {
-    [blogPosts, projects] = await Promise.all([
+    [blogPosts, projects, photos] = await Promise.all([
       getBlogPosts({ withContent: false }),
       getProjects(),
+      getPhotos(),
     ]);
   } catch {
     // Serving the static routes alone would tell crawlers that every post and
@@ -65,6 +69,9 @@ export const GET: APIRoute = async ({ site }) => {
     ),
     ...blogPosts.map((post) =>
       urlEntry(`${baseUrl}/blog/${post.slug}`, lastmod(post.publishedDate), 'monthly', '0.8')
+    ),
+    ...photos.map((photo) =>
+      urlEntry(`${baseUrl}${photoPath(photo)}`, lastmod(photo.shotAt), 'yearly', '0.5')
     ),
   ];
 
