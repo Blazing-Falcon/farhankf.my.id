@@ -1,0 +1,159 @@
+---
+import { Image, getImage } from 'astro:assets';
+import Layout from '../../layouts/Layout.astro';
+import TitleBlock from '../../components/TitleBlock.astro';
+import Abstract from '../../components/Abstract.astro';
+import EmptyState from '../../components/EmptyState.astro';
+import { longDate, monthYear } from '../../lib/dates';
+import { findPhoto, photoPath, plateDetails } from '../../lib/photos';
+import { getPhotos, mediaUrl, type Photo } from '../../lib/strapi';
+
+let photos: Photo[] = [];
+let hadError = false;
+
+try {
+  photos = (await getPhotos()).filter((entry) => entry.image?.width && entry.image.height);
+} catch {
+  hadError = true;
+}
+
+const photo = findPhoto(photos, Astro.params.photo!);
+
+if (hadError) {
+  Astro.response.status = 502;
+} else if (!photo) {
+  Astro.response.status = 404;
+} else if (Astro.url.pathname !== photoPath(photo)) {
+  // Only the id part of the address names the photo, so an address with an
+  // old or mistyped title still lands here. Send it to the current one.
+  return Astro.redirect(photoPath(photo), 301);
+}
+
+const index = photo ? photos.indexOf(photo) : -1;
+const previous = index > 0 ? photos[index - 1] : null;
+const next = index !== -1 && index < photos.length - 1 ? photos[index + 1] : null;
+const category = photo && typeof photo.category === 'object' ? photo.category : null;
+const details = photo ? plateDetails(photo) : '';
+const sentence = (text: string) => (/[.!?…]$/.test(text.trim()) ? text.trim() : `${text.trim()}.`);
+// A caption that only repeats the title adds nothing above the plate.
+const caption = photo?.caption && photo.caption.trim() !== photo.title.trim() ? photo.caption : null;
+
+// mediaUrl() yields the internal Strapi origin, which no crawler can reach.
+// /_image serves the same bytes from this origin.
+let previewUrl: string | undefined;
+if (photo) {
+  try {
+    const width = Math.min(photo.image.width!, 1200);
+    const height = Math.round(photo.image.height! * (width / photo.image.width!));
+    previewUrl = (await getImage({ src: mediaUrl(photo.image), width, height, format: 'webp' })).src;
+  } catch {
+    // the default preview image is used
+  }
+}
+---
+
+<Layout
+  title={photo?.title ?? 'Photo not found'}
+  description={photo ? [sentence(caption ?? photo.title), details && `${details}.`].filter(Boolean).join(' ') : undefined}
+  image={previewUrl}
+  imageAlt={photo ? (photo.image.alternativeText ?? photo.title) : undefined}
+  identifier={photo ? { bracket: category?.name.toLowerCase(), date: monthYear(photo.shotAt) || null } : undefined}
+  revised={photo?.updatedAt}
+>
+  {
+    hadError ? (
+      <Fragment>
+        <TitleBlock title="Photo" />
+        <EmptyState message="This photo is not available right now. Check back once the content server is up." />
+      </Fragment>
+    ) : !photo ? (
+      <Fragment>
+        <TitleBlock title="404: no such photo" author={false} />
+        <section class="abs">
+          <p class="center">
+            No photo has this address. It might have been removed. Return to the{' '}
+            <a href="/photography">gallery</a>.
+          </p>
+        </section>
+      </Fragment>
+    ) : (
+      <article>
+        <TitleBlock title={photo.title}>
+          <p class="dt">
+            Plate {index + 1} of {photos.length}
+          </p>
+        </TitleBlock>
+        {caption && <Abstract center>{caption}</Abstract>}
+
+        <div class="one">
+          <figure class="fig wide plate">
+            <Image
+              src={mediaUrl(photo.image)}
+              width={photo.image.width!}
+              height={photo.image.height!}
+              widths={[720, 1100, 2040]}
+              sizes="(max-width: 1100px) 100vw, 1020px"
+              alt={photo.image.alternativeText ?? photo.title}
+              loading="eager"
+            />
+            <figcaption>
+              Plate {index + 1}: {sentence(photo.title)}
+              {details && ` ${details}.`}
+            </figcaption>
+          </figure>
+
+          <div class="narrow">
+            <p class="capn capt">Exposure record.</p>
+            <table class="bt">
+              <thead>
+                <tr><th>Parameter</th><th>Value</th></tr>
+              </thead>
+              <tbody>
+                {photo.gear && <tr><td>Camera</td><td>{photo.gear}</td></tr>}
+                {longDate(photo.shotAt) && <tr><td>Date</td><td>{longDate(photo.shotAt)}</td></tr>}
+                {category && (
+                  <tr>
+                    <td>Category</td>
+                    <td>
+                      <a href={`/photography?category=${category.slug}`}>{category.name.toLowerCase()}</a>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          <nav class="pager" aria-label="Plates">
+            <span>
+              {previous && (
+                <Fragment>
+                  ← <a href={photoPath(previous)}>Plate {index}: {previous.title}</a>
+                </Fragment>
+              )}
+            </span>
+            <span>
+              <a href="/photography">All plates</a>
+            </span>
+            <span>
+              {next && (
+                <Fragment>
+                  <a href={photoPath(next)}>Plate {index + 2}: {next.title}</a> →
+                </Fragment>
+              )}
+            </span>
+          </nav>
+        </div>
+      </article>
+    )
+  }
+</Layout>
+
+<style>
+  /* A tall photo is limited by the window height, never cropped. */
+  .plate :global(img) {
+    width: auto;
+    max-width: 100%;
+    max-height: 88vh;
+    margin: 0 auto;
+  }
+</style>
