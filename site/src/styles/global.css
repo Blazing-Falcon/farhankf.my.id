@@ -459,7 +459,7 @@ h2.s:not(.nonum)::before,
   object-fit: cover;
 }
 
-.am .cap {
+.sheet .am .cap {
   margin: 0;
 }
 
@@ -545,9 +545,10 @@ h2.s:not(.nonum)::before,
   margin: 36px auto 0;
 }
 
-/* Captions. The numbers come from the page counters. */
-.cap,
-.capn,
+/* Captions. The numbers come from the page counters. The .sheet prefix lets
+   them win over the justified body paragraphs they sit among. */
+.sheet .cap,
+.sheet .capn,
 .fig figcaption {
   font-size: 17px;
   line-height: 1.35;
@@ -556,7 +557,7 @@ h2.s:not(.nonum)::before,
   text-indent: 0;
 }
 
-.capn {
+.sheet .capn {
   margin: 0 0 8px;
 }
 
