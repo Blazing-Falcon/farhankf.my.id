@@ -1,27 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-  <g fill="none" stroke="#1a1b23" stroke-width="6" stroke-linejoin="round" stroke-linecap="round">
-    <!-- ears -->
-    <path d="M40 44 L26 12 L52 34 Z" fill="#fbf7ef" />
-    <path d="M88 44 L102 12 L76 34 Z" fill="#fbf7ef" />
-    <!-- head -->
-    <circle cx="64" cy="70" r="40" fill="#fbf7ef" />
-  </g>
-  <!-- inner ears -->
-  <path d="M40 40 L33 22 L48 34 Z" fill="#ffc4b0" />
-  <path d="M88 40 L95 22 L80 34 Z" fill="#ffc4b0" />
-  <!-- big eyes -->
-  <circle cx="50" cy="66" r="8" fill="#1a1b23" />
-  <circle cx="78" cy="66" r="8" fill="#1a1b23" />
-  <circle cx="53" cy="63" r="2.4" fill="#fbf7ef" />
-  <circle cx="81" cy="63" r="2.4" fill="#fbf7ef" />
-  <!-- rosy cheeks -->
-  <ellipse cx="38" cy="82" rx="7" ry="4" fill="#ffc4b0" />
-  <ellipse cx="90" cy="82" rx="7" ry="4" fill="#ffc4b0" />
-  <!-- nose -->
-  <path d="M58 80 L70 80 L64 88 Z" fill="#ff5c00" stroke="#1a1b23" stroke-width="2" stroke-linejoin="round" />
-  <!-- whiskers -->
-  <g stroke="#1a1b23" stroke-width="3" stroke-linecap="round" fill="none">
-    <path d="M46 84 Q28 80 16 84" />
-    <path d="M82 84 Q100 80 112 84" />
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" fill="#282828" />
+  <text x="32" y="48" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="52" font-weight="700" fill="#fe8019">f</text>
 </svg>
