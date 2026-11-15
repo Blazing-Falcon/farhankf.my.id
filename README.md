@@ -2,7 +2,7 @@
 
 Live at **[farhankf.my.id](https://farhankf.my.id)**.
 
-Built and self-hosted. Astro 5 (SSR) on the front, Strapi 5 as the CMS, Docker Compose on my own hardware.
+Built and self-hosted. Astro 7 (SSR) on the front, Strapi 5 as the CMS, Docker Compose on my own hardware.
 
 ## Docs
 

@@ -5,9 +5,9 @@ Setup, content editing, and design tokens for the portfolio site.
 Two independent Node projects, no monorepo tooling — `cd` into each and run its own npm scripts:
 
 - **`cms/`** — Strapi 5 (SQLite), the admin panel and content API. Port `1337`.
-- **`site/`** — Astro 5 in SSR mode, one React island (the photo lightbox), motion via the Web Animations API. Port `4321`.
+- **`site/`** — Astro 7 in SSR mode, no client-side framework. Port `4321`.
 
-Every page is server-rendered per request: Astro fetches from Strapi in the page frontmatter, so **Strapi should be running first**. If it isn't, pages still render — a cat illustration takes the place of the missing content instead of a 500.
+Every page is server-rendered per request: Astro fetches from Strapi in the page frontmatter, so **Strapi should be running first**. If it isn't, list pages still render with a short notice in place of the missing content instead of a 500. Detail pages answer 502 and the sitemap answers 503.
 
 ## Prerequisites
 
@@ -61,7 +61,7 @@ Both dev servers bind to `0.0.0.0`, so they're reachable from other machines on 
 
 ## Editing content
 
-Everything — About, projects, photos, lab notes, the cat committee — is edited in the Strapi admin at `http://localhost:1337/admin`.
+Everything — About, projects, blog posts, photos, lab notes, links — is edited in the Strapi admin at `http://localhost:1337/admin`.
 
 **Click Publish on every entry.** Draft & Publish is on, and the API only returns published entries. If something you just added isn't showing up, check that first. (Responses are also cached for 60s, so give edits up to a minute to appear.)
 
@@ -73,11 +73,13 @@ Content types are defined **as code** in `cms/src/api/*/content-types/*/schema.j
 |---|---|
 | **About** (single) | Headline, bio (markdown), portrait, skills, contact links. |
 | **Project** (collection) | Title, slug, summary, body (markdown), cover image, gallery, tech stack, links, `featured`, difficulty, stats. |
-| **Photo** (collection) | Image, caption, `category`, date, gear, `featured`. Categories: `street`, `landscape`, `portrait`, `macro`, `astrophotography`, `cat`, `other`. |
-| **Lab note** (collection) | The homepage sticky-note board: `title` + `body` (max 280 chars) + `order` for placement. Color and tilt are automatic. |
-| **Cat** (collection) | The About page's supervision committee: `name`, `role`, `photo`, `bio`, `order`. Cards open a click-through staff file. |
+| **Blog post** (collection) | Title, slug, summary, `category`, cover image, `readTime`, `publishedDate`, and `contentBlocks`: markdown text, captioned image, PDF document, YouTube video. |
+| **Blog category**, **Photo category** (collections) | `name`, `slug`, `order`. They feed the Keywords line on the Blog and Photography pages and the `?category=` filter. |
+| **Photo** (collection) | Image, caption, `category` (a photo category), date, gear, `featured`. |
+| **Lab note** (collection) | The homepage "Lab notes" section: `title` + `body` (max 280 chars) + `order`. Each is set as a numbered note. |
+| **Cat** (collection) | No longer shown on the site. The type stays in Strapi so its content is kept. |
 | **Social link** (collection) | The `/links` page: `label`, `url`, `icon` (one of `github`, `instagram`, `spotify`, `email`), `handle` (optional subtext), `order`. Use a full `mailto:` URL for the email entry. |
-| **Ticker** (single) | `topics` — an array of uppercase strings for the homepage marquee, e.g. `["STATISTICS", "CATS", "COFFEE"]`. The site falls back to built-in defaults if it's missing. (The schema also has an unused `tools` field, left over from a second marquee that was removed.) |
+| **Ticker** (single) | `topics` — an array of uppercase strings for the homepage Keywords line, e.g. `["STATISTICS", "CATS", "COFFEE"]`. The site prints them in lower case and falls back to built-in defaults if the entry is missing. (The schema also has an unused `tools` field.) |
 
 ### JSON field shapes
 
@@ -94,7 +96,7 @@ These are conventions the frontend expects, not schema-validated — get them wr
 
 **Project `techStack`** — a flat array of strings: `["Python", "scikit-learn", "SMOTE"]`.
 
-**Project `stats`** — up to ~3 bragging numbers shown on the card:
+**Project `stats`** — up to ~3 numbers shown as rows of the project's Specification table:
 
 ```json
 [
@@ -103,22 +105,43 @@ These are conventions the frontend expects, not schema-validated — get them wr
 ]
 ```
 
-**Project `difficulty`** — optional sticker on the card: `weekend-hack`, `semester-project`, `thesis-grade`, or `ongoing-saga`.
+**Project `difficulty`** — optional status, shown in the project list and the Specification table. `ongoing-saga` also adds the "Preprint." line under the title: `weekend-hack`, `semester-project`, `thesis-grade`, or `ongoing-saga`.
 
 ## Design system
 
-"Ink & Tangerine": heavy ink borders, hard offset shadows that press in on hover, and a cat mascot drawn as inline SVG. All colors, spacing, and shapes are CSS custom properties in **`site/src/styles/tokens.css`** — use the tokens, don't hardcode hex values or magic pixel numbers.
+"Preprint": every page is typeset like a LaTeX paper in the Gruvbox palette. A page has a centered title block, an abstract, numbered sections, three-rule tables, numbered figures, and a footer set as footnotes. Lists of projects and posts are bibliography entries.
 
-| Token | Hex | Use |
-|---|---|---|
-| `--paper` | `#FBF7EF` | Page background |
-| `--ink` | `#1A1B23` | Text, borders, dark sections |
-| `--tangerine` | `#FF5C00` | Primary accent: CTAs, marquee, focus ring |
-| `--teal` | `#0E7C7B` | Links, tags |
-| `--butter` | `#FFD23F` | Selection, sticker badges |
-| `--blush` | `#FFC4B0` | Soft card fills |
+All colors and the main measures are CSS custom properties in **`site/src/styles/tokens.css`**. The shared page furniture is in **`site/src/styles/global.css`**. Use the tokens, and do not hardcode hex values in components.
 
-Type: **Bricolage Grotesque** for display, **Instrument Sans** for body, **Space Mono** for tickers and captions.
+| Token | Dark | Light | Use |
+|---|---|---|---|
+| `--bg` | `#282828` | `#fbf1c7` | Page |
+| `--bg1` | `#3c3836` | `#ebdbb2` | Code listings, PDF and video frames |
+| `--bg3` | `#665c54` | `#bdae93` | Running-head rule, listing rules |
+| `--fg` | `#ebdbb2` | `#3c3836` | Body text, table rules |
+| `--fg0` | `#fbf1c7` | `#282828` | Title, headings |
+| `--mute` | `#a89984` | `#665c54` | The identifier line |
+| `--orange` | `#fe8019` | `#af3a03` | Links, current page, focus ring |
+
+Type: **Libertinus Serif** for all text, **Libertinus Mono** for code and URLs. Both are self-hosted through `@fontsource` packages, because the Content Security Policy allows no external hosts.
+
+**Theme.** Dark is the default. A first-time visitor gets the theme of their system. The header toggle stores the choice in a `theme` cookie, which the server reads to set `data-theme` on `<html>`, so a page never flashes the other theme.
+
+**Numbering.** Sections, figures, tables and reference entries are numbered by CSS counters that start on `.sheet`. Never store a number in the CMS. A level-2 heading (`##`) in a post or project body becomes a numbered section.
+
+**Components.** `TitleBlock`, `Abstract`, `PaperTable`, `RefList` (bibliography entries), `AuthorFigure` (portrait beside the facts table), `CategoryKeywords` (category filter links) and `ArticleContent` (the article blocks) are in `site/src/components/`.
+
+## Writing posts
+
+Markdown in a post or project body is sanitized before it is rendered. Raw HTML is removed.
+
+- Each heading gets an `id` that the site generates from its text, so a section can be linked directly.
+- LaTeX maths is rendered with KaTeX: `$a^2 + b^2$` inline, and `$$ ... $$` on its own lines for a display equation. A dollar sign followed by a space, or a closing one followed by a digit, is read as money.
+
+## Photos and revision history
+
+- Each photo has its own page at `/photography/<title>-<id>`. Only the id part identifies the photo, so the address still works after the title changes.
+- `/changes` lists the newest commits. `site/scripts/generate-changes.mjs` writes the list to `site/src/data/changes.json` before every build. It reads the local `git log` when one exists. The Docker build has no `.git` directory, so there it reads the public GitHub repository. If neither source answers, the build continues and the page says that the list is not available.
 
 ## Deploying
 

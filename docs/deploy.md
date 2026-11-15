@@ -28,7 +28,7 @@ The containers themselves are disposable. Those two directories plus the two
 ## Run it locally
 
 ```bash
-cd portfolio
+# from the project directory
 docker compose up -d --build
 # site:  http://localhost:7100
 # admin: http://localhost:7108/admin
@@ -54,7 +54,7 @@ processes writing it will corrupt it. Run one or the other, not both.
    rsync -av \
      --exclude node_modules --exclude dist --exclude .astro \
      --exclude .cache --exclude .git \
-     portfolio/ user@vps:~/portfolio/
+     ./ user@vps:~/about-me/
    ```
 
    Do **not** exclude `cms/data`, `cms/public/uploads`, `cms/.env`, or
@@ -65,7 +65,7 @@ processes writing it will corrupt it. Run one or the other, not both.
 3. On the VPS:
 
    ```bash
-   cd ~/portfolio && docker compose up -d --build
+   cd ~/about-me && docker compose up -d --build
    ```
 
 ## Reaching the admin panel
@@ -87,6 +87,11 @@ rules for `/_image` belong in the Cloudflare dashboard.
 - **Code or schema changes**: rsync again (same excludes), then
   `docker compose up -d --build` on the VPS. Schema changes are baked into the
   image at build time, so a rebuild is required — restarting is not enough.
+
+## What a build and a boot do on their own
+
+- **Database migrations.** The CMS image carries `cms/database/migrations`. Strapi runs any migration that the database has not seen yet at boot, before it syncs the schema. Back up `cms/data/data.db` before a deploy that adds a migration.
+- **Revision history.** The site build fetches the newest commits from the public GitHub repository for the `/changes` page. The page therefore shows what is pushed to the default branch at build time. If GitHub does not answer, the build continues and the page says that the list is not available.
 
 ## Backups
 
