@@ -159,16 +159,6 @@ export interface Ticker {
   tools?: string[] | null;
 }
 
-export interface Cat {
-  id: number;
-  documentId: string;
-  name: string;
-  role: string;
-  bio?: string | null;
-  photo?: StrapiMedia | null;
-  order: number;
-}
-
 export interface PhotoCategory {
   id: number;
   documentId: string;
@@ -346,15 +336,6 @@ export async function getPhotos({
     params['filters[featured][$eq]'] = 'true';
   }
   return strapiFetchAll<Photo>('/photos', params);
-}
-
-export async function getCats(): Promise<Cat[]> {
-  const res = await strapiFetch<StrapiListResponse<Cat>>('/cats', {
-    populate: '*',
-    sort: 'order:asc',
-    'pagination[pageSize]': '50',
-  });
-  return res.data;
 }
 
 export async function getTicker(): Promise<Ticker | null> {

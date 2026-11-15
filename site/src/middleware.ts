@@ -19,12 +19,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
     // astro.config.mjs (SSR routes deliver it as a header) — never set() it
     // wholesale here, that would clobber Astro's script-src hashes.
     //
-    // One surgical rewrite though: Astro hashes its islands-runtime <style>
-    // (astro-island{display:contents}), and any hash in style-src makes
+    // One surgical rewrite though: any hash Astro adds to style-src makes
     // browsers ignore 'unsafe-inline' — which the design needs for its
-    // ~20 inline style="" attributes (cat fills, card tilts, ticker timing)
-    // and the <style> blocks inside the inline cat SVGs. Dropping the style
-    // hashes keeps 'unsafe-inline' honored; script-src hashes stay intact.
+    // inline style="" attributes (photo row proportions, KaTeX layout).
+    // Dropping the style hashes keeps 'unsafe-inline' honored; script-src
+    // hashes stay intact.
     const csp = response.headers.get('Content-Security-Policy');
     if (csp) {
       response.headers.set(

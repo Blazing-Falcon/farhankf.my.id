@@ -3,10 +3,6 @@ import { defineConfig } from 'astro/config';
 
 import node from '@astrojs/node';
 
-import react from '@astrojs/react';
-
-import icon from 'astro-icon';
-
 // https://astro.build/config
 export default defineConfig({
   output: 'server',
@@ -21,21 +17,19 @@ export default defineConfig({
     mode: 'standalone'
   }),
 
-  integrations: [react(), icon()],
-
   build: {
     // Keep all styles as external <link>s: if any stylesheet were inlined,
     // Astro's CSP would emit a style-src hash for it, and a hash in style-src
     // makes browsers ignore 'unsafe-inline' — killing every inline style=""
-    // attribute the design relies on (cat fills, card tilts, ticker timing).
+    // attribute the design relies on (photo row proportions, KaTeX layout).
     inlineStylesheets: 'never'
   },
 
   security: {
     // Hash-based CSP: Astro emits sha256 hashes for exactly the inline
     // scripts it renders, so injected <script> (e.g. via CMS content) won't
-    // execute. Delivered as a <meta> tag; frame-ancestors and the other
-    // response headers live in src/middleware.ts (meta CSP can't carry them).
+    // execute. Server-rendered routes deliver it as a response header; the
+    // other security headers live in src/middleware.ts.
     csp: {
       scriptDirective: { resources: ["'self'"] },
       styleDirective: { resources: ["'self'", "'unsafe-inline'"] },
