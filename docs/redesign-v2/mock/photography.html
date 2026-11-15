@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Photography · farhankf v2 mockup</title>
+<!-- Mockup only. The real site must self-host these fonts; its CSP blocks external hosts. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libertinus+Serif:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libertinus+Mono&amp;display=swap">
+<link rel="stylesheet" href="paper.css">
+<style>html,body{margin:0} .pp{min-height:100vh}</style>
+</head>
+<body>
+<div class="pp" data-theme="dark" data-links="boxed">
+<div class="sheet">
+
+<header class="rh">
+<a class="wm" href="home.html">farhankf</a>
+<nav aria-label="Main">
+<a href="home.html">Home</a>
+<a href="#">About</a>
+<a href="project.html">Projects</a>
+<a href="post.html">Blog</a>
+<a href="photography.html" aria-current="page">Photography</a>
+</nav>
+<button type="button" id="theme">Light</button>
+</header>
+<p class="stamp">farhankf.my.id/photography &nbsp; [10 plates] &nbsp; Aug 2025 to Jun 2026</p>
+
+<main>
+<div class="tb">
+<h1 class="tt">Photography</h1>
+<p class="au">Farhan Kurnia Febriansyah</p>
+</div>
+
+<section class="abs" aria-labelledby="h-abs">
+<h2 id="h-abs">Abstract</h2>
+<p style="text-align: center">Sometimes you just need to take ur mind off things</p>
+<p style="text-align: center"><b>Keywords:</b> <b>all</b>, <a class="bx" href="#">street</a> <a class="bx" href="#">landscape</a> <a class="bx" href="#">astrophotography</a> <a class="bx" href="#">cat</a> <a class="bx" href="#">portrait</a> <a class="bx" href="#">macro</a> <a class="bx" href="#">other</a></p>
+</section>
+
+<div style="margin-top: 40px">
+<div class="jr">
+<div style="flex: 1.778 1 0"><img src="img/milkyway.webp" alt="The Milky Way over a dark treeline" style="aspect-ratio: 16 / 9"><p class="sub">Plate 1: milky way. Sony a6000, Mar 2026.</p></div>
+<div style="flex: 0.667 1 0"><img src="img/scorpius.webp" alt="The constellation Scorpius above low cloud" style="aspect-ratio: 2 / 3"><p class="sub">Plate 2: Scorpius. Sony a6000, Mar 2026.</p></div>
+</div>
+<div class="jr stack">
+<div style="flex: 1.5 1 0"><img src="img/cat1.webp" alt="An orange cat resting on a tree branch" style="aspect-ratio: 3 / 2"><p class="sub">Plate 3: Random Cat. Sony a6000, Jun 2026.</p></div>
+<div style="flex: 1.5 1 0"><img src="img/cat2.webp" alt="A black and white cat looking down from a tree" style="aspect-ratio: 3 / 2"><p class="sub">Plate 4: random cat 2. Sony a6000, Jun 2026.</p></div>
+<div style="flex: 1 1 0"><img src="img/molly.webp" alt="Molly, a fluffy cat with a dark face, lying down" style="aspect-ratio: 1 / 1"><p class="sub">Plate 5: Molly. Sony a6000, Sept 2025.</p></div>
+</div>
+<div class="jr stack">
+<div style="flex: 1.333 1 0"><img src="img/kelud1.webp" alt="A road winding through green hills under cloud" style="aspect-ratio: 4 / 3"><p class="sub">Plate 6: otw kelud. Xiaomi Redmi Note 12 Pro, Jan 2026.</p></div>
+<div style="flex: 1.5 1 0"><img src="img/kelud2.webp" alt="A mountain ridge fading into mist" style="aspect-ratio: 3 / 2"><p class="sub">Plate 7: pulang dari kelud. Sony a6000, Jan 2026.</p></div>
+<div style="flex: 1.5 1 0"><img src="img/gemini.webp" alt="A bright point of light in a dark sky, in Gemini" style="aspect-ratio: 3 / 2"><p class="sub">Plate 8: Gemini. Sony a6000, Jan 2026.</p></div>
+</div>
+<div class="jr stack">
+<div style="flex: 1.333 1 0"><img src="img/nowhere1.webp" alt="Tall grass in front of clouds lit by sunset" style="aspect-ratio: 4 / 3"><p class="sub">Plate 9: middle of nowhere 1. Xiaomi Redmi Note 12 Pro, Aug 2025.</p></div>
+<div style="flex: 1.335 1 0"><img src="img/nowhere2.webp" alt="A pink and purple sunset behind a dark hillside" style="aspect-ratio: 1200 / 899"><p class="sub">Plate 10: middle of nowhere 2. Xiaomi Redmi Note 12 Pro, Aug 2025.</p></div>
+</div>
+</div>
+</main>
+
+<footer class="fn">
+<p><sup>*</sup> Built with Astro + Strapi, self-hosted on Proxmox. This page was last revised on [DATE].</p>
+<nav aria-label="Footer">
+<a class="bx" href="#">About the author</a>
+<a class="bx" href="#">Revision history</a>
+<a class="bx" href="#">Random page</a>
+<a class="bx" href="#">Links</a>
+<a class="bx url" href="https://github.com/Blazing-Falcon">GitHub</a>
+</nav>
+</footer>
+
+</div>
+</div>
+<script>
+// Mockup controls: the button switches theme; add ?links=colored to preview plain orange links.
+const root = document.querySelector('.pp');
+if (new URLSearchParams(location.search).get('links') === 'colored') root.dataset.links = 'colored';
+if (new URLSearchParams(location.search).get('theme') === 'light') root.dataset.theme = 'light';
+const btn = document.getElementById('theme');
+const sync = () => { btn.textContent = root.dataset.theme === 'dark' ? 'Light' : 'Dark'; };
+btn.addEventListener('click', () => { root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark'; sync(); });
+sync();
+</script>
+</body>
+</html>

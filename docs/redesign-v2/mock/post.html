@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blog post · farhankf v2 mockup</title>
+<!-- Mockup only. The real site must self-host these fonts; its CSP blocks external hosts. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libertinus+Serif:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libertinus+Mono&amp;display=swap">
+<link rel="stylesheet" href="paper.css">
+<style>html,body{margin:0} .pp{min-height:100vh}</style>
+</head>
+<body>
+<div class="pp" data-theme="dark" data-links="boxed">
+<div class="sheet">
+
+<header class="rh">
+<a class="wm" href="home.html">farhankf</a>
+<nav aria-label="Main">
+<a href="home.html">Home</a>
+<a href="#">About</a>
+<a href="project.html">Projects</a>
+<a href="post.html" aria-current="page">Blog</a>
+<a href="photography.html">Photography</a>
+</nav>
+<button type="button" id="theme">Light</button>
+</header>
+<p class="stamp">farhankf.my.id/blog/logistic-regression-numpy &nbsp; [Machine learning] &nbsp; 3 Sep 2026</p>
+
+<main>
+<article>
+<div class="tb">
+<h1 class="tt">Logistic Regression With Only NumPy<sup style="font-size: 0.5em">†</sup></h1>
+<p class="au">Farhan Kurnia Febriansyah</p>
+<p class="dt">3 September 2026 · 9 min read</p>
+</div>
+
+<section class="abs" aria-labelledby="h-abs">
+<h2 id="h-abs">Abstract</h2>
+<p>Deriving the gradient by hand and checking the result against scikit-learn.</p>
+<p><b>Keywords:</b> <a class="bx" href="#">Machine learning</a></p>
+</section>
+
+<div class="one bd">
+<h2 class="s" id="s1"><span class="n">1</span>Setup</h2>
+<p>Let <i>X</i> be the <i>n</i> × <i>d</i> design matrix and <i>y</i> the vector of labels, each 0 or 1. The model predicts a probability <i>p</i> = <i>σ</i>(<i>Xw</i>) for every row, where <i>σ</i>(<i>z</i>) = 1 / (1 + <i>e</i><sup>−<i>z</i></sup>) is the logistic function and <i>w</i> holds the weights to learn.</p>
+<p>The loss is the mean negative log-likelihood of the labels under those probabilities.</p>
+
+<h2 class="s" id="s2"><span class="n">2</span>The gradient</h2>
+<p>Differentiating the loss with respect to <i>w</i> gives a short expression, because the derivative of <i>σ</i> cancels against the logarithm:</p>
+<div class="eq" id="eq1"><span></span><span>∇<i>L</i>(<i>w</i>) = <sup>1</sup>⁄<sub><i>n</i></sub> <i>X</i><sup>⊤</sup>(<i>σ</i>(<i>Xw</i>) − <i>y</i>)</span><span>(1)</span></div>
+<p style="text-indent: 0"><a class="bx" href="#lst1">Listing 1</a> implements <a class="bx" href="#eq1">Equation 1</a> with plain gradient descent.</p>
+
+<figure class="fig" id="lst1" style="margin-top: 16px">
+<pre class="lst"><i>1</i>def fit(X, y, lr=0.1, epochs=500):
+<i>2</i>    w = np.zeros(X.shape[1])
+<i>3</i>    for _ in range(epochs):
+<i>4</i>        w -= lr * X.T @ (sigmoid(X @ w) - y) / len(y)
+<i>5</i>    return w</pre>
+<figcaption>Listing 1: Gradient descent for logistic regression.</figcaption>
+</figure>
+
+<h2 class="s" id="s3"><span class="n">3</span>Checking against scikit-learn</h2>
+<p>[POST BODY FROM THE CMS]</p>
+<figure class="fig" style="margin-top: 16px">
+<div class="ph" style="aspect-ratio: 16 / 9">[IMAGE BLOCK FROM THE CMS]</div>
+<figcaption>Figure 1: [CAPTION]. Source: [SOURCE].</figcaption>
+</figure>
+
+<h2 class="s">References</h2>
+<ol class="refs">
+<li><span><a class="bx cite" href="#">1</a></span><span><a href="#"><b>NumPy-Only ML Algorithms.</b></a><sup>†</sup> The project this post belongs to. <i>Semester project</i>, 2025.</span></li>
+</ol>
+
+<nav class="pager" aria-label="Posts">
+<span>← Older: <a class="bx" href="#">Shooting the Milky Way With a Sony a6000</a></span>
+<span>Newer: <a class="bx" href="#">Running Proxmox on 16 GB of RAM</a> →</span>
+</nav>
+</div>
+</article>
+</main>
+
+<footer class="fn">
+<p><sup>*</sup> Built with Astro + Strapi, self-hosted on Proxmox. This page was last revised on [DATE].</p>
+<p><sup>†</sup> Placeholder post carried over from the earlier mockup. The sample text shows how maths, a listing and a figure are set.</p>
+<nav aria-label="Footer">
+<a class="bx" href="#">About the author</a>
+<a class="bx" href="#">Revision history</a>
+<a class="bx" href="#">Random page</a>
+<a class="bx" href="#">Links</a>
+<a class="bx url" href="https://github.com/Blazing-Falcon">GitHub</a>
+</nav>
+</footer>
+
+</div>
+</div>
+<script>
+// Mockup controls: the button switches theme; add ?links=colored to preview plain orange links.
+const root = document.querySelector('.pp');
+if (new URLSearchParams(location.search).get('links') === 'colored') root.dataset.links = 'colored';
+if (new URLSearchParams(location.search).get('theme') === 'light') root.dataset.theme = 'light';
+const btn = document.getElementById('theme');
+const sync = () => { btn.textContent = root.dataset.theme === 'dark' ? 'Light' : 'Dark'; };
+btn.addEventListener('click', () => { root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark'; sync(); });
+sync();
+</script>
+</body>
+</html>

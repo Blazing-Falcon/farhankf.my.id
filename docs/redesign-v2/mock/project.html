@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project page · farhankf v2 mockup</title>
+<!-- Mockup only. The real site must self-host these fonts; its CSP blocks external hosts. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libertinus+Serif:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libertinus+Mono&amp;display=swap">
+<link rel="stylesheet" href="paper.css">
+<style>html,body{margin:0} .pp{min-height:100vh}</style>
+</head>
+<body>
+<div class="pp" data-theme="dark" data-links="boxed">
+<div class="sheet">
+
+<header class="rh">
+<a class="wm" href="home.html">farhankf</a>
+<nav aria-label="Main">
+<a href="home.html">Home</a>
+<a href="#">About</a>
+<a href="project.html" aria-current="page">Projects</a>
+<a href="post.html">Blog</a>
+<a href="photography.html">Photography</a>
+</nav>
+<button type="button" id="theme">Light</button>
+</header>
+<p class="stamp">farhankf.my.id/projects/self-hosted-home-lab &nbsp; [Ongoing saga] &nbsp; 2025</p>
+
+<main>
+<article>
+<div class="tb">
+<h1 class="tt">Self-Hosted Home Lab</h1>
+<p class="au">Farhan Kurnia Febriansyah</p>
+<p class="dt sc">Preprint. An ongoing saga: details may change while the server keeps running without a case.</p>
+</div>
+
+<section class="abs" aria-labelledby="h-abs">
+<h2 id="h-abs">Abstract</h2>
+<p>Proxmox + TrueNAS SCALE on ZFS, exposed through Tailscale and Cloudflare Tunnel behind CGNAT. The infrastructure this site runs on.</p>
+</section>
+
+<div class="one bd">
+<figure class="fig wide">
+<img src="img/homelab.webp" alt="A motherboard running on top of its cardboard box, memory LEDs lit green" style="width: 100%; aspect-ratio: 2 / 1; object-fit: cover">
+<figcaption>Figure 1: The apparatus.</figcaption>
+</figure>
+
+<div style="max-width: 470px; margin: 36px auto 0">
+<p class="capn">Table 1: Specification.</p>
+<table class="bt">
+<thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>Year</td><td>2025</td></tr>
+<tr><td>Status</td><td>Ongoing saga</td></tr>
+<tr><td>Uptime</td><td>99% (i hope)</td></tr>
+<tr><td>Stack</td><td>Proxmox, TrueNAS, ZFS, Docker, Tailscale, Cloudflare Tunnel</td></tr>
+<tr><td>Case</td><td>none</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2 class="s"><span class="n">1</span>Introduction</h2>
+<p>The lab runs on a Intel machine with Proxmox as the hypervisor, hosting a mix of Linux VMs and containers. Storage lives on TrueNAS SCALE with a ZFS pool.</p>
+<p>Since the home ISP connection sits behind CGNAT, inbound access was never going to work through simple port forwarding. Tailscale handles private access to internal services, while a Cloudflare Tunnel exposes the public-facing pieces, including this very site, without opening a single inbound port on the router.</p>
+
+<h2 class="s"><span class="n">2</span>Ongoing work</h2>
+<p>Ongoing work includes tuning linux to work better on low memory situation (ram is expensive man).</p>
+<p>Also this server is literally caseless, i didn't bother to buy another case xD</p>
+
+<h2 class="s"><span class="n">3</span>Gallery</h2>
+<figure class="fig wide">
+<div class="jr stack">
+<div style="flex: 1 1 0"><div class="ph">[PROJECT PHOTO]</div><p class="sub">(a)</p></div>
+<div style="flex: 1 1 0"><div class="ph">[PROJECT PHOTO]</div><p class="sub">(b)</p></div>
+<div style="flex: 1 1 0"><div class="ph">[PROJECT PHOTO]</div><p class="sub">(c)</p></div>
+</div>
+<figcaption>Figure 2: [GALLERY CAPTIONS FROM THE CMS].</figcaption>
+</figure>
+
+<h2 class="s">References</h2>
+<ol class="refs">
+<li><span><a class="bx cite" href="#">1</a></span><span><a href="#"><b>Farhan Kurnia Febriansyah.</b></a> About the author.</span></li>
+<li><span><a class="bx cite" href="#">2</a></span><span><a href="#"><b>Revision history of this site.</b></a></span></li>
+</ol>
+</div>
+</article>
+</main>
+
+<footer class="fn">
+<p><sup>*</sup> Built with Astro + Strapi, self-hosted on Proxmox. This page was last revised on [DATE].</p>
+<nav aria-label="Footer">
+<a class="bx" href="#">About the author</a>
+<a class="bx" href="#">Revision history</a>
+<a class="bx" href="#">Random page</a>
+<a class="bx" href="#">Links</a>
+<a class="bx url" href="https://github.com/Blazing-Falcon">GitHub</a>
+</nav>
+</footer>
+
+</div>
+</div>
+<script>
+// Mockup controls: the button switches theme; add ?links=colored to preview plain orange links.
+const root = document.querySelector('.pp');
+if (new URLSearchParams(location.search).get('links') === 'colored') root.dataset.links = 'colored';
+if (new URLSearchParams(location.search).get('theme') === 'light') root.dataset.theme = 'light';
+const btn = document.getElementById('theme');
+const sync = () => { btn.textContent = root.dataset.theme === 'dark' ? 'Light' : 'Dark'; };
+btn.addEventListener('click', () => { root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark'; sync(); });
+sync();
+</script>
+</body>
+</html>
