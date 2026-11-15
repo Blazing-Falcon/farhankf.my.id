@@ -25,6 +25,15 @@ export default defineConfig({
     inlineStylesheets: 'never'
   },
 
+  vite: {
+    build: {
+      // Vite turns small assets into data: URIs inside the CSS. The policy
+      // below has no font-src, so default-src 'self' blocks a data: font —
+      // this happened to KaTeX's small symbol fonts. Emit every asset as a file.
+      assetsInlineLimit: 0
+    }
+  },
+
   security: {
     // Hash-based CSP: Astro emits sha256 hashes for exactly the inline
     // scripts it renders, so injected <script> (e.g. via CMS content) won't
