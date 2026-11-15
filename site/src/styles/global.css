@@ -89,9 +89,12 @@ button {
   font-size: 0.84em;
 }
 
+/* The self-hosted font files have no small-cap glyphs, and the ones a browser
+   synthesises look thin. Labels are set in regular capitals, a size down. */
 .sc {
-  font-variant-caps: small-caps;
-  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
 }
 
 /* Page root: the container the two layout breakpoints query. */
@@ -121,8 +124,9 @@ button {
   gap: 0 28px;
   border-bottom: 1px solid var(--bg3);
   padding-top: 12px;
-  font-variant-caps: small-caps;
-  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 15px;
+  letter-spacing: 0.08em;
 }
 
 .rh a,
@@ -156,8 +160,8 @@ button {
 }
 
 .rh button {
-  font-variant-caps: small-caps;
-  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   background: none;
   border: 0;
   cursor: pointer;
@@ -522,7 +526,7 @@ h2.s:not(.nonum)::before,
 
 /* Parameter names stay on one line where the table has room. */
 @container (min-width: 761px) {
-  .bt td:first-child {
+  .narrow .bt td:first-child {
     white-space: nowrap;
   }
 }
@@ -637,8 +641,9 @@ h2.s:not(.nonum)::before,
 .preprint {
   font-size: 17.5px;
   margin: 12px 0 0;
-  font-variant-caps: small-caps;
-  letter-spacing: 0.05em;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 /* Footer set as footnotes */
@@ -696,30 +701,11 @@ h2.s:not(.nonum)::before,
   }
 }
 
-@container (max-width: 760px) {
-  .sheet {
-    padding: 0 16px 56px;
-    font-size: 18px;
-  }
-
-  .rh {
-    letter-spacing: 0.03em;
-  }
-
-  .rh nav {
-    order: 3;
-    width: 100%;
-    gap: 0 13px;
-  }
-
-  .tb {
-    padding-top: 28px;
-  }
-
+/* Two columns need room for the facts table beside the portrait. */
+@container (max-width: 900px) {
   .cols {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: none;
-    margin-top: 32px;
   }
 
   .cl,
@@ -731,6 +717,32 @@ h2.s:not(.nonum)::before,
 
   .cl > h2.s:first-child {
     margin-top: 1.5em;
+  }
+}
+
+@container (max-width: 760px) {
+  .sheet {
+    padding: 0 16px 56px;
+    font-size: 18px;
+  }
+
+  .rh {
+    font-size: 14px;
+    letter-spacing: 0.05em;
+  }
+
+  .rh nav {
+    order: 3;
+    width: 100%;
+    gap: 0 14px;
+  }
+
+  .tb {
+    padding-top: 28px;
+  }
+
+  .cols {
+    margin-top: 32px;
   }
 
   .am {
