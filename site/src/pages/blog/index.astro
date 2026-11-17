@@ -82,13 +82,12 @@ const displayPosts =
 
 <Layout
   title="Blog"
-  description="Technical essays, architectural breakdowns, UI experiments, and notes on software engineering."
+  description="Random write-ups about issues I faced, plus random thoughts in my mind."
   revised={latest(posts.map((post) => post.updatedAt))}
 >
   <TitleBlock title="Blog" />
   <Abstract>
-    Technical essays, architectural breakdowns, system design retrospectives, and occasional feline
-    observations.
+    Random write-ups about issues I faced, plus random thoughts in my mind.
     <CategoryKeywords slot="keywords" base="/blog" categories={displayCategories} active={currentCategory} />
   </Abstract>
   {

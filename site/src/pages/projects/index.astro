@@ -20,13 +20,12 @@ try {
 
 <Layout
   title="Projects"
-  description="Machine learning and infrastructure projects."
+  description="Random things I have built, newest first."
   revised={latest(projects.map((project) => project.updatedAt))}
 >
   <TitleBlock title="Projects" />
   <Abstract>
-    Everything on the lab bench, newest first: ML pipelines, from-scratch math, and the
-    infrastructure that keeps it all humming at 2am.
+    Random things I have built, newest first.
   </Abstract>
   {
     hadError || projects.length === 0 ? (
